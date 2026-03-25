@@ -1,6 +1,8 @@
 export const fetchData = async (data) => {
     try {
-      const res = await fetch(`https://websitebackend.amphlo.com/${data}`);
+      const res = await fetch(`https://frontbackend.amphlo.com/${data}`);
+      // const res = await fetch(`http://192.168.1.77:3001/${data}`);
+
 
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -19,7 +21,7 @@ export const fetchData = async (data) => {
 
   export const postData = async (imageUrl, data) => {
   try {
-    const res = await fetch(`https://websitebackend.amphlo.com/uploads/${imageUrl}`, {
+    const res = await fetch(`https://frontbackend.amphlo.com/uploads/${imageUrl}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -38,4 +40,3 @@ export const fetchData = async (data) => {
     throw error;
   }
 };
-aman

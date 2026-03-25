@@ -1,203 +1,715 @@
-import React from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import { notFound } from 'next/navigation'
+import React from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { notFound } from "next/navigation";
+import flag from "../../../../public/england.png";
 
 const countries = [
-  { 
-    id: 'usa', 
-    name: 'United States', 
-    description: 'The United States offers diverse educational opportunities with over 4,000 universities and colleges. Known for academic excellence, research opportunities, and cultural diversity. Home to world-leading institutions like Harvard, MIT, and Stanford, attracting students from around the globe.',
-    image: '/consult.jpg',
-    states: ['California', 'Texas', 'New York', 'Florida', 'Illinois', 'Pennsylvania', 'Ohio', 'Georgia'],
+  {
+    id: "usa",
+    name: "United States",
+    description:
+      "The United States offers diverse educational opportunities with over 4,000 universities and colleges. Known for academic excellence, research opportunities, and cultural diversity. Home to world-leading institutions like Harvard, MIT, and Stanford, attracting students from around the globe.",
+    image: "/consult.jpg",
+    states: [
+      "California",
+      "Texas",
+      "New York",
+      "Florida",
+      "Illinois",
+      "Pennsylvania",
+      "Ohio",
+      "Georgia",
+    ],
     universities: [
-      { id: 'harvard', name: 'Harvard University', location: 'Massachusetts', ranking: 'Ivy League', programs: 120, established: 1636, students: 21000 },
-      { id: 'stanford', name: 'Stanford University', location: 'California', ranking: 'Top 10', programs: 98, established: 1885, students: 17000 },
-      { id: 'mit', name: 'Massachusetts Institute of Technology', location: 'Massachusetts', ranking: 'Ivy League', programs: 85, established: 1861, students: 11500 },
-      { id: 'ucla', name: 'University of California, Los Angeles', location: 'California', ranking: 'Public Ivy', programs: 130, established: 1919, students: 45000 },
-      { id: 'columbia', name: 'Columbia University', location: 'New York', ranking: 'Ivy League', programs: 110, established: 1754, students: 33000 },
-      { id: 'uchicago', name: 'University of Chicago', location: 'Illinois', ranking: 'Top 20', programs: 95, established: 1890, students: 16000 }
-    ]
+      {
+        id: "harvard",
+        name: "Harvard University",
+        location: "Massachusetts",
+        ranking: "Ivy League",
+        programs: 120,
+        established: 1636,
+        students: 21000,
+      },
+      {
+        id: "stanford",
+        name: "Stanford University",
+        location: "California",
+        ranking: "Top 10",
+        programs: 98,
+        established: 1885,
+        students: 17000,
+      },
+      {
+        id: "mit",
+        name: "Massachusetts Institute of Technology",
+        location: "Massachusetts",
+        ranking: "Ivy League",
+        programs: 85,
+        established: 1861,
+        students: 11500,
+      },
+      {
+        id: "ucla",
+        name: "University of California, Los Angeles",
+        location: "California",
+        ranking: "Public Ivy",
+        programs: 130,
+        established: 1919,
+        students: 45000,
+      },
+      {
+        id: "columbia",
+        name: "Columbia University",
+        location: "New York",
+        ranking: "Ivy League",
+        programs: 110,
+        established: 1754,
+        students: 33000,
+      },
+      {
+        id: "uchicago",
+        name: "University of Chicago",
+        location: "Illinois",
+        ranking: "Top 20",
+        programs: 95,
+        established: 1890,
+        students: 16000,
+      },
+    ],
   },
-  { 
-    id: 'uk', 
-    name: 'United Kingdom', 
-    description: 'The UK is home to some of the world\'s oldest and most prestigious universities, including Oxford and Cambridge. Offers quality education with a rich cultural experience, shorter course durations, and excellent research opportunities.',
-    image: '/consult.jpg',
-    states: ['England', 'Scotland', 'Wales', 'Northern Ireland', 'London', 'Manchester', 'Birmingham', 'Liverpool'],
+  {
+    id: "uk",
+    name: "United Kingdom",
+    description:
+      "The UK is home to some of the world's oldest and most prestigious universities, including Oxford and Cambridge. Offers quality education with a rich cultural experience, shorter course durations, and excellent research opportunities.",
+    image: "/consult.jpg",
+    states: [
+      "England",
+      "Scotland",
+      "Wales",
+      "Northern Ireland",
+      "London",
+      "Manchester",
+      "Birmingham",
+      "Liverpool",
+    ],
     universities: [
-      { id: 'oxford', name: 'University of Oxford', location: 'England', ranking: 'Russell Group', programs: 250, established: 1096, students: 25000 },
-      { id: 'cambridge', name: 'University of Cambridge', location: 'England', ranking: 'Russell Group', programs: 230, established: 1209, students: 23000 },
-      { id: 'imperial', name: 'Imperial College London', location: 'London', ranking: 'Russell Group', programs: 110, established: 1907, students: 20000 },
-      { id: 'ucl', name: 'University College London', location: 'London', ranking: 'Russell Group', programs: 190, established: 1826, students: 42000 },
-      { id: 'edinburgh', name: 'University of Edinburgh', location: 'Scotland', ranking: 'Russell Group', programs: 180, established: 1582, students: 35000 },
-      { id: 'manchester', name: 'University of Manchester', location: 'England', ranking: 'Russell Group', programs: 200, established: 1824, students: 40000 }
-    ]
+      {
+        id: "oxford",
+        name: "University of Oxford",
+        location: "England",
+        ranking: "Russell Group",
+        programs: 250,
+        established: 1096,
+        students: 25000,
+      },
+      {
+        id: "cambridge",
+        name: "University of Cambridge",
+        location: "England",
+        ranking: "Russell Group",
+        programs: 230,
+        established: 1209,
+        students: 23000,
+      },
+      {
+        id: "imperial",
+        name: "Imperial College London",
+        location: "London",
+        ranking: "Russell Group",
+        programs: 110,
+        established: 1907,
+        students: 20000,
+      },
+      {
+        id: "ucl",
+        name: "University College London",
+        location: "London",
+        ranking: "Russell Group",
+        programs: 190,
+        established: 1826,
+        students: 42000,
+      },
+      {
+        id: "edinburgh",
+        name: "University of Edinburgh",
+        location: "Scotland",
+        ranking: "Russell Group",
+        programs: 180,
+        established: 1582,
+        students: 35000,
+      },
+      {
+        id: "manchester",
+        name: "University of Manchester",
+        location: "England",
+        ranking: "Russell Group",
+        programs: 200,
+        established: 1824,
+        students: 40000,
+      },
+    ],
   },
-  { 
-    id: 'canada', 
-    name: 'Canada', 
-    description: 'Canada is known for its high-quality education, multicultural society, and stunning natural landscapes. Offers excellent post-study work opportunities, affordable tuition, and pathways to permanent residence for international students.',
-    image: '/consult.jpg',
-    states: ['Ontario', 'British Columbia', 'Quebec', 'Alberta', 'Manitoba', 'Saskatchewan', 'Nova Scotia', 'New Brunswick'],
+  {
+    id: "canada",
+    name: "Canada",
+    description:
+      "Canada is known for its high-quality education, multicultural society, and stunning natural landscapes. Offers excellent post-study work opportunities, affordable tuition, and pathways to permanent residence for international students.",
+    image: "/consult.jpg",
+    states: [
+      "Ontario",
+      "British Columbia",
+      "Quebec",
+      "Alberta",
+      "Manitoba",
+      "Saskatchewan",
+      "Nova Scotia",
+      "New Brunswick",
+    ],
     universities: [
-      { id: 'toronto', name: 'University of Toronto', location: 'Ontario', ranking: 'U15', programs: 150, established: 1827, students: 88000 },
-      { id: 'ubc', name: 'University of British Columbia', location: 'British Columbia', ranking: 'U15', programs: 140, established: 1908, students: 66000 },
-      { id: 'mcgill', name: 'McGill University', location: 'Quebec', ranking: 'U15', programs: 130, established: 1821, students: 40000 },
-      { id: 'mcmaster', name: 'McMaster University', location: 'Ontario', ranking: 'U15', programs: 110, established: 1887, students: 33000 },
-      { id: 'alberta', name: 'University of Alberta', location: 'Alberta', ranking: 'U15', programs: 120, established: 1908, students: 40000 },
-      { id: 'montreal', name: 'Université de Montréal', location: 'Quebec', ranking: 'U15', programs: 100, established: 1878, students: 67000 }
-    ]
+      {
+        id: "toronto",
+        name: "University of Toronto",
+        location: "Ontario",
+        ranking: "U15",
+        programs: 150,
+        established: 1827,
+        students: 88000,
+      },
+      {
+        id: "ubc",
+        name: "University of British Columbia",
+        location: "British Columbia",
+        ranking: "U15",
+        programs: 140,
+        established: 1908,
+        students: 66000,
+      },
+      {
+        id: "mcgill",
+        name: "McGill University",
+        location: "Quebec",
+        ranking: "U15",
+        programs: 130,
+        established: 1821,
+        students: 40000,
+      },
+      {
+        id: "mcmaster",
+        name: "McMaster University",
+        location: "Ontario",
+        ranking: "U15",
+        programs: 110,
+        established: 1887,
+        students: 33000,
+      },
+      {
+        id: "alberta",
+        name: "University of Alberta",
+        location: "Alberta",
+        ranking: "U15",
+        programs: 120,
+        established: 1908,
+        students: 40000,
+      },
+      {
+        id: "montreal",
+        name: "Université de Montréal",
+        location: "Quebec",
+        ranking: "U15",
+        programs: 100,
+        established: 1878,
+        students: 67000,
+      },
+    ],
   },
-  { 
-    id: 'australia', 
-    name: 'Australia', 
-    description: 'Australia offers world-class education with a relaxed lifestyle and beautiful beaches. Known for research excellence, innovative teaching methods, and diverse cultural experiences. Home to the prestigious Group of Eight universities.',
-    image: '/consult.jpg',
-    states: ['New South Wales', 'Victoria', 'Queensland', 'Western Australia', 'South Australia', 'Tasmania', 'Canberra', 'Northern Territory'],
+  {
+    id: "australia",
+    name: "Australia",
+    description:
+      "Australia offers world-class education with a relaxed lifestyle and beautiful beaches. Known for research excellence, innovative teaching methods, and diverse cultural experiences. Home to the prestigious Group of Eight universities.",
+    image: "/consult.jpg",
+    states: [
+      "New South Wales",
+      "Victoria",
+      "Queensland",
+      "Western Australia",
+      "South Australia",
+      "Tasmania",
+      "Canberra",
+      "Northern Territory",
+    ],
     universities: [
-      { id: 'melbourne', name: 'University of Melbourne', location: 'Victoria', ranking: 'Group of Eight', programs: 160, established: 1853, students: 52000 },
-      { id: 'sydney', name: 'University of Sydney', location: 'New South Wales', ranking: 'Group of Eight', programs: 150, established: 1850, students: 73000 },
-      { id: 'anu', name: 'Australian National University', location: 'Canberra', ranking: 'Group of Eight', programs: 120, established: 1946, students: 24000 },
-      { id: 'unsw', name: 'UNSW Sydney', location: 'New South Wales', ranking: 'Group of Eight', programs: 140, established: 1949, students: 63000 },
-      { id: 'monash', name: 'Monash University', location: 'Victoria', ranking: 'Group of Eight', programs: 145, established: 1958, students: 86000 },
-      { id: 'queensland', name: 'University of Queensland', location: 'Queensland', ranking: 'Group of Eight', programs: 130, established: 1909, students: 55000 }
-    ]
+      {
+        id: "melbourne",
+        name: "University of Melbourne",
+        location: "Victoria",
+        ranking: "Group of Eight",
+        programs: 160,
+        established: 1853,
+        students: 52000,
+      },
+      {
+        id: "sydney",
+        name: "University of Sydney",
+        location: "New South Wales",
+        ranking: "Group of Eight",
+        programs: 150,
+        established: 1850,
+        students: 73000,
+      },
+      {
+        id: "anu",
+        name: "Australian National University",
+        location: "Canberra",
+        ranking: "Group of Eight",
+        programs: 120,
+        established: 1946,
+        students: 24000,
+      },
+      {
+        id: "unsw",
+        name: "UNSW Sydney",
+        location: "New South Wales",
+        ranking: "Group of Eight",
+        programs: 140,
+        established: 1949,
+        students: 63000,
+      },
+      {
+        id: "monash",
+        name: "Monash University",
+        location: "Victoria",
+        ranking: "Group of Eight",
+        programs: 145,
+        established: 1958,
+        students: 86000,
+      },
+      {
+        id: "queensland",
+        name: "University of Queensland",
+        location: "Queensland",
+        ranking: "Group of Eight",
+        programs: 130,
+        established: 1909,
+        students: 55000,
+      },
+    ],
   },
-  { 
-    id: 'india', 
-    name: 'India', 
-    description: 'India combines ancient educational traditions with modern institutions like IITs and IIMs. Offers affordable education, diverse cultures, and growing opportunities in technology and research. A land of rich heritage and innovation.',
-    image: '/consult.jpg',
-    states: ['Maharashtra', 'Uttar Pradesh', 'Tamil Nadu', 'Karnataka', 'Gujarat', 'Rajasthan', 'West Bengal', 'Delhi'],
+  {
+    id: "india",
+    name: "India",
+    description:
+      "India combines ancient educational traditions with modern institutions like IITs and IIMs. Offers affordable education, diverse cultures, and growing opportunities in technology and research. A land of rich heritage and innovation.",
+    image: "/consult.jpg",
+    states: [
+      "Maharashtra",
+      "Uttar Pradesh",
+      "Tamil Nadu",
+      "Karnataka",
+      "Gujarat",
+      "Rajasthan",
+      "West Bengal",
+      "Delhi",
+    ],
     universities: [
-      { id: 'iitb', name: 'IIT Bombay', location: 'Maharashtra', ranking: 'IIT', programs: 50, established: 1958, students: 12000 },
-      { id: 'iitd', name: 'IIT Delhi', location: 'Delhi', ranking: 'IIT', programs: 48, established: 1961, students: 11000 },
-      { id: 'iimah', name: 'IIM Ahmedabad', location: 'Gujarat', ranking: 'IIM', programs: 25, established: 1961, students: 8000 },
-      { id: 'iisc', name: 'IISc Bangalore', location: 'Karnataka', ranking: 'Institute of Eminence', programs: 60, established: 1909, students: 5000 },
-      { id: 'du', name: 'University of Delhi', location: 'Delhi', ranking: 'Central University', programs: 300, established: 1922, students: 60000 }
-    ]
+      {
+        id: "iitb",
+        name: "IIT Bombay",
+        location: "Maharashtra",
+        ranking: "IIT",
+        programs: 50,
+        established: 1958,
+        students: 12000,
+      },
+      {
+        id: "iitd",
+        name: "IIT Delhi",
+        location: "Delhi",
+        ranking: "IIT",
+        programs: 48,
+        established: 1961,
+        students: 11000,
+      },
+      {
+        id: "iimah",
+        name: "IIM Ahmedabad",
+        location: "Gujarat",
+        ranking: "IIM",
+        programs: 25,
+        established: 1961,
+        students: 8000,
+      },
+      {
+        id: "iisc",
+        name: "IISc Bangalore",
+        location: "Karnataka",
+        ranking: "Institute of Eminence",
+        programs: 60,
+        established: 1909,
+        students: 5000,
+      },
+      {
+        id: "du",
+        name: "University of Delhi",
+        location: "Delhi",
+        ranking: "Central University",
+        programs: 300,
+        established: 1922,
+        students: 60000,
+      },
+    ],
   },
-  { 
-    id: 'germany', 
-    name: 'Germany', 
-    description: 'Germany is renowned for its engineering and technical education, with low or no tuition fees at public universities. Strong focus on research, industry connections, and innovation. Perfect for students seeking quality education.',
-    image: '/consult.jpg',
-    states: ['Bavaria', 'Baden-Württemberg', 'North Rhine-Westphalia', 'Berlin', 'Hamburg', 'Hesse', 'Saxony', 'Lower Saxony'],
+  {
+    id: "germany",
+    name: "Germany",
+    description:
+      "Germany is renowned for its engineering and technical education, with low or no tuition fees at public universities. Strong focus on research, industry connections, and innovation. Perfect for students seeking quality education.",
+    image: "/consult.jpg",
+    states: [
+      "Bavaria",
+      "Baden-Württemberg",
+      "North Rhine-Westphalia",
+      "Berlin",
+      "Hamburg",
+      "Hesse",
+      "Saxony",
+      "Lower Saxony",
+    ],
     universities: [
-      { id: 'tum', name: 'Technical University of Munich', location: 'Bavaria', ranking: 'TU9', programs: 80, established: 1868, students: 48000 },
-      { id: 'lmu', name: 'Ludwig Maximilian University', location: 'Bavaria', ranking: 'U15', programs: 90, established: 1472, students: 52000 },
-      { id: 'heidelberg', name: 'Heidelberg University', location: 'Baden-Württemberg', ranking: 'U15', programs: 100, established: 1386, students: 28000 },
-      { id: 'berlin', name: 'Humboldt University of Berlin', location: 'Berlin', ranking: 'U15', programs: 95, established: 1810, students: 33000 },
-      { id: 'karlsruhe', name: 'Karlsruhe Institute of Technology', location: 'Baden-Württemberg', ranking: 'TU9', programs: 85, established: 1825, students: 24000 }
-    ]
+      {
+        id: "tum",
+        name: "Technical University of Munich",
+        location: "Bavaria",
+        ranking: "TU9",
+        programs: 80,
+        established: 1868,
+        students: 48000,
+      },
+      {
+        id: "lmu",
+        name: "Ludwig Maximilian University",
+        location: "Bavaria",
+        ranking: "U15",
+        programs: 90,
+        established: 1472,
+        students: 52000,
+      },
+      {
+        id: "heidelberg",
+        name: "Heidelberg University",
+        location: "Baden-Württemberg",
+        ranking: "U15",
+        programs: 100,
+        established: 1386,
+        students: 28000,
+      },
+      {
+        id: "berlin",
+        name: "Humboldt University of Berlin",
+        location: "Berlin",
+        ranking: "U15",
+        programs: 95,
+        established: 1810,
+        students: 33000,
+      },
+      {
+        id: "karlsruhe",
+        name: "Karlsruhe Institute of Technology",
+        location: "Baden-Württemberg",
+        ranking: "TU9",
+        programs: 85,
+        established: 1825,
+        students: 24000,
+      },
+    ],
   },
-  { 
-    id: 'france', 
-    name: 'France', 
-    description: 'France offers excellence in arts, fashion, business, and engineering. Known for prestigious Grandes Écoles, affordable education, rich cultural experiences, and world-renowned cuisine. Study in the heart of Europe.',
-    image: '/consult.jpg',
-    states: ['Île-de-France', 'Auvergne-Rhône-Alpes', 'Nouvelle-Aquitaine', 'Occitanie', 'Hauts-de-France', 'Provence', 'Brittany', 'Normandy'],
+  {
+    id: "france",
+    name: "France",
+    description:
+      "France offers excellence in arts, fashion, business, and engineering. Known for prestigious Grandes Écoles, affordable education, rich cultural experiences, and world-renowned cuisine. Study in the heart of Europe.",
+    image: "/consult.jpg",
+    states: [
+      "Île-de-France",
+      "Auvergne-Rhône-Alpes",
+      "Nouvelle-Aquitaine",
+      "Occitanie",
+      "Hauts-de-France",
+      "Provence",
+      "Brittany",
+      "Normandy",
+    ],
     universities: [
-      { id: 'sorbonne', name: 'Sorbonne University', location: 'Île-de-France', ranking: 'Grande École', programs: 120, established: 1257, students: 55000 },
-      { id: 'polytechnique', name: 'École Polytechnique', location: 'Île-de-France', ranking: 'Grande École', programs: 40, established: 1794, students: 5000 },
-      { id: 'hec', name: 'HEC Paris', location: 'Île-de-France', ranking: 'Grande École', programs: 35, established: 1881, students: 4500 }
-    ]
+      {
+        id: "sorbonne",
+        name: "Sorbonne University",
+        location: "Île-de-France",
+        ranking: "Grande École",
+        programs: 120,
+        established: 1257,
+        students: 55000,
+      },
+      {
+        id: "polytechnique",
+        name: "École Polytechnique",
+        location: "Île-de-France",
+        ranking: "Grande École",
+        programs: 40,
+        established: 1794,
+        students: 5000,
+      },
+      {
+        id: "hec",
+        name: "HEC Paris",
+        location: "Île-de-France",
+        ranking: "Grande École",
+        programs: 35,
+        established: 1881,
+        students: 4500,
+      },
+    ],
   },
-  { 
-    id: 'japan', 
-    name: 'Japan', 
-    description: 'Japan combines cutting-edge technology with deep cultural traditions. Offers world-class education in engineering, robotics, and business. Experience unique culture, advanced research facilities, and safe environment.',
-    image: '/consult.jpg',
-    states: ['Tokyo', 'Osaka', 'Kyoto', 'Hokkaido', 'Fukuoka', 'Aichi', 'Hiroshima', 'Okinawa'],
+  {
+    id: "japan",
+    name: "Japan",
+    description:
+      "Japan combines cutting-edge technology with deep cultural traditions. Offers world-class education in engineering, robotics, and business. Experience unique culture, advanced research facilities, and safe environment.",
+    image: "/consult.jpg",
+    states: [
+      "Tokyo",
+      "Osaka",
+      "Kyoto",
+      "Hokkaido",
+      "Fukuoka",
+      "Aichi",
+      "Hiroshima",
+      "Okinawa",
+    ],
     universities: [
-      { id: 'tokyo', name: 'University of Tokyo', location: 'Tokyo', ranking: 'National Seven', programs: 110, established: 1877, students: 28000 },
-      { id: 'kyoto', name: 'Kyoto University', location: 'Kyoto', ranking: 'National Seven', programs: 100, established: 1897, students: 22000 },
-      { id: 'osaka', name: 'Osaka University', location: 'Osaka', ranking: 'National Seven', programs: 95, established: 1931, students: 23000 }
-    ]
+      {
+        id: "tokyo",
+        name: "University of Tokyo",
+        location: "Tokyo",
+        ranking: "National Seven",
+        programs: 110,
+        established: 1877,
+        students: 28000,
+      },
+      {
+        id: "kyoto",
+        name: "Kyoto University",
+        location: "Kyoto",
+        ranking: "National Seven",
+        programs: 100,
+        established: 1897,
+        students: 22000,
+      },
+      {
+        id: "osaka",
+        name: "Osaka University",
+        location: "Osaka",
+        ranking: "National Seven",
+        programs: 95,
+        established: 1931,
+        students: 23000,
+      },
+    ],
   },
-  { 
-    id: 'brazil', 
-    name: 'Brazil', 
-    description: 'Brazil offers vibrant cultural experiences alongside growing educational opportunities. Known for research in environmental sciences, engineering, and medicine. Experience the energy of South America\'s largest nation.',
-    image: '/consult.jpg',
-    states: ['São Paulo', 'Rio de Janeiro', 'Minas Gerais', 'Bahia', 'Rio Grande do Sul', 'Paraná', 'Pernambuco', 'Amazonas'],
+  {
+    id: "brazil",
+    name: "Brazil",
+    description:
+      "Brazil offers vibrant cultural experiences alongside growing educational opportunities. Known for research in environmental sciences, engineering, and medicine. Experience the energy of South America's largest nation.",
+    image: "/consult.jpg",
+    states: [
+      "São Paulo",
+      "Rio de Janeiro",
+      "Minas Gerais",
+      "Bahia",
+      "Rio Grande do Sul",
+      "Paraná",
+      "Pernambuco",
+      "Amazonas",
+    ],
     universities: [
-      { id: 'usp', name: 'University of São Paulo', location: 'São Paulo', ranking: 'Top Brazilian', programs: 200, established: 1934, students: 90000 },
-      { id: 'unicamp', name: 'University of Campinas', location: 'São Paulo', ranking: 'Top Brazilian', programs: 80, established: 1966, students: 35000 },
-      { id: 'ufrj', name: 'Federal University of Rio de Janeiro', location: 'Rio de Janeiro', ranking: 'Federal', programs: 150, established: 1920, students: 67000 }
-    ]
+      {
+        id: "usp",
+        name: "University of São Paulo",
+        location: "São Paulo",
+        ranking: "Top Brazilian",
+        programs: 200,
+        established: 1934,
+        students: 90000,
+      },
+      {
+        id: "unicamp",
+        name: "University of Campinas",
+        location: "São Paulo",
+        ranking: "Top Brazilian",
+        programs: 80,
+        established: 1966,
+        students: 35000,
+      },
+      {
+        id: "ufrj",
+        name: "Federal University of Rio de Janeiro",
+        location: "Rio de Janeiro",
+        ranking: "Federal",
+        programs: 150,
+        established: 1920,
+        students: 67000,
+      },
+    ],
   },
-  { 
-    id: 'uae', 
-    name: 'United Arab Emirates', 
-    description: 'The UAE is a rapidly growing education hub with world-class facilities and international branch campuses. Offers unique opportunities in business, engineering, and hospitality. Experience luxury and innovation.',
-    image: '/consult.jpg',
-    states: ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Ras Al Khaimah', 'Fujairah', 'Umm Al Quwain', 'Al Ain'],
+  {
+    id: "uae",
+    name: "United Arab Emirates",
+    description:
+      "The UAE is a rapidly growing education hub with world-class facilities and international branch campuses. Offers unique opportunities in business, engineering, and hospitality. Experience luxury and innovation.",
+    image: "/consult.jpg",
+    states: [
+      "Dubai",
+      "Abu Dhabi",
+      "Sharjah",
+      "Ajman",
+      "Ras Al Khaimah",
+      "Fujairah",
+      "Umm Al Quwain",
+      "Al Ain",
+    ],
     universities: [
-      { id: 'nyuad', name: 'NYU Abu Dhabi', location: 'Abu Dhabi', ranking: 'Top International', programs: 45, established: 2010, students: 2000 },
-      { id: 'uaeu', name: 'UAE University', location: 'Al Ain', ranking: 'National', programs: 90, established: 1976, students: 14000 },
-      { id: 'aus', name: 'American University of Sharjah', location: 'Sharjah', ranking: 'Top Regional', programs: 60, established: 1997, students: 6000 }
-    ]
+      {
+        id: "nyuad",
+        name: "NYU Abu Dhabi",
+        location: "Abu Dhabi",
+        ranking: "Top International",
+        programs: 45,
+        established: 2010,
+        students: 2000,
+      },
+      {
+        id: "uaeu",
+        name: "UAE University",
+        location: "Al Ain",
+        ranking: "National",
+        programs: 90,
+        established: 1976,
+        students: 14000,
+      },
+      {
+        id: "aus",
+        name: "American University of Sharjah",
+        location: "Sharjah",
+        ranking: "Top Regional",
+        programs: 60,
+        established: 1997,
+        students: 6000,
+      },
+    ],
   },
-  { 
-    id: 'new-zealand', 
-    name: 'New Zealand', 
-    description: 'New Zealand offers high-quality education in a safe, picturesque environment. Known for research-intensive universities, excellent work-life balance, and breathtaking landscapes. Perfect for nature lovers.',
-    image: '/consult.jpg',
-    states: ['Auckland', 'Wellington', 'Canterbury', 'Waikato', 'Otago', 'Bay of Plenty', 'Northland', 'Southland'],
+  {
+    id: "new-zealand",
+    name: "New Zealand",
+    description:
+      "New Zealand offers high-quality education in a safe, picturesque environment. Known for research-intensive universities, excellent work-life balance, and breathtaking landscapes. Perfect for nature lovers.",
+    image: "/consult.jpg",
+    states: [
+      "Auckland",
+      "Wellington",
+      "Canterbury",
+      "Waikato",
+      "Otago",
+      "Bay of Plenty",
+      "Northland",
+      "Southland",
+    ],
     universities: [
-      { id: 'auckland', name: 'University of Auckland', location: 'Auckland', ranking: 'Group of Eight', programs: 120, established: 1883, students: 40000 },
-      { id: 'otago', name: 'University of Otago', location: 'Otago', ranking: 'Group of Eight', programs: 100, established: 1869, students: 21000 },
-      { id: 'canterbury', name: 'University of Canterbury', location: 'Canterbury', ranking: 'Group of Eight', programs: 85, established: 1873, students: 18000 }
-    ]
+      {
+        id: "auckland",
+        name: "University of Auckland",
+        location: "Auckland",
+        ranking: "Group of Eight",
+        programs: 120,
+        established: 1883,
+        students: 40000,
+      },
+      {
+        id: "otago",
+        name: "University of Otago",
+        location: "Otago",
+        ranking: "Group of Eight",
+        programs: 100,
+        established: 1869,
+        students: 21000,
+      },
+      {
+        id: "canterbury",
+        name: "University of Canterbury",
+        location: "Canterbury",
+        ranking: "Group of Eight",
+        programs: 85,
+        established: 1873,
+        students: 18000,
+      },
+    ],
   },
-]
+];
 
 export async function generateStaticParams() {
   return countries.map((country) => ({
     id: country.id,
-  }))
+  }));
 }
 
 export async function generateMetadata({ params }) {
-  const { id } = await params
-  const country = countries.find(c => c.id === id)
-  
+  const { id } = await params;
+  const country = countries.find((c) => c.id === id);
+
   if (!country) {
     return {
-      title: 'Country Not Found',
-    }
+      title: "Country Not Found",
+    };
   }
-  
+
   return {
     title: `Study in ${country.name} - Education Consultant`,
     description: country.description.substring(0, 160),
-  }
+  };
 }
 
 async function CountryPage({ params }) {
-  const { id } = await params
-  const country = countries.find(c => c.id === id)
-  
+  const { id } = await params;
+  const country = countries.find((c) => c.id === id);
+
   if (!country) {
-    notFound()
+    notFound();
   }
-  
+
   return (
     <div className="min-h-screen bg-[#04413D]/10 py-28">
       <div className="container mx-auto px-4 w-11/12 navtext">
-        
-        <Link 
+        <Link
           href="/countries"
           className="inline-flex items-center gap-2 text-[#04413D] font-semibold mb-8 hover:gap-3 transition-all group bg-[#FDC653] px-5 py-2 rounded-full shadow-sm"
         >
-          <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+          <svg
+            className="w-5 h-5 group-hover:-translate-x-1 transition-transform"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
           Back to Countries
         </Link>
-        
+
         <div className="relative rounded-3xl overflow-hidden mb-12 h-[50vh]">
           <Image
             src={country.image}
@@ -217,84 +729,140 @@ async function CountryPage({ params }) {
             </p>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-3xl shadow-lg overflow-hidden mb-12">
           <div className="p-8">
             <h2 className="text-2xl font-bold text-[#04413D] mb-6 flex items-center gap-2">
               <span className="w-1 h-6 bg-[#FDC653] rounded-full"></span>
               States & Regions ({country.states.length})
             </h2>
-            
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5  gap-4">
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {country.states.map((state, index) => (
                 <div
                   key={index}
-                  className="group bg-linear-to-r from-[#04413D]/5 to-[#06756d]/5  rounded-xl p-4 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                  className="group bg-linear-to-r flex items-center gap-3 from-[#04413D]/5 to-[#06756d]/5 rounded-xl p-4 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
                 >
-                  <span className="text-sm font-medium text-gray-700  transition-colors">
-                   {/* <Image className='w-12 h-12' src={"/england.png"} fill priority />  */}
-                   {state}
+                  <div className="shrink-0 flex items-center">
+                    <Image
+                      src={flag}
+                      alt="flag"
+                      width={20}
+                      height={14}
+                      className="rounded-sm object-cover shadow-md "
+                    />
+                  </div>
+                  <span className="text-md font-medium text-gray-700 transition-colors truncate">
+                    {state}
                   </span>
                 </div>
               ))}
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-3xl shadow-lg overflow-hidden">
           <div className="p-8">
             <h2 className="text-2xl font-bold text-[#04413D] mb-6 flex items-center gap-2">
               <span className="w-1 h-6 bg-[#FDC653] rounded-full"></span>
               Top Universities in {country.name}
             </h2>
-            
+
             <div className="space-y-4">
-              {country.universities.map((university,i) => (
-                
-                  <div key={i} className="bg-linear-to-r from-[#FDC653]/20 to-white hover:from-[#04413D]/5 hover:to-[#FDC653]/10 rounded-xl p-5 transition-all duration-300 border border-gray-100 hover:border-[#04413D]/30 hover:shadow-md ">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-16">
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold text-gray-800 group-hover:text-[#04413D] transition-colors mb-2">
-                          {university.name}
-                        </h3>
-                        <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
-                          <div className="flex items-center gap-1">
-                            <svg className="w-4 h-4 text-[#04413D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                            <span>{university.location}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <svg className="w-4 h-4 text-[#04413D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span>{university.ranking}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <svg className="w-4 h-4 text-[#04413D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                            </svg>
-                            <span>{university.programs}+ Programs</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <svg className="w-4 h-4 text-[#04413D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                            </svg>
-                            <span>{university.students.toLocaleString()} Students</span>
-                          </div>
+              {country.universities.map((university, i) => (
+                <div
+                  key={i}
+                  className="bg-linear-to-r from-[#FDC653]/20 to-white hover:from-[#04413D]/5 hover:to-[#FDC653]/10 rounded-xl p-5 transition-all duration-300 border border-gray-100 hover:border-[#04413D]/30 hover:shadow-md "
+                >
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-16">
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-gray-800 group-hover:text-[#04413D] transition-colors mb-2">
+                        {university.name}
+                      </h3>
+                      <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <svg
+                            className="w-4 h-4 text-[#04413D]"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                          </svg>
+                          <span>{university.location}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <svg
+                            className="w-4 h-4 text-[#04413D]"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                          <span>{university.ranking}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <svg
+                            className="w-4 h-4 text-[#04413D]"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                            />
+                          </svg>
+                          <span>{university.programs}+ Programs</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <svg
+                            className="w-4 h-4 text-[#04413D]"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                            />
+                          </svg>
+                          <span>
+                            {university.students.toLocaleString()} Students
+                          </span>
                         </div>
                       </div>
                     </div>
                   </div>
-       
+                </div>
               ))}
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default CountryPage
+export default CountryPage;

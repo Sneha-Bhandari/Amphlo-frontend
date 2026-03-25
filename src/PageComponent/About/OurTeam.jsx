@@ -1,47 +1,84 @@
 "use client";
+
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Mail, Phone } from "lucide-react"; 
-import userone from "../../../public/usertwo.jpg";
+import { Mail, Phone } from "lucide-react";
+import { useEffect, useState } from "react";
+import { fetchData } from "@/lib/page";
+import Loading from "@/Global/Loading";
 
 export default function OurTeam() {
-  const details = [
+  const [teamData, setTeamData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getTeamData = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchData("our-team");
+        setTeamData(data);
+      } catch (error) {
+        console.error("Error fetching team data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getTeamData();
+  }, []);
+
+  // Default team members in case API fails
+  const defaultTeam = [
     {
-      image: userone,
       name: "Rahul Ghimire",
       phone: "9854633423",
       email: "rahul@amphlo.com",
       position: "Managing Director",
     },
     {
-      image: userone,
       name: "Sadhana Gautam",
       phone: "9854633423",
       email: "sadhana@amphlo.com",
       position: "Senior Partnership Development Officer",
     },
     {
-      image: userone,
       name: "Ritisha Ghimire",
       phone: "9854633423",
       email: "ritisha@amphlo.com",
       position: "Admission Coordinator",
     },
     {
-      image: userone,
       name: "Rachana Gautam",
       phone: "9854633423",
       email: "rachana@amphlo.com",
       position: "Admission Coordinator",
     },
     {
-      image: userone,
       name: "Kisan Mahat",
       phone: "9854633423",
       email: "kisan@amphlo.com",
       position: "IT Consultant",
     },
   ];
+
+  // Transform API data to match the component's expected format
+  const transformTeamMembers = () => {
+    if (teamData && Array.isArray(teamData) && teamData.length > 0) {
+      return teamData.map((member) => ({
+        name: member.name || "Team Member",
+        position: member.position || "Team Member",
+        phone: member.phone || "N/A",
+        email: member.email || "N/A",
+        image: member.imageid?.imageUrl || "",
+      }));
+    }
+    return defaultTeam.map(member => ({
+      ...member,
+      image: "",
+    }));
+  };
+
+  const details = transformTeamMembers();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -55,6 +92,14 @@ export default function OurTeam() {
     hidden: { y: 20, opacity: 0 },
     visible: { y: 0, opacity: 1 },
   };
+
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <Loading />
+      </div>
+    );
+  }
 
   return (
     <section className="w-full md:py-20 py-6 bg-white">
@@ -73,7 +118,7 @@ export default function OurTeam() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4 "
+          className="grid grid-cols-1 md:grid-cols-3 gap-4"
         >
           {details.map((member, index) => (
             <motion.div
@@ -84,12 +129,18 @@ export default function OurTeam() {
             >
               <div className="relative h-32 w-32 mb-6">
                 <div className="absolute inset-0 rounded-full overflow-hidden border-2 border-transparent group-hover:border-[#d7eeec] transition-colors duration-500">
-                  <Image
-                    src={member.image}
-                    alt={member.name}
-                    fill
-                    className="object-cover"
-                  />
+                  {member.image ? (
+                    <Image
+                      src={member.image}
+                      alt={member.name}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                      <span className="text-xs text-gray-500">No Image</span>
+                    </div>
+                  )}
                 </div>
               </div>
               

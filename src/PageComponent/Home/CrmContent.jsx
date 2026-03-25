@@ -39,7 +39,7 @@ export default function CrmContent() {
     "Advanced Analytics Dashboard",
   ];
 
-  const title = crmData?.title || "Customer Relationship Management";
+  const title = crmData?.title || "Customer Relationship Management default";
   const subTitle = crmData?.subTitle || "Streamline Your Business With Our CRM";
   const description = crmData?.description || "Our CRM platform is designed to unify your communication, track leads, and foster long-term customer loyalty. Centralize your data and empower your team to make informed decisions faster.";
 

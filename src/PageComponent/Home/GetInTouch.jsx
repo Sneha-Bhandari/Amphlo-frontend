@@ -77,7 +77,7 @@ export default function GetInTouch() {
 
       <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 gap-6 navtext">
         <h2 className="text-4xl md:text-5xl font-bold text-[#04413D]">
-          {title} <span className="text-white">With Us</span>
+          {title} <span className="text-white"></span>
         </h2>
         <p className="text-[#245e5a] w-11/12">{description}</p>
         

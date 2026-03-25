@@ -38,15 +38,15 @@ export default function FAQ() {
         console.error("Error fetching FAQ data:", error);
         setFaqs([
           {
-            title: "What programs does the university offer?",
+            title: "What ?",
             description: "Our university offers a wide range of undergraduate, graduate, and professional programs across disciplines such as business, engineering, technology, health sciences, and the humanities.",
           },
           {
-            title: "How can I apply for admission?",
+            title: "How can I?",
             description: "You can apply online through our admissions portal. Simply complete the application form, upload the required documents, and submit the application before the deadline.",
           },
           {
-            title: "Are scholarships or financial aid available?",
+            title: "Are scholarships or ?",
             description: "Yes, we offer a variety of scholarships and financial aid options based on academic performance, financial need, and special achievements.",
           },
         ]);

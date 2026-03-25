@@ -1,11 +1,34 @@
-"use client"
-import { useState } from 'react';
+"use client";
+
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaLocationArrow } from "react-icons/fa";
+import { fetchData } from "@/lib/page";
+import Loading from "@/Global/Loading";
 
 export default function OurFeatures() {
-  // 1. Define all data
-  const allFeatures = [
+  const [featuresData, setFeaturesData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(5);
+
+  useEffect(() => {
+    const getFeaturesData = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchData("our-features");
+        setFeaturesData(data);
+      } catch (error) {
+        console.error("Error fetching features data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getFeaturesData();
+  }, []);
+
+  // Default features in case API fails
+  const defaultFeatures = [
     { title: "Partner Registration & Onboarding", points: ["Automated onboarding", "Real-time verification", "Quick setup"] },
     { title: "Centralized Partner Dashboard", points: ["Unified data view", "Task management", "Custom widgets"] },
     { title: "Communication & Collaboration Tools", points: ["Secure messaging", "Shared workspace", "Real-time editing"] },
@@ -22,8 +45,18 @@ export default function OurFeatures() {
     { title: "Event & Webinar Management", points: ["Webinar scheduling", "Attendee tracking", "Resource sharing"] },
   ];
 
-  // 2. State to track visible count
-  const [visibleCount, setVisibleCount] = useState(5);
+  // Transform API data to match the component's expected format
+  const transformFeatures = () => {
+    if (featuresData && Array.isArray(featuresData) && featuresData.length > 0) {
+      return featuresData.map((item) => ({
+        title: item.title || "Untitled Feature",
+        points: item.points && Array.isArray(item.points) ? item.points : ["No points available"]
+      }));
+    }
+    return defaultFeatures;
+  };
+
+  const allFeatures = transformFeatures();
 
   const showMore = () => {
     setVisibleCount((prev) => Math.min(prev + 5, allFeatures.length));
@@ -32,6 +65,14 @@ export default function OurFeatures() {
   const showLess = () => {
     setVisibleCount(5);
   };
+
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <Loading />
+      </div>
+    );
+  }
 
   return (
     <section className="md:py-20 py-6 h-full overflow-hidden w-11/12 flex flex-col mx-auto">
@@ -45,7 +86,7 @@ export default function OurFeatures() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 w-full">
-        <div className="flex flex-wrap justify-center  gap-y-12">
+        <div className="flex flex-wrap justify-center gap-y-12">
           <AnimatePresence mode='popLayout'>
             {allFeatures.slice(0, visibleCount).map((feature, index) => (
               <motion.div
@@ -71,7 +112,7 @@ export default function OurFeatures() {
                 <ul className="space-y-2 text-start">
                   {feature.points.map((point, pIdx) => (
                     <li key={pIdx} className="text-[10px] sm:text-sm opacity-90 font-medium flex items-center gap-3">
-                      <span className='text-xs  text-[#FDC653]'> <FaLocationArrow /></span> {point}
+                      <span className='text-xs text-[#FDC653]'> <FaLocationArrow /></span> {point}
                     </li>
                   ))}
                 </ul>
