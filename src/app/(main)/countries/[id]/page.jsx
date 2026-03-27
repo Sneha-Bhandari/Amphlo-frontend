@@ -2,7 +2,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import flag from "../../../../public/england.png";
+import flag from "../../../../../public/england.png";
 
 const countries = [
   {
