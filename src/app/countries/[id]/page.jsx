@@ -818,6 +818,7 @@ async function CountryPage({ params }) {
                           </svg>
                           <span>{university.ranking}</span>
                         </div>
+                        
                         <div className="flex items-center gap-1">
                           <svg
                             className="w-4 h-4 text-[#04413D]"
@@ -851,6 +852,10 @@ async function CountryPage({ params }) {
                           <span>
                             {university.students.toLocaleString()} Students
                           </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          
+                        <h1 className="bg-[#04413D]/50 text-white rounded-2xl px-2 py-1"> {university.established}</h1>
                         </div>
                       </div>
                     </div>
