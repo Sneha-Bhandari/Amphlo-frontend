@@ -3,26 +3,44 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-
-import missionImg  from "../../../public/amphlo.jpg"
-import visionImg  from "../../../public/bannerone.jpg"
-
+import { useEffect, useState } from "react";
+import { fetchData } from "@/lib/page";
+import Loading from "@/Global/Loading";
 
 export default function MissionAndVision() {
-  const missionvision = [
-    {
-      image: missionImg,
-      title: "Our Mission",
-      subtitle: "Empowering Partners Through Innovation",
-      description: "Our mission is to simplify complex workflows for global educational consultants. We strive to bridge the gap between technology and human connection, providing the tools necessary to foster transparency, efficiency, and growth in every partnership."
-    },
-    {
-      image: visionImg,
-      title: "Our Vision",
-      subtitle: "To be the Global Standard for Connectivity",
-      description: "We envision a world where every educational opportunity is accessible through a seamless, integrated ecosystem. By 2030, our goal is to become the primary infrastructure supporting the exchange of knowledge across borders, making global education a reality for all."
-    },
-  ];
+  const [missionVision, setMissionVision] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getMissionVision = async () => {
+      try {
+        const data = await fetchData("vision-mission");
+        setMissionVision(data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching mission and vision data:", error);
+        setLoading(false);
+      }
+    };
+
+    getMissionVision();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <Loading />
+      </div>
+    );
+  }
+
+  if (!missionVision.length) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-[#04413D] text-xl">No mission and vision data available</p>
+      </div>
+    );
+  }
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -46,42 +64,52 @@ export default function MissionAndVision() {
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
       >
-        {missionvision.map((item, index) => (
-          <div
-            key={index}
-            className={`flex flex-col items-center gap-12 lg:gap-20 w-11/12 mx-auto ${
-              index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
-            }`}
-          >
-            <motion.div className="flex-1 relative group w-full" variants={itemVariants}>
-              <div 
-                className={`absolute -inset-4 bg-[#04413D]/10 rounded-3xl transition-transform group-hover:rotate-1 ${
-                  index % 2 === 0 ? "rotate-3" : "-rotate-3"
-                }`} 
-              />
-              <div className="relative h-[50vh] w-full bg-[#04413D]/20 rounded-2xl overflow-hidden shadow-2xl cursor-pointer">
-                <Image 
-                  src={item.image} 
-                  alt={item.title} 
-                  fill 
-                  className="object-cover" 
+        {missionVision.map((item, index) => {
+          const imageUrl = item.imageid?.imageUrl || "";
+          
+          return (
+            <div
+              key={item.id}
+              className={`flex flex-col items-center gap-12 lg:gap-20 w-11/12 mx-auto ${
+                index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
+              }`}
+            >
+              <motion.div className="flex-1 relative group w-full" variants={itemVariants}>
+                <div 
+                  className={`absolute -inset-4 bg-[#04413D]/10 rounded-3xl transition-transform group-hover:rotate-1 ${
+                    index % 2 === 0 ? "rotate-3" : "-rotate-3"
+                  }`} 
                 />
-              </div>
-            </motion.div>
+                <div className="relative h-[50vh] w-full bg-[#04413D]/20 rounded-2xl overflow-hidden shadow-2xl cursor-pointer">
+                  {imageUrl ? (
+                    <Image 
+                      src={imageUrl} 
+                      alt={item.title} 
+                      fill 
+                      className="object-cover" 
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                      <p className="text-gray-600">Image Not Found</p>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
 
-            <motion.div className="flex-1 space-y-6" variants={itemVariants}>
-              <div className="inline-block px-4 py-1 rounded-full bg-[#FDC653]/30 text-[#04413D] text-sm font-bold uppercase tracking-widest">
-                {item.title}
-              </div>
-              <h2 className="text-2xl lg:text-4xl  font-bold text-[#04413D] leading-tight">
-                {item.subtitle} 
-              </h2>
-              <p className="text-md text-slate-600 leading-relaxed text-justify">
-                {item.description}
-              </p>
-            </motion.div>
-          </div>
-        ))}
+              <motion.div className="flex-1 space-y-6" variants={itemVariants}>
+                <div className="inline-block px-4 py-1 rounded-full bg-[#FDC653]/30 text-[#04413D] text-sm font-bold uppercase tracking-widest">
+                  {item.title}
+                </div>
+                <h2 className="text-2xl lg:text-4xl font-bold text-[#04413D] leading-tight">
+                  {item.subTitle}
+                </h2>
+                <p className="text-md text-slate-600 leading-relaxed text-justify">
+                  {item.description}
+                </p>
+              </motion.div>
+            </div>
+          );
+        })}
       </motion.div>
     </section>
   );

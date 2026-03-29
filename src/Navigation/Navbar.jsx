@@ -57,7 +57,6 @@ export default function Navbar() {
     setCountriesDropdownOpen(false)
   }
 
-  // Improved active state detection for countries
   const isActiveCountry = (countryPath) => {
     return pathname === countryPath
   }
@@ -188,16 +187,16 @@ export default function Navbar() {
             </button>
 
             {loginDropdownOpen && (
-              <div className="absolute flex flex-col bg-white shadow-lg rounded-md mt-2 w-48 text-sm z-50 right-0">
+              <div className="absolute flex flex-col bg-white/80 shadow-lg rounded-md mt-6 w-40 text-sm z-50 -right-8 py-3">
                 <Link
-                  href="/login/foruniversities"
+                  href="/login?type=university" 
                   className="px-4 py-2 hover:bg-gray-100 transition"
                   onClick={closeAllDropdowns}
                 >
                   For Universities
                 </Link>
                 <Link
-                  href="/login/forpartners"
+                  href="/login?type=partner"  
                   className="px-4 py-2 hover:bg-gray-100 transition"
                   onClick={closeAllDropdowns}
                 >
@@ -227,20 +226,20 @@ export default function Navbar() {
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
               </svg>
-            </button>
+            </button> 
 
             {registerDropdownOpen && (
-              <div className="absolute flex flex-col bg-white shadow-lg rounded-md mt-2 w-48 text-sm right-0 z-50">
+              <div className="absolute flex flex-col bg-[#04413D] text-white shadow-lg rounded-md mt-4 w-40 text-sm right-0 z-50 py-2">
                 <Link
-                  href="/register/foruniversities"
-                  className="px-4 py-2 hover:bg-gray-100 transition"
+                  href="/register?type=university" 
+                  className="px-4 py-2 hover:bg-gray-500 transition"
                   onClick={closeAllDropdowns}
                 >
                   For Universities
                 </Link>
                 <Link
-                  href="/register/forpartners"
-                  className="px-4 py-2 hover:bg-gray-100 transition"
+                  href="/register?type=partner"  
+                  className="px-4 py-2 hover:bg-gray-500 transition"
                   onClick={closeAllDropdowns}
                 >
                   For Partners
@@ -332,14 +331,14 @@ export default function Navbar() {
 
               <div className="flex flex-col gap-3 mt-4">
                 <Link
-                  href="/login/foruniversities"
+                  href="/login"  
                   className="text-center border border-[#04413D] text-[#04413D] px-4 py-2 rounded-lg hover:bg-gray-50 transition"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Login
                 </Link>
                 <Link
-                  href="/register/foruniversities"
+                  href="/register"  
                   className="text-center bg-[#04413D] text-white px-4 py-2 rounded-lg hover:bg-[#06665f] transition"
                   onClick={() => setMobileMenuOpen(false)}
                 >

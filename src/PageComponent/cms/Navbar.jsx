@@ -6,7 +6,7 @@ export default function Navbar() {
   const router = useRouter();
 
   const handleLogout = () => {
-    router.push("/login");
+    router.push("/cms-login");
   };
 
   return (
