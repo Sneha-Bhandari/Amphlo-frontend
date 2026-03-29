@@ -4,25 +4,23 @@ import React from 'react'
 
 function layout({ children }) {
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 overflow-hidden">
       
       {/* Sidebar */}
-      <div className="w-64 bg-gray-900 text-white">
+      <div className="w-64 bg-gray-900 text-white shrink-0">
         <Sidebar />
       </div>
 
-      {/* Right side */}
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-col flex-1 overflow-hidden">
         
-        {/* Top Navbar */}
         <Navbar />
 
-        {/* Page Content */}
-        <main className="p-6 overflow-y-auto flex-1">
+        <main className="flex-1 overflow-y-auto p-16 pl-24 ">
           {children}
         </main>
 
       </div>
+
     </div>
   )
 }
