@@ -77,8 +77,8 @@ export default function Sidebar() {
       color: "text-yellow-500",
     },
     {
-      name: "Contact Queries",
-      path: "/admin/contacts",
+      name: "Enquiry",
+      path: "/admin/enquiry",
       icon: Mail,
       color: "text-red-500",
     },
