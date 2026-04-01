@@ -99,7 +99,6 @@ export default function Testimonials() {
       try {
         setLoading(true);
         const data = await fetchData("testimonial");
-        // Handle both array and single object responses
         if (Array.isArray(data)) {
           setTestimonialsData(data);
         } else if (data && typeof data === 'object') {
@@ -118,7 +117,6 @@ export default function Testimonials() {
     getTestimonialsData();
   }, []);
 
-  // Transform API data to match the component's expected format
   const transformReviews = () => {
     if (testimonialsData && testimonialsData.length > 0) {
       return testimonialsData.map((item, index) => ({
@@ -126,7 +124,7 @@ export default function Testimonials() {
         clientName: item.clientName || "Anonymous",
         jobTitle: item.jobTitle || "Client",
         companyName: item.companyName || "",
-        rating: 5, // Default rating, you can add rating field to API if needed
+        rating: item.rating || null , 
         description: item.description || "No description provided",
         imageUrl: item.imageid?.imageUrl || null
       }));
