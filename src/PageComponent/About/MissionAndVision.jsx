@@ -4,7 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useEffect, useState } from "react";
-import { fetchData } from "@/lib/page";
+import { fetchData } from "@/lib/frontendApi";
 import Loading from "@/Global/Loading";
 
 export default function MissionAndVision() {

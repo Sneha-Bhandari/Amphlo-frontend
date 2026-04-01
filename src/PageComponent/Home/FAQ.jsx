@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { IoMdArrowDropdown } from "react-icons/io";
-import { fetchData } from "@/lib/page";
+import { fetchData } from "@/lib/frontendApi";
 
 export default function FAQ() {
   const [openIndex, setOpenIndex] = useState(0);

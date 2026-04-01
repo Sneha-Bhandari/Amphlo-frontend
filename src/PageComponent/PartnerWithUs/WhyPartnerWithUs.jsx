@@ -9,7 +9,7 @@ import { CheckBadgeIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useState } from "react";
-import { fetchData } from "@/lib/page";
+import { fetchData } from "@/lib/frontendApi";
 import Loading from "@/Global/Loading";
 
 export default function WhyPartnerWithUs() {

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { fetchData } from "@/lib/page";
+import { fetchData } from "@/lib/frontendApi";
 import Loading from "@/Global/Loading";
 
 const defaultReviews = [

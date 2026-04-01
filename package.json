@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "axios": "^1.14.0",
     "clsx": "^2.1.1",
     "formik": "^2.4.9",
     "framer-motion": "^12.36.0",

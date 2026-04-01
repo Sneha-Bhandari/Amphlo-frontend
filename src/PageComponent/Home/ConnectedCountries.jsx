@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { fetchData } from "@/lib/page";
+import { fetchData } from "@/lib/frontendApi";
 import Loading from "@/Global/Loading";
 
 export default function ConnectedCountries() {
