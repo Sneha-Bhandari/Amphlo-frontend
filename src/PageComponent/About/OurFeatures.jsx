@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaLocationArrow } from "react-icons/fa";
-import { fetchData } from "@/lib/page";
+import { fetchData } from "@/lib/frontendApi";
 import Loading from "@/Global/Loading";
 
 export default function OurFeatures() {

@@ -4,7 +4,7 @@ import Image from "next/image";
 import { IoArrowBackCircleSharp } from "react-icons/io5";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { fetchData } from "@/lib/page";
+import { fetchData } from "@/lib/frontendApi";
 import Loading from "@/Global/Loading";
 
 export default function AboutBanner() {

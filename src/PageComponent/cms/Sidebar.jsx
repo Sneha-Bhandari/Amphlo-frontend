@@ -43,7 +43,7 @@ export default function Sidebar() {
       icon: LayoutDashboard,
       color: "text-blue-500",
     },
-    
+
     {
       name: "Content Management",
       icon: FileText,
@@ -111,23 +111,23 @@ export default function Sidebar() {
     <div className="h-full flex flex-col bg-white shadow-xl">
       {/* Logo Section */}
       <div className="p-6 border-b border-gray-200">
-  <div className="flex items-center gap-3">
-    <div className="relative w-12 h-12  rounded-lg flex items-center justify-center overflow-hidden">
-      <Image
-        src="/headerlogo.png"
-        alt="logo"
-        width={100}
-        height={100}
-        className="object-cover"
-        priority
-      />
-    </div>
-    <div>
-      <h2 className="text-xl font-bold text-[#04413D]">Amphlo CMS</h2>
-      <p className="text-xs text-gray-500">B2B Consultant</p>
-    </div>
-  </div>
-</div>
+        <div className="flex items-center gap-3">
+          <div className="relative w-12 h-12  rounded-lg flex items-center justify-center overflow-hidden">
+            <Image
+              src="/headerlogo.png"
+              alt="logo"
+              width={100}
+              height={100}
+              className="object-cover"
+              priority
+            />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-[#04413D]">Amphlo CMS</h2>
+            <p className="text-xs text-gray-500">B2B Consultant</p>
+          </div>
+        </div>
+      </div>
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-6 px-4">
         <ul className="space-y-2">
@@ -137,9 +137,8 @@ export default function Sidebar() {
                 <div>
                   <button
                     onClick={() => toggleDropdown(item.dropdownName)}
-                    className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 hover:bg-gray-50 group ${
-                      openDropdowns[item.dropdownName] ? "bg-gray-50" : ""
-                    }`}
+                    className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 hover:bg-gray-50 group ${openDropdowns[item.dropdownName] ? "bg-gray-50" : ""
+                      }`}
                   >
                     <div className="flex items-center gap-3">
                       <item.icon className={`w-5 h-5 ${item.color}`} />
@@ -157,11 +156,10 @@ export default function Sidebar() {
                         <li key={subIndex}>
                           <Link
                             href={subItem.path}
-                            className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-sm ${
-                              isActive(subItem.path)
+                            className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-sm ${isActive(subItem.path)
                                 ? "bg-[#04413D] text-white"
                                 : "text-gray-600 hover:bg-gray-50 hover:text-[#04413D]"
-                            }`}
+                              }`}
                           >
                             <subItem.icon className="w-4 h-4" />
                             {subItem.name}
@@ -174,16 +172,14 @@ export default function Sidebar() {
               ) : (
                 <Link
                   href={item.path}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
-                    isActive(item.path)
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${isActive(item.path)
                       ? "bg-[#04413D] text-white shadow-md"
                       : "text-gray-700 hover:bg-gray-50 hover:text-[#04413D]"
-                  }`}
+                    }`}
                 >
                   <item.icon
-                    className={`w-5 h-5 ${
-                      isActive(item.path) ? "text-white" : item.color
-                    }`}
+                    className={`w-5 h-5 ${isActive(item.path) ? "text-white" : item.color
+                      }`}
                   />
                   <span className="font-medium">{item.name}</span>
                   {isActive(item.path) && (

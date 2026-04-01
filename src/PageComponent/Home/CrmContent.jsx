@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { fetchData } from "@/lib/page";
+import { fetchData } from "@/lib/frontendApi";
 
 export default function CrmContent() {
   const [crmData, setCrmData] = useState(null);
