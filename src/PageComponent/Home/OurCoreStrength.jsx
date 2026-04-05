@@ -37,15 +37,10 @@ export default function OurCoreStrength() {
     );
   }
 
-  const defaultStats = [
-    { label: "Agents", value: 5900, suffix: "+" },
-    { label: "Global Institutions", value: 140, suffix: "+" },
-    { label: "Countries", value: 75, suffix: "+" },
-    { label: "Courses Available", value: 500, suffix: "+" },
-    { label: "Students", value: 5000, suffix: "+" },
-  ];
-
-  
+  // If no data exists, don't render anything
+  if (!coreStrengthData || !coreStrengthData.stats || coreStrengthData.stats.length === 0) {
+    return null;
+  }
 
   const transformStats = () => {
     if (coreStrengthData?.stats && Array.isArray(coreStrengthData.stats)) {
@@ -58,11 +53,16 @@ export default function OurCoreStrength() {
         };
       });
     }
-    return defaultStats;
+    return [];
   };
 
   const stats = transformStats();
   const imageUrl = coreStrengthData?.imageid?.imageUrl || "";
+
+  // Don't render if no stats
+  if (stats.length === 0) {
+    return null;
+  }
 
   return (
     <section ref={ref} className="w-full py-16 bg-white overflow-hidden">

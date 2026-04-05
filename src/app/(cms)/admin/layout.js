@@ -6,8 +6,7 @@ function layout({ children }) {
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
       
-      {/* Sidebar */}
-      <div className="w-64 bg-gray-900 text-white shrink-0">
+      <div className=" text-white shrink-0">
         <Sidebar />
       </div>
 
@@ -15,7 +14,7 @@ function layout({ children }) {
         
         <Navbar />
 
-        <main className="flex-1 overflow-y-auto p-16 pl-24 ">
+        <main className="flex-1 overflow-y-auto p-12 pl-12 ">
           {children}
         </main>
 

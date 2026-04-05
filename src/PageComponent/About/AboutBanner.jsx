@@ -15,7 +15,8 @@ export default function AboutBanner() {
     const getAboutData = async () => {
       try {
         const data = await fetchData("banner");
-        setAboutData(data[0]);
+        const aboutBanner = data.find(item => item.path === "aboutus");
+        setAboutData(aboutBanner || null);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching about banner data:", error);

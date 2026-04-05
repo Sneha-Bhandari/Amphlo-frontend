@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   LayoutDashboard,
   Settings,
@@ -21,13 +21,30 @@ import {
   BarChart3,
   Shield,
   Bell,
-  HelpCircle
+  HelpCircle,
+
 } from "lucide-react";
 
-export default function Sidebar() {
+export default function Sidebar({ children }) {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openDropdowns, setOpenDropdowns] = useState({});
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
 
   const toggleDropdown = (name) => {
     setOpenDropdowns((prev) => ({
@@ -43,7 +60,6 @@ export default function Sidebar() {
       icon: LayoutDashboard,
       color: "text-blue-500",
     },
-
     {
       name: "Content Management",
       icon: FileText,
@@ -52,6 +68,7 @@ export default function Sidebar() {
       dropdownName: "content",
       items: [
         { name: "Hero Section", path: "/admin/hero", icon: Star },
+        { name: "Our Core Strength", path: "/admin/corestrength", icon: Shield },
         { name: "Banner", path: "/admin/banner", icon: Image },
         { name: "About Us", path: "/admin/about", icon: Building2 },
         { name: "Vision & Mission", path: "/admin/vision-mission", icon: Globe },
@@ -109,10 +126,9 @@ export default function Sidebar() {
 
   const SidebarContent = () => (
     <div className="h-full flex flex-col bg-white shadow-xl">
-      {/* Logo Section */}
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center gap-3">
-          <div className="relative w-12 h-12  rounded-lg flex items-center justify-center overflow-hidden">
+      <div className="p-4 sm:p-6 border-b border-gray-200">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center overflow-hidden">
             <Image
               src="/headerlogo.png"
               alt="logo"
@@ -123,46 +139,46 @@ export default function Sidebar() {
             />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-[#04413D]">Amphlo CMS</h2>
-            <p className="text-xs text-gray-500">B2B Consultant</p>
+            <h2 className="text-lg sm:text-xl font-bold text-[#04413D]">Amphlo CMS</h2>
+            <p className="text-xs text-gray-500 hidden sm:block">B2B Consultant</p>
           </div>
         </div>
       </div>
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-6 px-4">
-        <ul className="space-y-2">
+      
+      <nav className="flex-1 overflow-y-auto py-4 sm:py-6 px-2 sm:px-4">
+        <ul className="space-y-1 sm:space-y-2">
           {navItems.map((item, index) => (
             <li key={index}>
               {item.dropdown ? (
                 <div>
                   <button
                     onClick={() => toggleDropdown(item.dropdownName)}
-                    className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 hover:bg-gray-50 group ${openDropdowns[item.dropdownName] ? "bg-gray-50" : ""
+                    className={`w-full flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-all duration-200 hover:bg-gray-50 group ${openDropdowns[item.dropdownName] ? "bg-gray-50" : ""
                       }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <item.icon className={`w-5 h-5 ${item.color}`} />
-                      <span className="text-gray-700 font-medium">{item.name}</span>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <item.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${item.color}`} />
+                      <span className="text-sm sm:text-base text-gray-700 font-medium">{item.name}</span>
                     </div>
                     {openDropdowns[item.dropdownName] ? (
-                      <ChevronDown className="w-4 h-4 text-gray-400" />
+                      <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
                     ) : (
-                      <ChevronRight className="w-4 h-4 text-gray-400" />
+                      <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
                     )}
                   </button>
                   {openDropdowns[item.dropdownName] && (
-                    <ul className="ml-9 mt-2 space-y-1">
+                    <ul className="ml-6 sm:ml-9 mt-1 sm:mt-2 space-y-1">
                       {item.items.map((subItem, subIndex) => (
                         <li key={subIndex}>
                           <Link
                             href={subItem.path}
-                            className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-sm ${isActive(subItem.path)
+                            className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-200 text-xs sm:text-sm ${isActive(subItem.path)
                                 ? "bg-[#04413D] text-white"
                                 : "text-gray-600 hover:bg-gray-50 hover:text-[#04413D]"
                               }`}
                           >
-                            <subItem.icon className="w-4 h-4" />
-                            {subItem.name}
+                            <subItem.icon className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <span className="truncate">{subItem.name}</span>
                           </Link>
                         </li>
                       ))}
@@ -172,18 +188,18 @@ export default function Sidebar() {
               ) : (
                 <Link
                   href={item.path}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${isActive(item.path)
+                  className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-all duration-200 group ${isActive(item.path)
                       ? "bg-[#04413D] text-white shadow-md"
                       : "text-gray-700 hover:bg-gray-50 hover:text-[#04413D]"
                     }`}
                 >
                   <item.icon
-                    className={`w-5 h-5 ${isActive(item.path) ? "text-white" : item.color
+                    className={`w-4 h-4 sm:w-5 sm:h-5 ${isActive(item.path) ? "text-white" : item.color
                       }`}
                   />
-                  <span className="font-medium">{item.name}</span>
+                  <span className="text-sm sm:text-base font-medium truncate">{item.name}</span>
                   {isActive(item.path) && (
-                    <div className="ml-auto w-1 h-8 bg-[#FDC653] rounded-full" />
+                    <div className="ml-auto w-0.5 sm:w-1 h-6 sm:h-8 bg-[#FDC653] rounded-full" />
                   )}
                 </Link>
               )}
@@ -192,25 +208,24 @@ export default function Sidebar() {
         </ul>
       </nav>
 
-      {/* Footer */}
-      <div className="p-4 border-t border-gray-200">
-        <div className="space-y-2">
+      <div className="p-3 sm:p-4 border-t border-gray-200">
+        <div className="space-y-1 sm:space-y-2">
           <Link
             href="/admin/help"
-            className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-50 transition-all duration-200"
+            className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-50 transition-all duration-200 text-sm sm:text-base"
           >
-            <HelpCircle className="w-5 h-5" />
-            <span className="font-medium">Help & Support</span>
+            <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="font-medium truncate">Help & Support</span>
           </Link>
           <button
             onClick={() => {
               localStorage.removeItem('cms_token');
               window.location.href = '/cms-login';
             }}
-            className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-all duration-200"
+            className="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-all duration-200 text-sm sm:text-base"
           >
-            <LogOut className="w-5 h-5" />
-            <span className="font-medium">Logout</span>
+            <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="font-medium truncate">Logout</span>
           </button>
         </div>
       </div>
@@ -219,31 +234,30 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile Menu Button */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-[#04413D] text-white rounded-lg shadow-lg"
       >
-        {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
 
-      {/* Desktop Sidebar */}
-      <div className="hidden lg:block w-72 h-screen sticky top-0">
+      <div className="hidden lg:block w-64 xl:w-72 h-screen sticky top-0 ">
         <SidebarContent />
       </div>
 
-      {/* Mobile Sidebar Overlay */}
       {isMobileMenuOpen && (
         <>
           <div
-            className="lg:hidden fixed inset-0 bg-black/50 z-40"
+            className="lg:hidden fixed inset-0 blur-3xl bg-black/50  bg-opacity-50 z-40"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          <div className="lg:hidden fixed top-0 left-0 w-72 h-full z-40 animate-slide-in">
+          <div className="lg:hidden fixed top-0 left-0 w-64 sm:w-72 h-full z-40 animate-slide-in  shadow-2xl">
             <SidebarContent />
           </div>
         </>
       )}
+
+     
     </>
   );
 }

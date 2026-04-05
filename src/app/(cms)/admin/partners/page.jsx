@@ -1,5 +1,5 @@
 export default function Partners(){
     return(
-        <div>partner</div>
+        <div>hi</div>
     )
 }

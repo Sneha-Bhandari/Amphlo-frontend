@@ -1,31 +1,81 @@
+"use client";
+
 import Image from "next/image";
 import { IoArrowBackCircleSharp } from "react-icons/io5";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { fetchData } from "@/lib/frontendApi";
+import Loading from "@/Global/Loading";
+
 export default function PartnerBanner() {
+  const [partnerData, setPartnerData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getPartnerData = async () => {
+      try {
+        const data = await fetchData("banner");
+        // Filter to find the banner with path "partnerwithus"
+        const partnerBanner = data.find(item => item.path === "partnerwithus");
+        setPartnerData(partnerBanner || null);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching partner banner data:", error);
+        setLoading(false);
+      }
+    };
+
+    getPartnerData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <Loading />
+      </div>
+    );
+  }
+
+  if (!partnerData) {
+    return (
+      <div className="h-[70vh] flex items-center justify-center bg-gray-100">
+        <p className="text-[#04413D] text-xl">No partner banner data available</p>
+      </div>
+    );
+  }
+
+  const imageUrl = partnerData.imageid?.imageUrl || "";
+
   return (
     <div className="h-[70vh] relative">
-      <Image
-        className="h-full w-full object-cover"
-        src={"/bannerone.jpg"}
-        alt="bannerimage"
-        fill
-        priority
-      />
+      {imageUrl ? (
+        <Image
+          className="h-full w-full object-cover"
+          src={imageUrl}
+          alt={partnerData.title || "Partner banner"}
+          fill
+          priority
+        />
+      ) : (
+        <div className="h-full w-full bg-gray-200 flex items-center justify-center">
+          <p className="text-gray-600">Image Not Found</p>
+        </div>
+      )}
       <div className="absolute bg-[#04413D]/30 inset-0"></div>
-      <div className="absolute flex flex-col mx-auto top-1/2 left-12 inset-0 gap-2  text-white navtext">
+      <div className="absolute flex flex-col mx-auto top-1/2 left-12 inset-0 gap-2 text-white navtext">
         <h1 className="text-5xl font-semibold tracking-tight">
-          Partner Page
+          {partnerData.title || "Partner Page"}
         </h1>
-        <p className="text-xl">This is a partner page</p>
+        <p className="text-xl">{partnerData.subTitle || "This is a partner page"}</p>
       </div>
-      <div className="absolute  bottom-0 w-full h-8 flex gap-2 items-center justify-start bg-[#04413D]/50 text-white px-14 py-1">
-        <h1 className="text-xl"><IoArrowBackCircleSharp/></h1>
+      <div className="absolute bottom-0 w-full h-8 flex gap-2 items-center justify-start bg-[#04413D]/50 text-white px-14 py-1">
+        <h1 className="text-xl"><IoArrowBackCircleSharp /></h1>
         <button className="text-white font-medium hover:underline hover:underline-offset-2 cursor-pointer">
           <Link href="/"> Home </Link>
         </button>
         <h1>/</h1>
-        <h1 className="font-medium text-white underline underline-offset-3 ">
-          Partner With Us
+        <h1 className="font-medium text-white underline underline-offset-3">
+          {partnerData.path === "partnerwithus" ? "Partner With Us" : partnerData.title || "Partner With Us"}
         </h1>
       </div>
     </div>
