@@ -1,188 +1,219 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { useApi } from "@/hooks/useApi";
-import { Field, Form, Formik, ErrorMessage } from "formik";
+import React, { useState, useEffect, useRef } from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import JoditEditor from "jodit-react";
+import { useApi } from "@/hooks/useApi";
+import toast, { Toaster } from "react-hot-toast";
+import Loading from "@/Global/Loading";
 
-export default function AboutBusinessCMS() {
-  const editor = useRef(null);
-  const maaaping = [
-    { label: "Title", name: "title", type: "text" },
-    { label: "Description", name: "description", type: "editor" },
-    { label: "Image", name: "imageid", type: "file" },
-  ];
+const schema = Yup.object().shape({
+  title: Yup.string().required("Title is required"),
+  description: Yup.string().required("Description is required"),
+});
 
-  const { getdata, postdatas, patchdata, loading } = useApi();
-  const [data, setData] = useState(null);
+const AboutBusinessCMS = () => {
+  const editorRef = useRef(null);
+  const { getdata, patchdata, postdatas, loading: apiLoading } = useApi();
 
+  const [storedData, setStoredData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [preview, setPreview] = useState(null);
+
+  const hasData = Boolean(storedData);
+
+  // ✅ FETCH DATA (NO CACHE ISSUE)
   useEffect(() => {
-    const fetchAboutBusiness = async () => {
+    const fetchData = async () => {
       try {
-        const res = await getdata("about-business");
-        if (res && res.length > 0) {
-          setData(res[0]);
+        const res = await getdata(`about-business?t=${Date.now()}`);
+        console.log("Fetched About Business:", res);
+
+        if (Array.isArray(res) && res.length > 0) {
+          setStoredData(res[0]);
+        } else if (res) {
+          setStoredData(res);
         }
       } catch (err) {
         console.error(err);
+        toast.error("Failed to fetch data");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchAboutBusiness();
-  }, []);
+    fetchData();
+  }, [getdata]);
 
-  const validationSchema = Yup.object({
-    title: Yup.string().required("Title is required"),
-    description: Yup.string().required("Description is required").min(50, "Description should be at least 50 characters"),
-    imageid: Yup.mixed().nullable(),
-  });
+  // ✅ IMAGE UPLOAD
+  const uploadImage = async (file) => {
+    const formData = new FormData();
+    formData.append("images", file);
 
-  const config = {
-    readonly: false,
-    placeholder: "Enter detailed description...",
-    height: 400,
-    uploader: {
-      insertImageAsBase64URI: true,
-      imagesExtensions: ['jpg', 'png', 'jpeg', 'gif', 'svg', 'webp'],
-    },
-    toolbar: true,
-    spellcheck: true,
-    language: 'en',
-    toolbarButtonSize: 'medium',
-    toolbarAdaptive: false,
-    showXPathInStatusbar: false,
-    buttons: [
-      'source', '|',
-      'bold', 'italic', 'underline', 'strikethrough', '|',
-      'ul', 'ol', '|',
-      'outdent', 'indent', '|',
-      'font', 'fontsize', 'brush', 'paragraph', '|',
-      'image', 'table', 'link', '|',
-      'align', 'undo', 'redo', '|',
-      'hr', 'eraser', 'fullsize',
-    ],
-    buttonsMD: [
-      'bold', 'italic', 'underline', '|',
-      'ul', 'ol', '|',
-      'outdent', 'indent', '|',
-      'image', 'link', '|',
-      'align', 'undo', 'redo',
-    ],
-    buttonsXS: [
-      'bold', 'italic', 'underline', '|',
-      'ul', 'ol', '|',
-      'image', 'link', '|',
-      'undo', 'redo',
-    ],
+    const res = await fetch(process.env.NEXT_PUBLIC_UPLOAD_URL, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) throw new Error("Upload failed");
+
+    const data = await res.json();
+    return data.id;
   };
 
-  return (
-    <div className="flex flex-col gap-8 mx-auto md:w-11/13 w-full ">
-      <div className="flex flex-col mx-auto md:items-center md:justify-center items-start  w-full justify-start">
-        <div className="text-3xl text-[#04413D] font-bold">About Our Business</div>
-        <div className="text-sm text-gray-500">
-          title, description, image
-        </div>
-      </div>
+  // ✅ SUBMIT
+  const handleSubmit = async (values, { setSubmitting }) => {
+    const loadingToast = toast.loading(
+      hasData ? "Updating..." : "Creating..."
+    );
 
-      <div className="border border-gray-300 rounded-2xl flex p-4 w-full">
+    try {
+      let imageId = storedData?.imageid?.id || null;
+
+      if (values.imageid instanceof File) {
+        imageId = await uploadImage(values.imageid);
+      }
+
+      const payload = {
+        title: values.title,
+        description: values.description,
+      };
+
+      if (imageId) payload.imageid = imageId;
+
+      let response;
+
+      if (hasData && storedData?.id) {
+        response = await patchdata(
+          `about-business/${storedData.id}`,
+          payload
+        );
+        toast.success("Updated successfully", { id: loadingToast });
+
+        setStoredData({
+          ...storedData,
+          ...payload,
+          imageid: imageId
+            ? {
+                id: imageId,
+                imageUrl: values.imageid
+                  ? URL.createObjectURL(values.imageid)
+                  : storedData?.imageid?.imageUrl,
+              }
+            : storedData?.imageid,
+        });
+      } else {
+        response = await postdatas("about-business", payload);
+        toast.success("Created successfully", { id: loadingToast });
+
+        setStoredData(response);
+      }
+
+      setPreview(null);
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message || "Something went wrong", {
+        id: loadingToast,
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // ✅ LOADING
+  if (loading) return <Loading />;
+
+  return (
+    <>
+      <Toaster position="top-right" />
+
+      <div className="bg-white md:my-12 flex-col flex w-full mx-auto">
+        <div className="text-center mt-4">
+          <h3 className="text-4xl font-semibold">
+            About Our Business
+          </h3>
+        </div>
+
         <Formik
           enableReinitialize
           initialValues={{
-            title: data?.title || "",
-            description: data?.description || "",
+            title: storedData?.title ?? "",
+            description: storedData?.description ?? "",
             imageid: null,
           }}
-          validationSchema={validationSchema}
-          onSubmit={async (values) => {
-            try {
-              const payload = {
-                title: values.title,
-                description: values.description,
-                imageid: data?.imageid?.id,
-              };
-
-              if (data && data.id) {
-                await patchdata(`about-business/${data.id}`, payload);
-                alert("Updated successfully");
-              } else {
-                await postdatas("about-business", payload);
-                alert("Created successfully");
-              }
-            } catch (err) {
-              console.error("FULL ERROR:", err.response?.data || err);
-            }
-          }}
+          validationSchema={schema}
+          onSubmit={handleSubmit}
         >
-          {({ setFieldValue, values, setFieldTouched }) => (
-            <Form className="p-4 space-y-4">
-              {maaaping.map((val) => (
-                <div key={val.name} >
-                  <label className="block mb-2 text-lg text-gray-600">
-                    {val.label}
-                  </label>
+          {({ values, setFieldValue, isSubmitting }) => (
+            <Form className="flex flex-col gap-4 p-8 shadow-xl rounded-xl">
 
-                  {val.type === "file" ? (
-                    <>
-                      <input
-                        type="file"
-                        onChange={(e) => {
-                          const file = e.target.files && e.target.files[0];
-                          setFieldValue(val.name, file);
-                        }}
-                      />
+              {/* TITLE */}
+              <div>
+                <label>Title *</label>
+                <Field
+                  name="title"
+                  className="border p-2 w-full"
+                />
+                <ErrorMessage name="title" component="div" className="text-red-500" />
+              </div>
 
-                      {data?.imageid?.imageUrl && (
-                        <img
-                          src={data.imageid.imageUrl}
-                          alt="preview"
-                          className="mt-2 w-68 h-32 object-cover"
-                        />
-                      )}
-                    </>
-                  ) : val.type === "editor" ? (
-                    <div className="border rounded">
-                      <JoditEditor
-                        ref={editor}
-                        value={values.description}
-                        config={config}
-                        onBlur={(newContent) => {
-                          setFieldValue(val.name, newContent);
-                          setFieldTouched(val.name, true);
-                        }}
-                        onChange={(newContent) => {
-                          setFieldValue(val.name, newContent);
-                        }}
-                      />
-                    </div>
-                  ) : (
-                    <Field
-                      name={val.name}
-                      type={val.type}
-                      className="w-full border p-2 rounded"
-                    />
-                  )}
+              {/* ✅ DESCRIPTION FIXED */}
+              <div>
+                <label>Description *</label>
 
-                  <ErrorMessage
-                    name={val.name}
-                    component="div"
-                    className="text-red-500 text-sm"
+                <JoditEditor
+                    value={values.description}
+                    onBlur={(content) => setFieldValue("description", content)}
+                    onChange={() => {}}
                   />
-                </div>
-              ))}
 
+                <ErrorMessage
+                  name="description"
+                  component="div"
+                  className="text-red-500"
+                />
+              </div>
+
+              {/* IMAGE */}
+              <div>
+                <input
+                  type="file"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setFieldValue("imageid", file);
+                      setPreview(URL.createObjectURL(file));
+                    }
+                  }}
+                />
+
+                {preview && (
+                  <img src={preview} className="w-40 mt-2" />
+                )}
+
+                {!preview && storedData?.imageid?.imageUrl && (
+                  <img
+                    src={storedData.imageid.imageUrl}
+                    className="w-40 mt-2"
+                  />
+                )}
+              </div>
+
+              {/* SUBMIT */}
               <button
                 type="submit"
-                disabled={loading}
-                className="bg-yellow-500 text-white px-4 py-2 rounded"
+                disabled={isSubmitting || apiLoading}
+                className="bg-black text-white py-2 rounded"
               >
-                {data ? "Update" : "Submit"}
+                {isSubmitting ? "Saving..." : hasData ? "Update" : "Create"}
               </button>
             </Form>
           )}
         </Formik>
       </div>
-    </div>
+    </>
   );
-}
+};
+
+export default AboutBusinessCMS;

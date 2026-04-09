@@ -416,7 +416,7 @@ export default function Page() {
               <button
                 key={i}
                 onClick={() => handleButtonClick(val)}
-                className={`text-sm font-light p-1 px-2 rounded-2xl transition-colors relative  cursor-pointer  ${
+                className={`text-sm font-light py-2.5 px-2 rounded-2xl transition-colors relative  cursor-pointer  ${
                   isActive
                     ? "bg-yellow-500 text-white"
                     : " text-black hover:bg-[#04413D]/10"

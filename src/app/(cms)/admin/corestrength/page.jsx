@@ -50,7 +50,7 @@ export default function CoreStrengthsCMS() {
   ];
 
   return (
-    <div className="flex flex-col gap-8 mx-auto  w-full">
+    <div className="flex flex-col gap-8 mx-auto  w-11/12">
       <Toaster 
         position="top-right"
         toastOptions={{
@@ -266,7 +266,7 @@ export default function CoreStrengthsCMS() {
                 />
 
                 {(preview || data?.imageid?.imageUrl) && (
-                  <div className="mt-7 relative group border-2 border-dashed hover:border-gray-900 cursor-pointer border-gray-400 rounded-lg items-center justify-center mx-auto flex flex-col">
+                  <div className="mt-7 w-full relative group border-2 border-dashed hover:border-gray-900 cursor-pointer border-gray-400 rounded-lg items-center justify-center mx-auto flex flex-col">
                     <img
                       src={preview || data?.imageid?.imageUrl}
                       alt="Core Strengths Preview"

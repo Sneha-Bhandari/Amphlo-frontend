@@ -1,22 +1,26 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { fetchData } from "@/lib/frontendApi";
 import Loading from "@/Global/Loading";
 
-export default function AboutOurBusiness() {
+export default function AboutBusiness() {
   const [aboutData, setAboutData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     const getAboutData = async () => {
       try {
-        setLoading(true);
         const data = await fetchData("about-business");
-        setAboutData(data[0] || null);
+        console.log("About Business API Response:", data);
+        
+        if (Array.isArray(data) && data.length > 0) {
+          setAboutData(data[0]);
+        } else if (data && !Array.isArray(data)) {
+          setAboutData(data);
+        }
       } catch (error) {
         console.error("Error fetching about business data:", error);
       } finally {
@@ -35,67 +39,60 @@ export default function AboutOurBusiness() {
     );
   }
 
-  const title = aboutData?.title || "About Our Business";
-  const description = aboutData?.description || 
-    `Construction is a general term meaning the art and science to form objects, systems, or organizations, and comes from Latin constructio and Old French construction. It represents the collaborative effort of architects, engineers, and builders to bring visions into reality. Our process focuses on quality craftsmanship, adhering to safety standards, and using modern technology for sustainable and efficient building. We manage everything from the foundational structure to the final aesthetic details, ensuring every 'dream' is structurally sound and beautifully executed.`;
-  
-  const imageUrl = aboutData?.imageid?.imageUrl || "";
+  if (!aboutData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-[#04413D] text-xl">No data available</p>
+      </div>
+    );
+  }
+
+  const title = aboutData.title;
+  const description = aboutData.description;
+  const imageUrl = aboutData.imageid?.imageUrl || null;
+
+  const cleanDescription = description?.replace(/^<p>(.*)<\/p>$/, '$1') || description;
 
   return (
-    <main className="h-full md:py-24 bg-[#04413D]/10 flex items-center justify-center p-6 overflow-hidden">
-      <section className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-14 navtext">
-        
-        <motion.div 
-          initial={{ opacity: 0, x: -60 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          viewport={{ once: true }}
-          className="relative w-full md:w-1/2 flex items-center justify-center h-[55vh]"
+    <section className="relative w-full min-h-screen flex items-center justify-center py-8 overflow-hidden bg-linear-to-br from-[#04413D]/20 to-[#0a5c56]">
+      <div className="relative z-10 w-11/12 mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="flex flex-col lg:flex-row items-center gap-10 backdrop-blur-sm rounded-3xl p-8 md:p-12"
         >
-          <div className="relative w-full h-full">
+          <div className="w-full lg:w-1/2 relative h-[60vh] md:h-[60vh]">
             {imageUrl ? (
               <Image
                 src={imageUrl}
-                alt="About Our Business"
+                alt={title}
                 fill
                 priority
-                className="rounded-2xl w-full h-full object-cover shadow-xl"
+                className="object-cover rounded-2xl shadow-lg"
               />
             ) : (
-              <div className="bg-gray-200 w-full h-full rounded-4xl flex items-center justify-center shadow-xl">
-                <p className="text-gray-600">Image Not Found</p>
+              <div className="w-full h-full flex items-center justify-center bg-white/20 rounded-2xl">
+                <p className="text-white/70">No Image Available</p>
               </div>
             )}
           </div>
-        </motion.div>
 
-        <motion.div 
-          initial={{ opacity: 0, x: 60 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-          viewport={{ once: true }}
-          className="w-full md:w-1/2 flex flex-col"
-        >
-          <h1 className="text-4xl lg:text-5xl font-black text-[#04413D] leading-tight mb-6">
-            {title}
-          </h1>
-
-          <div className="text-justify">
-            <p className={`text-md text-gray-600 mb-6 transition-all duration-500 ease-in-out ${!isExpanded ? "line-clamp-5" : ""}`}>
-              {description}
-            </p>
+          <div className="w-full lg:w-1/2 text-left">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+              {title}
+            </h2>
+            
+            <div className="text-gray-200 leading-relaxed text-md">
+              {/* Show complete description from CMS */}
+              <div 
+                className="whitespace-normal"
+                dangerouslySetInnerHTML={{ __html: cleanDescription }}
+              />
+            </div>
           </div>
-
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="bg-[#FDC653] hover:bg-[#FDC653]/80 text-black font-bold py-3 px-10 rounded-xl w-fit transition-all shadow-lg cursor-pointer"
-          >
-            {isExpanded ? "Show Less" : "Learn More"}
-          </motion.button>
         </motion.div>
-      </section>
-    </main>
+      </div>
+    </section>
   );
 }

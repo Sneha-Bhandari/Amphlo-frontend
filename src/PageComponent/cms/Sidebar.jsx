@@ -71,6 +71,7 @@ export default function Sidebar({ children }) {
         { name: "Our Core Strength", path: "/admin/corestrength", icon: Shield },
         { name: "Banner", path: "/admin/banner", icon: Image },
         { name: "About Us", path: "/admin/about", icon: Building2 },
+        { name: "Top Section", path: "/admin/topsection", icon: Building2 },
         { name: "Vision & Mission", path: "/admin/vision-mission", icon: Globe },
         { name: "Services & Offerings", path: "/admin/service-offerings", icon: Handshake },
       ],
@@ -80,6 +81,12 @@ export default function Sidebar({ children }) {
       path: "/admin/partners",
       icon: Handshake,
       color: "text-orange-500",
+    },
+    {
+      name: "Our Teams",
+      path: "/admin/ourteam",
+      icon: Handshake,
+      color: "text-blue-500",
     },
     {
       name: "Universities",
@@ -97,6 +104,12 @@ export default function Sidebar({ children }) {
       name: "Enquiry",
       path: "/admin/enquiry",
       icon: Mail,
+      color: "text-red-500",
+    },
+    {
+      name: "CRM",
+      path: "/admin/crm",
+      icon: Shield,
       color: "text-red-500",
     },
     {

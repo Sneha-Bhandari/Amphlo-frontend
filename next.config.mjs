@@ -17,18 +17,24 @@ const nextConfig = {
         port: "3001",
         pathname: "/uploads/**",
       },
+      {
+        protocol: "https",
+        hostname: "frontbackend.amphlo.com",
+        pathname: "/**",
+      },
     ],
   },
 
   async rewrites() {
     return [
       {
-        source: "/api/:path*/",
-        destination: "https://frontbackend.amphlo.com/:path*/",
-      },
-      {
         source: "/api/:path*",
-        destination: "https://frontbackend.amphlo.com/:path*",
+        destination: "https://frontbackend.amphlo.com/api/:path*",
+      },
+      // Rewrite for your login API (192.168.1.97:3000)
+      {
+        source: "/auth/:path*",
+        destination: "http://192.168.1.97:3000/auth/:path*",
       },
     ];
   }
