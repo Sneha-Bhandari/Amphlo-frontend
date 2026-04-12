@@ -31,7 +31,7 @@ export default function UniversityLoginForm() {
         await new Promise(resolve => setTimeout(resolve, 1500))
         
         toast.success('Login successful! Redirecting to dashboard...')
-        router.push('/dashboard/university')
+        router.push('/dashboard')
       } catch (error) {
         console.error('Login error:', error)
         toast.error('Login failed. Please check your credentials.')
@@ -139,7 +139,7 @@ export default function UniversityLoginForm() {
         )}
       </button>
 
-      <div className="text-center">
+      {/* <div className="text-center">
         <p className="text-sm text-gray-600">
           Don't have an account?{' '}
           <Link 
@@ -149,7 +149,7 @@ export default function UniversityLoginForm() {
             Register as University
           </Link>
         </p>
-      </div>
+      </div> */}
     </form>
   )
 }

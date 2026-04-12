@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { fetchData } from "@/lib/frontendApi";
+import Loading from "@/Global/Loading";
 
 export default function FAQ() {
   const [openIndex, setOpenIndex] = useState(0);
@@ -15,41 +16,16 @@ export default function FAQ() {
         const data = await fetchData("faq");
         console.log("FAQ API Response:", data);
         
-
         if (Array.isArray(data) && data.length > 0) {
           setFaqs(data);
         } else {
-          setFaqs([
-            {
-              title: "What programs does the university offer?",
-              description: "Our university offers a wide range of undergraduate, graduate, and professional programs across disciplines such as business, engineering, technology, health sciences, and the humanities.",
-            },
-            {
-              title: "How can I apply for admission?",
-              description: "You can apply online through our admissions portal. Simply complete the application form, upload the required documents, and submit the application before the deadline.",
-            },
-            {
-              title: "Are scholarships or financial aid available?",
-              description: "Yes, we offer a variety of scholarships and financial aid options based on academic performance, financial need, and special achievements.",
-            },
-          ]);
+          // No default values - just set empty array
+          setFaqs([]);
         }
       } catch (error) {
         console.error("Error fetching FAQ data:", error);
-        setFaqs([
-          {
-            title: "What ?",
-            description: "Our university offers a wide range of undergraduate, graduate, and professional programs across disciplines such as business, engineering, technology, health sciences, and the humanities.",
-          },
-          {
-            title: "How can I?",
-            description: "You can apply online through our admissions portal. Simply complete the application form, upload the required documents, and submit the application before the deadline.",
-          },
-          {
-            title: "Are scholarships or ?",
-            description: "Yes, we offer a variety of scholarships and financial aid options based on academic performance, financial need, and special achievements.",
-          },
-        ]);
+        // No default values on error either - just set empty array
+        setFaqs([]);
       } finally {
         setLoading(false);
       }
@@ -61,16 +37,13 @@ export default function FAQ() {
   if (loading) {
     return (
       <div className="bg-linear-to-b from-[#04413D]/50 to-white min-h-full flex flex-col items-center py-16 px-6">
-        <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold text-[#04413D]">
-            Frequently Asked Questions
-          </h1>
-          <p className="text-gray-700 mt-3">
-            Loading FAQs...
-          </p>
-        </div>
+        <Loading/>
       </div>
     );
+  }
+
+  if (!faqs || faqs.length === 0) {
+    return null;
   }
 
   return (
@@ -102,7 +75,7 @@ export default function FAQ() {
                 }`}
                 onClick={() => setOpenIndex(isOpen ? null : index)}
               >
-                {faq.title || faq.question || "Question"}
+                {faq.title}
 
                 <motion.div
                   animate={{ rotate: isOpen ? 180 : 0 }}
@@ -125,7 +98,7 @@ export default function FAQ() {
                     transition={{ duration: 0.3 }}
                   >
                     <div className="px-6 pb-4 text-black border-t border-gray-400 pt-3">
-                      {faq.description || faq.answer || "No description available"}
+                      {faq.description}
                     </div>
                   </motion.div>
                 )}

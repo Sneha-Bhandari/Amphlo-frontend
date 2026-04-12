@@ -31,6 +31,35 @@ export default function AboutBusiness() {
     getAboutData();
   }, []);
 
+  const cleanDescription = (html) => {
+    if (!html) return "";
+    
+    const hasOpeningOl = html.includes("<ol");
+    const hasClosingOl = html.includes("</ol>");
+    
+    if (hasOpeningOl && !hasClosingOl) {
+      html = html + "</ol>";
+    }
+    
+    html = html.replace(/style="[^"]*$/i, '');
+    
+    html = html.replace(/&quot;$/i, '&quot;');
+    
+    return html;
+  };
+
+  const sanitizeDescription = (html) => {
+    if (!html) return "<p>No description available</p>";
+    
+    let cleaned = cleanDescription(html);
+    
+    if (cleaned.length < 100) {
+      return "<p>Description content is being updated.</p>";
+    }
+    
+    return cleaned;
+  };
+
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -51,10 +80,8 @@ export default function AboutBusiness() {
   const description = aboutData.description;
   const imageUrl = aboutData.imageid?.imageUrl || null;
 
-  const cleanDescription = description?.replace(/^<p>(.*)<\/p>$/, '$1') || description;
-
   return (
-    <section className="relative w-full min-h-screen flex items-center justify-center py-8 overflow-hidden bg-linear-to-br from-[#04413D]/20 to-[#0a5c56]">
+    <section className="relative w-full h-fit py-5 flex items-center justify-center  overflow-hidden bg-linear-to-br from-[#04413D]/20 to-[#0a5c56]">
       <div className="relative z-10 w-11/12 mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -62,7 +89,7 @@ export default function AboutBusiness() {
           transition={{ duration: 0.6 }}
           className="flex flex-col lg:flex-row items-center gap-10 backdrop-blur-sm rounded-3xl p-8 md:p-12"
         >
-          <div className="w-full lg:w-1/2 relative h-[60vh] md:h-[60vh]">
+          <div className="w-full lg:w-1/2 relative h-[60vh] md:h-[50vh]">
             {imageUrl ? (
               <Image
                 src={imageUrl}
@@ -70,6 +97,10 @@ export default function AboutBusiness() {
                 fill
                 priority
                 className="object-cover rounded-2xl shadow-lg"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-white/20 rounded-2xl"><p class="text-white/70">Image failed to load</p></div>';
+                }}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-white/20 rounded-2xl">
@@ -83,16 +114,37 @@ export default function AboutBusiness() {
               {title}
             </h2>
             
-            <div className="text-gray-200 leading-relaxed text-md">
-              {/* Show complete description from CMS */}
+            <div className="text-gray-200 leading-relaxed">
               <div 
-                className="whitespace-normal"
-                dangerouslySetInnerHTML={{ __html: cleanDescription }}
+                className="about-business-description"
+                dangerouslySetInnerHTML={{ __html: sanitizeDescription(description) }}
               />
             </div>
           </div>
         </motion.div>
       </div>
+
+      <style jsx global>{`
+        .about-business-description {
+          color: #e5e7eb;
+          line-height: 1.75;
+        }
+        .about-business-description p {
+          margin-bottom: 1rem;
+        }
+        .about-business-description ul, 
+        .about-business-description ol {
+          margin-left: 1.5rem;
+          margin-bottom: 1rem;
+        }
+        .about-business-description li {
+          margin-bottom: 0.25rem;
+        }
+        .about-business-description strong {
+          color: white;
+          font-weight: 600;
+        }
+      `}</style>
     </section>
   );
 }

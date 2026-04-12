@@ -85,9 +85,10 @@ export default function WhyPartnerWithUs() {
                         <h2 className="text-3xl md:text-4xl font-bold text-[#04413D] mb-6">
                             {title}
                         </h2>
-                        <p className="text-lg text-gray-600 mb-8">
-                            {description}
-                        </p>
+                        <div
+  className="text-sm md:text-base text-gray-600 leading-relaxed"
+  dangerouslySetInnerHTML={{ __html: description }}
+/>
                         <div className="grid sm:grid-cols-2 gap-4 mb-10">
                             {benefits.map((benefit, index) => (
                                 <div key={index} className="flex items-center gap-3 group hover:translate-x-1 transition-transform">

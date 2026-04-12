@@ -80,7 +80,7 @@ export default function EditTeamMember({ isOpen, onClose, onSuccess, teamMember 
         imageid: imageId,
       };
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/our-team/${data.id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}our-team/${data.id}`, {
         method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json',

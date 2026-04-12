@@ -1,8 +1,9 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/app/(cms)/admin/contexts/AuthContext";
 import {
   LayoutDashboard,
   Settings,
@@ -22,11 +23,12 @@ import {
   Shield,
   Bell,
   HelpCircle,
-
 } from "lucide-react";
 
 export default function Sidebar({ children }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { logout, user } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openDropdowns, setOpenDropdowns] = useState({});
   const [isMobile, setIsMobile] = useState(false);
@@ -53,6 +55,40 @@ export default function Sidebar({ children }) {
     }));
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch("/auth/logout", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+
+    document.cookie.split(";").forEach(function(cookie) {
+      document.cookie = cookie
+        .replace(/^ +/, "")
+        .replace(/=.*/, "=; expires=" + new Date().toUTCString() + "; path=/");
+    });
+
+    localStorage.removeItem("cms_auth");
+    localStorage.removeItem("cms_token");
+    sessionStorage.clear();
+
+    const cookiesToClear = ['connect.sid', 'token', 'auth_token', 'session'];
+    cookiesToClear.forEach(cookieName => {
+      document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+      document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/admin;`;
+      document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname};`;
+    });
+
+    
+    window.location.href = "/cms-login";
+  };
+
   const navItems = [
     {
       name: "Dashboard",
@@ -68,12 +104,28 @@ export default function Sidebar({ children }) {
       dropdownName: "content",
       items: [
         { name: "Hero Section", path: "/admin/hero", icon: Star },
-        { name: "Our Core Strength", path: "/admin/corestrength", icon: Shield },
+        // { name: "Our Core Strength", path: "/admin/corestrength", icon: Shield },
         { name: "Banner", path: "/admin/banner", icon: Image },
+        { name: "Services & Offerings", path: "/admin/service-offerings", icon: Handshake },
         { name: "About Us", path: "/admin/about", icon: Building2 },
         { name: "Top Section", path: "/admin/topsection", icon: Building2 },
         { name: "Vision & Mission", path: "/admin/vision-mission", icon: Globe },
-        { name: "Services & Offerings", path: "/admin/service-offerings", icon: Handshake },
+      ],
+    },
+    {
+      name: "Pages",
+      icon: FileText,
+      color: "text-teal-500",
+      dropdown: true,
+      dropdownName: "contentpage",
+      items: [
+        { name: "Our Core Strength", path: "/admin/corestrength", icon: Shield },
+        { name: "CRM", path: "/admin/crm", icon: Shield, color: "text-red-500"},
+        { name: "Connected Countries", path: "/admin/connectedcountries", icon: Image },
+        { name: "Get In Touch", path: "/admin/getintouch", icon: Image },
+        { name: "Why Partner With Us", path: "/admin/whypartnerwithus", icon: Image },
+        { name: "Our Features", path: "/admin/features", icon: Shield },
+
       ],
     },
     {
@@ -89,11 +141,12 @@ export default function Sidebar({ children }) {
       color: "text-blue-500",
     },
     {
-      name: "Universities",
-      path: "/admin/universities",
+      name: "Countries",
+      path: "/admin/countries",
       icon: GraduationCap,
       color: "text-indigo-500",
     },
+   
     {
       name: "Testimonials",
       path: "/admin/testimonial",
@@ -107,14 +160,8 @@ export default function Sidebar({ children }) {
       color: "text-red-500",
     },
     {
-      name: "CRM",
-      path: "/admin/crm",
-      icon: Shield,
-      color: "text-red-500",
-    },
-    {
-      name: "Analytics",
-      path: "/admin/analytics",
+      name: "FAQ",
+      path: "/admin/faq",
       icon: BarChart3,
       color: "text-cyan-500",
     },
@@ -125,7 +172,7 @@ export default function Sidebar({ children }) {
       color: "text-pink-500",
     },
     {
-      name: "Settings",
+      name: "Images",
       path: "/admin/settings",
       icon: Settings,
       color: "text-gray-500",
@@ -222,6 +269,14 @@ export default function Sidebar({ children }) {
       </nav>
 
       <div className="p-3 sm:p-4 border-t border-gray-200">
+        {/* User Info Section */}
+        {user && (
+          <div className="mb-3 p-2 bg-gray-50 rounded-lg">
+            <p className="text-xs text-gray-500">Logged in as</p>
+            <p className="text-sm font-medium text-gray-700 truncate">{user.email || "Admin"}</p>
+          </div>
+        )}
+        
         <div className="space-y-1 sm:space-y-2">
           <Link
             href="/admin/help"
@@ -230,12 +285,10 @@ export default function Sidebar({ children }) {
             <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5" />
             <span className="font-medium truncate">Help & Support</span>
           </Link>
+          
           <button
-            onClick={() => {
-              localStorage.removeItem('cms_token');
-              window.location.href = '/cms-login';
-            }}
-            className="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-all duration-200 text-sm sm:text-base"
+            onClick={handleLogout}
+            className="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-all duration-200 text-sm sm:text-base cursor-pointer"
           >
             <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
             <span className="font-medium truncate">Logout</span>
@@ -249,28 +302,26 @@ export default function Sidebar({ children }) {
     <>
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-[#04413D] text-white rounded-lg shadow-lg"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-[#04413D] text-white rounded-lg shadow-lg cursor-pointer"
       >
         {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
 
-      <div className="hidden lg:block w-64 xl:w-72 h-screen sticky top-0 ">
+      <div className="hidden lg:block w-64 xl:w-72 h-screen sticky top-0">
         <SidebarContent />
       </div>
 
       {isMobileMenuOpen && (
         <>
           <div
-            className="lg:hidden fixed inset-0 blur-3xl bg-black/50  bg-opacity-50 z-40"
+            className="lg:hidden fixed inset-0 bg-black/50 z-40"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          <div className="lg:hidden fixed top-0 left-0 w-64 sm:w-72 h-full z-40 animate-slide-in  shadow-2xl">
+          <div className="lg:hidden fixed top-0 left-0 w-64 sm:w-72 h-full z-40 animate-slide-in shadow-2xl">
             <SidebarContent />
           </div>
         </>
       )}
-
-     
     </>
   );
 }

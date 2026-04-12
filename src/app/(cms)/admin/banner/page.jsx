@@ -80,7 +80,7 @@ function DynamicForm({ section, data, onSuccess }) {
       const payload = {
         title: values.title,
         subTitle: values.subtitle,
-        path: section.apiPath,
+        path: section.apiPath, // This is the key field for identification
       };
 
       if (imageId) {
@@ -91,21 +91,22 @@ function DynamicForm({ section, data, onSuccess }) {
 
       let response;
       if (data && data.id) {
-        console.log(
-          `Updating banner with ID: ${data.id}, path: ${section.apiPath}`
-        );
+        console.log(`Updating banner with ID: ${data.id}, path: ${section.apiPath}`);
+        
+        // Try updating with ID first
         try {
-          response = await patchdata(`banner/${section.apiPath}`, payload);
-        } catch (err) {
-          console.log("First endpoint failed, trying with ID:", err);
           response = await patchdata(`banner/${data.id}`, payload);
+          console.log("Update response:", response);
+        } catch (err) {
+          console.log("Update with ID failed, trying with path:", err);
+          response = await patchdata(`banner/path/${section.apiPath}`, payload);
         }
-        console.log("Update response:", response);
+        
         toast.success(`${section.name} updated successfully!`, {
           id: loadingToast,
         });
       } else {
-        console.log("Creating new banner");
+        console.log("Creating new banner for path:", section.apiPath);
         response = await postdatas("banner", payload);
         console.log("Create response:", response);
         toast.success(`${section.name} created successfully!`, {
@@ -130,6 +131,8 @@ function DynamicForm({ section, data, onSuccess }) {
         errorMessage = JSON.stringify(err.response.data.errors);
       } else if (err.response?.status === 400) {
         errorMessage = "Bad request. Please check if all fields are correct.";
+      } else if (err.response?.status === 404) {
+        errorMessage = "API endpoint not found. Please check your backend configuration.";
       }
 
       toast.error(`Error: ${errorMessage}`, {
@@ -153,7 +156,7 @@ function DynamicForm({ section, data, onSuccess }) {
       onSubmit={handleSubmit}
     >
       {({ setFieldValue, isSubmitting, values }) => (
-        <Form className="p-4 space-y-4 ">
+        <Form className="p-4 space-y-4">
           {formFields.map((val) => (
             <div key={val.name}>
               <label className="block mb-1 font-medium text-gray-700">
@@ -238,9 +241,8 @@ function DynamicForm({ section, data, onSuccess }) {
                       <img
                         src={data.imageid.imageUrl}
                         alt="current"
-                        className="my-5 w-68 h-38 object-contain  "
+                        className="my-5 w-68 h-38 object-contain"
                       />
-                      
                     </div>
                   )}
                 </>
@@ -248,7 +250,7 @@ function DynamicForm({ section, data, onSuccess }) {
                 <Field
                   name={val.name}
                   type={val.type}
-                  className="w-full border border-gray-300 rounded-lg p-2  focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
+                  className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
                   placeholder={`Enter ${val.label.toLowerCase()}`}
                 />
               )}
@@ -324,7 +326,7 @@ export default function Page() {
     {
       name: "Book an Appointment",
       displayPath: "bookappointment",
-      apiPath: "bookAnAppointment",
+      apiPath: "bookAnAppointment", // Make sure this matches exactly what's in the database
     },
   ];
 
@@ -334,10 +336,16 @@ export default function Page() {
     try {
       console.log("Fetching all banners from: banner");
       const res = await getdata("banner");
-      console.log("Fetched all banners:", res);
+      console.log("Fetched all banners:", JSON.stringify(res, null, 2));
 
       if (res && Array.isArray(res)) {
         setAllBanners(res);
+        
+        // Log all paths found in the database
+        console.log("Available paths in database:");
+        res.forEach(banner => {
+          console.log(`- Path: "${banner.path}" for banner: ${banner.title}`);
+        });
       } else {
         setAllBanners([]);
       }
@@ -355,17 +363,30 @@ export default function Page() {
 
   const getSectionData = (apiPath) => {
     if (!allBanners.length) return null;
-    const found = allBanners.find((banner) => banner.path === apiPath);
-    console.log(`Looking for path: ${apiPath}, Found:`, found);
+    
+    // Try exact match first
+    let found = allBanners.find((banner) => banner.path === apiPath);
+    
+    // If not found, try case-insensitive match
+    if (!found) {
+      found = allBanners.find((banner) => 
+        banner.path?.toLowerCase() === apiPath.toLowerCase()
+      );
+      if (found) {
+        console.log(`Found case-insensitive match: "${found.path}" for "${apiPath}"`);
+      }
+    }
+    
+    console.log(`Looking for path: "${apiPath}", Found:`, found ? found.title : "NOT FOUND");
     return found || null;
   };
 
   const handleButtonClick = (section) => {
     console.log("Button clicked:", section);
     setActiveSection(section);
-    const sectionData = getSectionData(section.apiPath);
-    console.log(`Setting section data for ${section.name}:`, sectionData);
-    setSectionData(sectionData);
+    const foundData = getSectionData(section.apiPath);
+    console.log(`Setting section data for ${section.name}:`, foundData);
+    setSectionData(foundData);
   };
 
   const refreshData = async () => {
@@ -379,6 +400,13 @@ export default function Page() {
   useEffect(() => {
     fetchAllBanners();
   }, []);
+
+  // Auto-select the first section if none is active and data is loaded
+  useEffect(() => {
+    if (!activeSection && bannersection.length > 0 && !loading) {
+      handleButtonClick(bannersection[0]);
+    }
+  }, [allBanners, loading]);
 
   return (
     <>
@@ -407,7 +435,8 @@ export default function Page() {
         }}
       />
       
-        <div className=" gap-4 justify-start flex bg-gray-300  rounded-full w-fit h-fit mb-5">
+      <div className="p-6">
+        <div className="gap-4 justify-start flex bg-gray-300 rounded-full w-fit h-fit mb-5">
           {bannersection.map((val, i) => {
             const isActive = activeSection?.displayPath === val.displayPath;
             const hasData = getSectionData(val.apiPath) !== null;
@@ -416,16 +445,16 @@ export default function Page() {
               <button
                 key={i}
                 onClick={() => handleButtonClick(val)}
-                className={`text-sm font-light py-2.5 px-2 rounded-2xl transition-colors relative  cursor-pointer  ${
+                className={`text-sm font-light py-2.5 px-2 rounded-2xl transition-colors relative cursor-pointer ${
                   isActive
                     ? "bg-yellow-500 text-white"
-                    : " text-black hover:bg-[#04413D]/10"
+                    : "text-black hover:bg-[#04413D]/10"
                 }`}
               >
                 {val.name}
-                {/* {hasData && !isActive && (
+                {hasData && !isActive && (
                   <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full"></span>
-                )} */}
+                )}
               </button>
             );
           })}
@@ -444,7 +473,6 @@ export default function Page() {
                 <div className="text-2xl text-[#04413D] font-bold">
                   {activeSection.name} Section
                 </div>
-                
                 <p className="text-sm text-gray-500">
                   Title, Subtitle and Image
                 </p>
@@ -453,7 +481,7 @@ export default function Page() {
 
             {loading ? (
               <div className="border border-gray-300 rounded-2xl p-8 text-center">
-                <div className="text-gray-500"> <Loading/> </div>
+                <div className="text-gray-500"><Loading /></div>
               </div>
             ) : (
               <div className="border border-gray-300 rounded-2xl overflow-hidden">
@@ -470,7 +498,7 @@ export default function Page() {
             Click on any button above to manage content
           </div>
         )}
-     
+      </div>
     </>
   );
 }

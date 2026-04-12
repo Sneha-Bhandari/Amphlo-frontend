@@ -99,7 +99,7 @@ export default function AddTeamMember({ isOpen, onClose, onSuccess }) {
         imageid: values.imageid
       };
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/our-team`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}our-team`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

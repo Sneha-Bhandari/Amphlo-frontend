@@ -83,7 +83,7 @@ export default function EditTestimonial({ isOpen, onClose, onSuccess, testimonia
         imageid: imageId,
       };
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/testimonial/${data.id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}testimonial/${data.id}`, {
         method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json',

@@ -35,15 +35,15 @@ export default function ConnectedCountries() {
   }
 
   const title = countriesData?.title || "Countries We Are Connected With";
-  const description = countriesData?.description || 
+  const description =
+    countriesData?.description ||
     "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt deserunt dolores quam repellat, molestias, officiis pariatur. Amet consectetur adipisicing elit.";
   const imageUrl = countriesData?.imageid?.imageUrl || "";
 
   return (
     <div className="min-h-screen w-full bg-[#04413D]/10 py-12 px-6 flex items-center justify-center">
       <div className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-12 px-12">
-        
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
@@ -53,21 +53,23 @@ export default function ConnectedCountries() {
           <h1 className="text-4xl md:text-5xl font-semibold text-[#04413D] leading-tight">
             {title}
           </h1>
-          
-          <p className="text-sm md:text-base text-gray-600 leading-relaxed">
-            {description}
-          </p>
 
+          <div
+            className="text-sm md:text-base text-gray-600 leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: description }}
+          />
           <div className="flex items-center gap-3 bg-white/50 p-3 rounded-xl border border-[#04413D]/10">
             <span className="relative flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#04413D] opacity-75"></span>
               <span className="relative inline-flex rounded-full h-3 w-3 bg-[#04413D]"></span>
             </span>
-            <p className="text-xs font-medium text-[#04413D]">Global Presence Active</p>
+            <p className="text-xs font-medium text-[#04413D]">
+              Global Presence Active
+            </p>
           </div>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, ease: "easeOut" }}
@@ -90,7 +92,6 @@ export default function ConnectedCountries() {
             )}
           </div>
         </motion.div>
-
       </div>
     </div>
   );

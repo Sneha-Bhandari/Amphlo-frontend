@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Store, Lock, Mail, Eye, EyeOff } from "lucide-react";
+import { useAuth } from "@/app/(cms)/admin/contexts/AuthContext";
 
-export default function LoginPage() {
+export default function CmsLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -12,7 +13,14 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
-  const API_BASE_URL = process.env.NEXT_PUBLIC_LOGIN_API_URL?.replace(/\/$/, '');
+  const { checkAuth, loggedIn } = useAuth();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (loggedIn) {
+      router.push("/admin");
+    }
+  }, [loggedIn, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,11 +44,25 @@ export default function LoginPage() {
         return;
       }
   
-      router.push("/admin");
-      router.refresh();
+      // Store auth data in localStorage
+      localStorage.setItem("cms_auth", JSON.stringify({ 
+        loggedIn: true, 
+        user: result.user,
+        timestamp: Date.now() 
+      }));
+      
+      // Wait for cookies to be set
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Re-check authentication status
+      await checkAuth();
+      
+      // Force a hard navigation to admin
+      window.location.href = "/admin";
   
     } catch (err) {
-      setError("Server not reachable");
+      console.error("Login error:", err);
+      setError("Server not reachable. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -62,8 +84,6 @@ export default function LoginPage() {
                   <Store className="w-8 h-8 text-white" strokeWidth={1.5} />
                 </div>
               </div>
-
-              
 
               <div className="flex items-center gap-2">
                 <div className="h-px w-8 bg-[#04413D]"></div>
@@ -133,12 +153,12 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
-                    className="absolute right-4 top-1/2 -translate-y-1/2"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer"
                   >
                     {showPassword ? (
-                      <EyeOff className="w-5 h-5" />
+                      <EyeOff className="w-5 h-5 text-gray-600" />
                     ) : (
-                      <Eye className="w-5 h-5" />
+                      <Eye className="w-5 h-5 text-gray-600" />
                     )}
                   </button>
                 </div>
@@ -147,7 +167,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 text-white bg-[#04413D] font-semibold rounded-xl hover:opacity-90 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-3 text-white bg-[#04413D] font-semibold rounded-xl hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {loading ? "Signing in..." : "Sign In"}
               </button>

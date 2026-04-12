@@ -7,11 +7,15 @@ import { fetchData } from "@/lib/frontendApi";
 import Loading from "@/Global/Loading";
 import CountUp from "react-countup";
 import { useInView } from "react-intersection-observer";
+import { useTopSection } from "@/hooks/useTopSection";
 
 export default function OurCoreStrength() {
   const { ref, inView } = useInView({ triggerOnce: false, threshold: 0.2 });
   const [coreStrengthData, setCoreStrengthData] = useState(null);
   const [loading, setLoading] = useState(true);
+  
+  // Fetch top section data for "Our Core Strength" page
+  const { data: topSectionData, loading: topSectionLoading } = useTopSection("core-strengths");
 
   useEffect(() => {
     const getCoreStrengthData = async () => {
@@ -29,7 +33,7 @@ export default function OurCoreStrength() {
     getCoreStrengthData();
   }, []);
 
-  if (loading) {
+  if (loading || topSectionLoading) {
     return (
       <div className="h-screen flex items-center justify-center">
         <Loading />
@@ -37,7 +41,6 @@ export default function OurCoreStrength() {
     );
   }
 
-  // If no data exists, don't render anything
   if (!coreStrengthData || !coreStrengthData.stats || coreStrengthData.stats.length === 0) {
     return null;
   }
@@ -59,7 +62,10 @@ export default function OurCoreStrength() {
   const stats = transformStats();
   const imageUrl = coreStrengthData?.imageid?.imageUrl || "";
 
-  // Don't render if no stats
+  // Use top section data for title and description, fallback to defaults if not available
+  const pageTitle = topSectionData?.title || "Our Core Strengths";
+  const pageDescription = topSectionData?.description || "Client relationship management, strategic consulting, and B2B growth solutions.";
+
   if (stats.length === 0) {
     return null;
   }
@@ -68,13 +74,17 @@ export default function OurCoreStrength() {
     <section ref={ref} className="w-full py-16 bg-white overflow-hidden">
       <div className="w-11/12 mx-auto grid md:grid-cols-2 gap-16 items-center navtext">
         <div className="flex flex-col gap-4">
+          {/* Dynamic Title from Top Section CMS */}
           <h2 className="text-5xl font-bold text-[#04413D]">
-            Our Core Strengths
+            {pageTitle}
           </h2>
-          <p className="text-gray-500 mb-4">
-            Client relationship management, strategic consulting, and B2B growth
-            solutions.
-          </p>
+          
+          {/* Dynamic Description from Top Section CMS */}
+          {pageDescription && (
+            <div className="text-gray-500 mb-4">
+              <div dangerouslySetInnerHTML={{ __html: pageDescription }} />
+            </div>
+          )}
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
             {stats.map((stat, index) => (
@@ -112,7 +122,7 @@ export default function OurCoreStrength() {
           {imageUrl ? (
             <Image
               src={imageUrl}
-              alt="Core Strength"
+              alt={pageTitle}
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"

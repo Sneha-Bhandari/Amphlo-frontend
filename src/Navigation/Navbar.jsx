@@ -3,14 +3,14 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useState, useEffect } from "react"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import logo from "../../public/headerlogo.png"
 
 export default function Navbar() {
   const pathname = usePathname()
+  const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [loginDropdownOpen, setLoginDropdownOpen] = useState(false)
-  const [registerDropdownOpen, setRegisterDropdownOpen] = useState(false)
   const [countriesDropdownOpen, setCountriesDropdownOpen] = useState(false)
 
   const countries = [
@@ -35,6 +35,13 @@ export default function Navbar() {
     { name: "Book an Appointment", path: "/enquiry" },
   ]
 
+  // Handle Partner Login - Direct redirect to external CRM
+  const handlePartnerLogin = () => {
+    // Replace with your actual CRM URL
+    // If it's an email link, use mailto:
+    window.location.href = 'https://crm.amphlo.com' // or 'mailto:crm@amphlo.com'
+  }
+
   useEffect(() => {
     closeAllDropdowns()
     setMobileMenuOpen(false)
@@ -53,7 +60,6 @@ export default function Navbar() {
 
   const closeAllDropdowns = () => {
     setLoginDropdownOpen(false)
-    setRegisterDropdownOpen(false)
     setCountriesDropdownOpen(false)
   }
 
@@ -97,7 +103,6 @@ export default function Navbar() {
                     onClick={() => {
                       setCountriesDropdownOpen(!countriesDropdownOpen)
                       setLoginDropdownOpen(false)
-                      setRegisterDropdownOpen(false)
                     }}
                     className={`hover:text-[#06665f] transition flex items-center gap-1 ${
                       isCountriesActive() ? 'text-[#06665f] font-semibold' : ''
@@ -168,7 +173,6 @@ export default function Navbar() {
             <button
               onClick={() => {
                 setLoginDropdownOpen(!loginDropdownOpen)
-                setRegisterDropdownOpen(false)
                 setCountriesDropdownOpen(false)
               }}
               className="cursor-pointer hover:text-[#06665f] transition flex items-center gap-1"
@@ -189,61 +193,21 @@ export default function Navbar() {
             {loginDropdownOpen && (
               <div className="absolute flex flex-col bg-white/80 shadow-lg rounded-md mt-6 w-40 text-sm z-50 -right-8 py-3">
                 <Link
-                  href="/login?type=university" 
-                  className="px-4 py-2 hover:bg-gray-100 transition"
-                  onClick={closeAllDropdowns}
-                >
-                  For Universities
-                </Link>
-                <Link
-                  href="/login?type=partner"  
-                  className="px-4 py-2 hover:bg-gray-100 transition"
-                  onClick={closeAllDropdowns}
-                >
-                  For Partners
-                </Link>
-              </div>
-            )}
-          </div>
-
-          <div className="relative z-50">
-            <button
-              onClick={() => {
-                setRegisterDropdownOpen(!registerDropdownOpen)
-                setLoginDropdownOpen(false)
-                setCountriesDropdownOpen(false)
-              }}
-              className="bg-[#04413D] text-white px-5 py-2.5 rounded-md hover:bg-[#06665f] transition flex items-center gap-1"
-            >
-              Register
-              <svg 
-                className={`w-4 h-4 transition-transform duration-200 ${
-                  registerDropdownOpen ? 'rotate-180' : ''
-                }`} 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button> 
-
-            {registerDropdownOpen && (
-              <div className="absolute flex flex-col bg-[#04413D] text-white shadow-lg rounded-md mt-4 w-40 text-sm right-0 z-50 py-2">
-                <Link
-                  href="/register?type=university" 
-                  className="px-4 py-2 hover:bg-gray-500 transition"
-                  onClick={closeAllDropdowns}
-                >
-                  For Universities
-                </Link>
-                <Link
-                  href="/register?type=partner"  
-                  className="px-4 py-2 hover:bg-gray-500 transition"
-                  onClick={closeAllDropdowns}
+  href="/login?type=university" 
+  className="px-4 py-2 hover:bg-gray-100 transition"
+  onClick={closeAllDropdowns}
+>
+  For Universities
+</Link>
+                <button
+                  onClick={() => {
+                    closeAllDropdowns()
+                    handlePartnerLogin()
+                  }}
+                  className="px-4 py-2 hover:bg-gray-100 transition text-left w-full"
                 >
                   For Partners
-                </Link>
+                </button>
               </div>
             )}
           </div>
@@ -336,13 +300,6 @@ export default function Navbar() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Login
-                </Link>
-                <Link
-                  href="/register"  
-                  className="text-center bg-[#04413D] text-white px-4 py-2 rounded-lg hover:bg-[#06665f] transition"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Register
                 </Link>
               </div>
             </div>

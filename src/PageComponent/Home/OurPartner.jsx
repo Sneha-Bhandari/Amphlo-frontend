@@ -5,29 +5,29 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { fetchData } from "@/lib/frontendApi";
 import Loading from "@/Global/Loading";
-import partnerlogo from "../../../public/partner.png";
-
-const defaultPartners = [
-  { id: 1, name: "TechCorp", logo: partnerlogo },
-  { id: 2, name: "GlobalSol", logo: partnerlogo },
-  { id: 3, name: "InnovateX", logo: partnerlogo },
-  { id: 4, name: "Streamline", logo: partnerlogo },
-  { id: 5, name: "DataFlow", logo: partnerlogo },
-  { id: 6, name: "CloudScale", logo: partnerlogo },
-];
 
 export default function OurPartner() {
-  const [partnersData, setPartnersData] = useState(null);
+  const [partnersData, setPartnersData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const getPartnersData = async () => {
       try {
         setLoading(true);
+        // Use "partners" (plural) - this matches your working endpoint
         const data = await fetchData("partners");
-        setPartnersData(data);
+        console.log("Fetched partner data:", data);
+        
+        if (Array.isArray(data)) {
+          setPartnersData(data);
+        } else if (data && typeof data === 'object' && !Array.isArray(data)) {
+          setPartnersData([data]);
+        } else {
+          setPartnersData([]);
+        }
       } catch (error) {
         console.error("Error fetching partners data:", error);
+        setPartnersData([]);
       } finally {
         setLoading(false);
       }
@@ -44,20 +44,25 @@ export default function OurPartner() {
     );
   }
 
-  // Transform API data to match the component's expected format
-  const transformPartners = () => {
-    if (partnersData && Array.isArray(partnersData) && partnersData.length > 0) {
-      return partnersData.map((item, index) => ({
-        id: item.id || index,
-        name: `Partner ${index + 1}`,
-        logo: item.imageid?.imageUrl || partnerlogo,
-        imageUrl: item.imageid?.imageUrl
-      }));
-    }
-    return defaultPartners;
-  };
+  // Return null if no partners exist
+  if (!partnersData || partnersData.length === 0) {
+    return null;
+  }
 
-  const partners = transformPartners();
+  // Transform the data - note: there's no partnerName field in the API response
+  const partners = partnersData
+    .map((item, index) => ({
+      id: item.id || index,
+      name: `Partner ${index + 1}`, // Generate a display name since API doesn't provide one
+      logo: item.imageid?.imageUrl,
+      imageUrl: item.imageid?.imageUrl,
+    }))
+    .filter((partner) => partner.logo); // Only keep partners with valid images
+
+  // Return null if no valid partners with images
+  if (partners.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-20 bg-white overflow-hidden">

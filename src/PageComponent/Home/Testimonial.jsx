@@ -15,7 +15,7 @@ const TestimonialCard = ({ review }) => {
 
   return (
     <div className="relative w-[50vh] sm:w-[320px] md:w-[60vh] lg:w-[70vh] mx-2 sm:mx-3 md:mx-4 mt-6 mb-4 group shrink-0">
-      <div className="bg-[#04413D]/40 rounded-lg p-3 sm:p-4 pt-16 md:pt-18 lg:pt-23 shadow-lg border-l-2 border-t-2 border-[#04413D] h-[30vh] md:h-[30vh] w-full">
+      <div className="bg-[#04413D]/40 rounded-lg p-3 sm:p-4 pt-26 md:pt-18 lg:pt-23 shadow-lg border-l-2 border-t-2 border-[#04413D] h-[30vh] md:h-[30vh] w-full">
         <p className="text-white text-xs sm:text-sm line-clamp-4 italic">
           "{review.description}"
         </p>

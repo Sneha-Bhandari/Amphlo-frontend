@@ -25,7 +25,7 @@ export default function Footer() {
     { name: "Our Clients", path: "/clients" },
     { name: "Terms and Conditions", path: "/terms" },
     { name: "Privacy Policy", path: "/privacy" },
-    { name: "Become a Partner", path: "/become-a-partner" },
+    { name: "Become a Partner", path: "/partnerwithus" },
   ];
 
   const countries = [

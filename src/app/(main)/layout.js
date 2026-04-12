@@ -1,5 +1,4 @@
-"use client";
-
+'use client'
 import { Geist, Geist_Mono, Poppins } from "next/font/google";
 import { usePathname } from "next/navigation";
 import "../globals.css";
@@ -22,13 +21,11 @@ const poppins = Poppins({
   subsets: ["latin"],
 });
 
-
 export default function RootLayout({ children }) {
   const pathname = usePathname();
   
   const hideFooterRoutes = ['/login', '/register'];
   const shouldHideFooter = hideFooterRoutes.includes(pathname);
-
   
   const isAuthPage = pathname === '/login' || pathname === '/register';
 
@@ -37,12 +34,11 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} antialiased`}
       >
-        {!isAuthPage && <Navbar /> }
-    
+        {!isAuthPage && <Navbar />}
         <main className={!isAuthPage ? "min-h-screen pt-4" : ""}>
           {children}
         </main>
-        {!shouldHideFooter && <Footer /> }
+        {!shouldHideFooter && <Footer />}
       </body>
     </html>
   );

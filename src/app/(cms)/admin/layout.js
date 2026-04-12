@@ -1,11 +1,21 @@
 "use client";
 
-import { AuthProvider } from '@/app/(cms)/admin/contexts/AuthContext'; // Adjust path as needed
+import { AuthProvider } from '@/app/(cms)/admin/contexts/AuthContext';
 import Navbar from '@/PageComponent/cms/Navbar';
 import Sidebar from '@/PageComponent/cms/Sidebar';
 import React from 'react';
+import { usePathname } from 'next/navigation';
 
 function Layout({ children }) {
+  const pathname = usePathname();
+  
+  // Don't show sidebar/navbar on login page
+  const isLoginPage = pathname === '/cms-login';
+  
+  if (isLoginPage) {
+    return <AuthProvider>{children}</AuthProvider>;
+  }
+
   return (
     <AuthProvider>
       <div className="flex h-screen bg-gray-100 overflow-hidden">

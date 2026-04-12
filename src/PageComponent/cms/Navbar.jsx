@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Menu, Bell, Search, User, Settings, LogOut } from "lucide-react";
+import { Menu, Bell, Search, User, Settings,  } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 
@@ -9,11 +9,7 @@ export default function Navbar({ isSidebarOpen, setIsSidebarOpen }) {
   const router = useRouter();
   const [showUserMenu, setShowUserMenu] = useState(false);
 
-  const handleLogout = () => {
-    localStorage.removeItem('cms_token');
-    localStorage.removeItem('cms_user');
-    router.push("/cms-login");
-  };
+  
 
   return (
     <div className="bg-white border-b border-gray-200 px-6 py-6 flex items-center justify-end sticky top-0 z-30">
@@ -71,16 +67,7 @@ export default function Navbar({ isSidebarOpen, setIsSidebarOpen }) {
                   Settings
                 </Link>
                 <hr className="my-1" />
-                <button
-                  onClick={() => {
-                    setShowUserMenu(false);
-                    handleLogout();
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Logout
-                </button>
+                
               </div>
             </>
           )}

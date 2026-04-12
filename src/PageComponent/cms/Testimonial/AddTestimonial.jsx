@@ -90,7 +90,6 @@ export default function AddTestimonial({ isOpen, onClose, onSuccess }) {
   };
 
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
-    // Check if image is uploaded
     if (!values.imageid) {
       toast.error("Please upload a client image");
       setSubmitting(false);
@@ -109,7 +108,7 @@ export default function AddTestimonial({ isOpen, onClose, onSuccess }) {
         imageid: values.imageid
       };
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/testimonial`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}testimonial`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
