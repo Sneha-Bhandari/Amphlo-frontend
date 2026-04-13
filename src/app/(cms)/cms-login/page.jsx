@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Store, Lock, Mail, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/app/(cms)/admin/contexts/AuthContext";
+import { postData } from "@/lib/frontendApi";
 
 export default function CmsLoginPage() {
   const [email, setEmail] = useState("");
@@ -27,37 +28,42 @@ export default function CmsLoginPage() {
     setLoading(true);
   
     try {
-      const res = await fetch("/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-        credentials: "include",
-      });
+      // Use postData instead of fetch
+      const result = await postData("auth/login", { email, password });
+      
+      console.log("Login response:", result);
   
-      const result = await res.json().catch(() => ({}));
-  
-      if (!res.ok) {
-        setError(result.message || "Login failed");
+      if (!result || result.error) {
+        setError(result?.message || result?.error || "Login failed");
         return;
       }
   
+      // Store token if returned
+      if (result.token) {
+        localStorage.setItem("token", result.token);
+      }
+      
+      if (result.accessToken) {
+        localStorage.setItem("access_token", result.accessToken);
+      }
+      
+      // Store user data
+      const userData = result.user || result.data?.user || result;
       localStorage.setItem("cms_auth", JSON.stringify({ 
         loggedIn: true, 
-        user: result.user,
+        user: userData,
         timestamp: Date.now() 
       }));
       
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      // Update AuthContext state
       await checkAuth();
       
-      window.location.href = "/admin";
+      // Redirect to admin
+      router.push("/admin");
   
     } catch (err) {
       console.error("Login error:", err);
-      setError("Server not reachable. Please try again.");
+      setError(err.message || "Server not reachable. Please try again.");
     } finally {
       setLoading(false);
     }

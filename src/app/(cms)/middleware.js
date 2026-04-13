@@ -1,27 +1,31 @@
+// middleware.js
 import { NextResponse } from 'next/server';
 
 export function middleware(request) {
   const { pathname } = request.nextUrl;
   
-  // Check for auth cookie (adjust cookie name based on your backend)
-  const authCookie = request.cookies.get('connect.sid') || request.cookies.get('token');
+  // Check for auth cookie OR authorization header
+  const authCookie = request.cookies.get('connect.sid') || 
+                     request.cookies.get('token') ||
+                     request.cookies.get('access_token');
   
-  // Check localStorage auth (for client-side stored auth)
-  // Note: middleware can't access localStorage, so we rely on cookies
+  // Also check for authorization header (if token is sent in header)
+  const authHeader = request.headers.get('authorization');
+  
+  const isAuthenticated = !!(authCookie || authHeader);
   
   // Define protected routes (all admin routes)
   const isAdminRoute = pathname.startsWith('/admin');
   const isLoginRoute = pathname === '/cms-login';
   
-  // If trying to access admin route without auth cookie
-  if (isAdminRoute && !authCookie) {
-    // Redirect to login page
+  // If trying to access admin route without auth
+  if (isAdminRoute && !isAuthenticated) {
     const loginUrl = new URL('/cms-login', request.url);
     return NextResponse.redirect(loginUrl);
   }
   
-  // If already logged in and trying to access login page, redirect to admin
-  if (isLoginRoute && authCookie) {
+  // If already logged in and trying to access login page
+  if (isLoginRoute && isAuthenticated) {
     const adminUrl = new URL('/admin', request.url);
     return NextResponse.redirect(adminUrl);
   }

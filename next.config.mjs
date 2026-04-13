@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://frontbackend.amphlo.com";
-const IMAGE_HOST = process.env.NEXT_PUBLIC_IMAGE_HOST || "frontbackend.amphlo.com";
 
 const nextConfig = {
   reactCompiler: true,
@@ -10,12 +9,12 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: IMAGE_HOST,
+        hostname: "frontbackend.amphlo.com",
         pathname: "/uploads/**",
       },
       {
         protocol: "http",
-        hostname: IMAGE_HOST,
+        hostname: "frontbackend.amphlo.com",
         pathname: "/uploads/**",
       },
     ],

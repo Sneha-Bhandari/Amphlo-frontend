@@ -80,7 +80,7 @@ export default function ConnectedCountries() {
             {imageUrl ? (
               <Image
                 src={imageUrl}
-                alt="Map of connected countries"
+                alt={"Map of connected countries"}
                 fill
                 className="object-contain rounded-3xl"
                 priority

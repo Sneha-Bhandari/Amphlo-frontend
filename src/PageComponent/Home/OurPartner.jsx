@@ -14,7 +14,6 @@ export default function OurPartner() {
     const getPartnersData = async () => {
       try {
         setLoading(true);
-        // Use "partners" (plural) - this matches your working endpoint
         const data = await fetchData("partners");
         console.log("Fetched partner data:", data);
         
@@ -44,22 +43,19 @@ export default function OurPartner() {
     );
   }
 
-  // Return null if no partners exist
   if (!partnersData || partnersData.length === 0) {
     return null;
   }
 
-  // Transform the data - note: there's no partnerName field in the API response
   const partners = partnersData
     .map((item, index) => ({
       id: item.id || index,
-      name: `Partner ${index + 1}`, // Generate a display name since API doesn't provide one
+      name: `Partner ${index + 1}`,
       logo: item.imageid?.imageUrl,
       imageUrl: item.imageid?.imageUrl,
     }))
-    .filter((partner) => partner.logo); // Only keep partners with valid images
+    .filter((partner) => partner.logo); 
 
-  // Return null if no valid partners with images
   if (partners.length === 0) {
     return null;
   }
@@ -93,7 +89,7 @@ export default function OurPartner() {
                   src={partner.logo}
                   alt={partner.name}
                   fill
-                  priority
+                  // priority
                   className="object-contain"
                 />
               </div>

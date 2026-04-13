@@ -1,8 +1,9 @@
-"use client";
+// app/(cms)/admin/contexts/AuthContext.jsx
+'use client';
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState, useEffect } from 'react';
 
-const AuthContext = createContext(null);
+const AuthContext = createContext({});
 
 export function AuthProvider({ children }) {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -11,93 +12,92 @@ export function AuthProvider({ children }) {
 
   const checkAuth = async () => {
     try {
-      setLoading(true);
-  
-      const res = await fetch("/auth/me", {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-  
-      if (!res.ok) {
-        setLoggedIn(false);
-        setUser(null);
-        return;
-      }
-  
-      const data = await res.json();
-      setLoggedIn(data.loggedIn || false);
-      setUser(data.user || null);
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://frontbackend.amphlo.com";
       
-      // Store in localStorage as backup
-      if (data.loggedIn) {
-        localStorage.setItem("cms_auth", JSON.stringify({ 
-          loggedIn: true, 
-          user: data.user,
-          timestamp: Date.now() 
-        }));
-      } else {
-        localStorage.removeItem("cms_auth");
+      // First check localStorage
+      const storedAuth = localStorage.getItem('cms_auth');
+      if (storedAuth) {
+        const auth = JSON.parse(storedAuth);
+        // Check if not expired (24 hours)
+        if (auth.loggedIn && auth.user && (Date.now() - auth.timestamp) < 86400000) {
+          setLoggedIn(true);
+          setUser(auth.user);
+          setLoading(false);
+          return true;
+        }
       }
-    } catch (err) {
-      console.error("Auth check error:", err);
+      
+      // Check for token in localStorage
+      const token = localStorage.getItem('token') || localStorage.getItem('access_token');
+      if (token) {
+        // Try to verify token with backend
+        const res = await fetch(`${API_URL}/auth/me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+        
+        if (res.ok) {
+          const userData = await res.json();
+          setLoggedIn(true);
+          setUser(userData);
+          localStorage.setItem('cms_auth', JSON.stringify({ 
+            loggedIn: true, 
+            user: userData,
+            timestamp: Date.now() 
+          }));
+          setLoading(false);
+          return true;
+        }
+      }
+      
+      // No valid auth found
       setLoggedIn(false);
       setUser(null);
-      localStorage.removeItem("cms_auth");
-    } finally {
       setLoading(false);
+      return false;
+    } catch (error) {
+      console.error('Auth check error:', error);
+      setLoggedIn(false);
+      setUser(null);
+      setLoading(false);
+      return false;
+    }
+  };
+
+  const logout = async () => {
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://frontbackend.amphlo.com";
+      await fetch(`${API_URL}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Clear all storage
+      localStorage.removeItem('cms_auth');
+      localStorage.removeItem('token');
+      localStorage.removeItem('access_token');
+      
+      // Clear cookies
+      document.cookie.split(";").forEach(function(c) {
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
+      
+      setLoggedIn(false);
+      setUser(null);
     }
   };
 
   useEffect(() => {
-    // Check for existing session in localStorage
-    const storedAuth = localStorage.getItem("cms_auth");
-    if (storedAuth) {
-      try {
-        const auth = JSON.parse(storedAuth);
-        const isExpired = Date.now() - auth.timestamp > 24 * 60 * 60 * 1000; // 24 hours
-        if (!isExpired && auth.loggedIn) {
-          setLoggedIn(true);
-          setUser(auth.user);
-          setLoading(false);
-          return; // Skip API call if we have valid stored auth
-        }
-      } catch (e) {
-        console.error("Error parsing stored auth:", e);
-      }
-    }
-    
     checkAuth();
   }, []);
 
-  const logout = async () => {
-    try {
-      await fetch("/auth/logout", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-    } catch (err) {
-      console.error("Logout error:", err);
-    }
-
-    setLoggedIn(false);
-    setUser(null);
-    localStorage.removeItem("cms_auth");
-    sessionStorage.removeItem("cms_auth");
-    
-    // Redirect to login
-    window.location.href = "/cms-login";
-  };
-
   return (
-    <AuthContext.Provider
-      value={{ loggedIn, user, loading, logout, checkAuth }}
-    >
+    <AuthContext.Provider value={{ loggedIn, user, loading, checkAuth, logout }}>
       {children}
     </AuthContext.Provider>
   );
@@ -105,16 +105,8 @@ export function AuthProvider({ children }) {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  // Return default values instead of throwing error for SSR/fallback
   if (!context) {
-    console.warn("useAuth must be used within an AuthProvider - returning default values");
-    return {
-      loggedIn: false,
-      user: null,
-      loading: false,
-      logout: () => {},
-      checkAuth: () => {},
-    };
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };

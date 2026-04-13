@@ -1,8 +1,9 @@
-"use client";
+// app/(cms)/admin/components/ProtectedRoute.jsx
+'use client';
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/app/(cms)/admin/contexts/AuthContext";
+import { useAuth } from "../(cms)/admin/contexts/AuthContext"; // Fixed path (removed ./admin/)
 import Loading from "@/Global/Loading";
 
 export default function ProtectedRoute({ children }) {
@@ -11,7 +12,7 @@ export default function ProtectedRoute({ children }) {
 
   useEffect(() => {
     if (!loading && !loggedIn) {
-      router.push("/cms-login");
+      router.replace("/cms-login");
     }
   }, [loggedIn, loading, router]);
 

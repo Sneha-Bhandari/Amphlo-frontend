@@ -54,12 +54,11 @@ const TestimonialCard = ({ review }) => {
                 src={review.imageUrl}
                 alt={review.clientName}
                 fill
-                priority
+                // priority
                 className="object-cover"
-                onError={(e) => {
-                  // Fallback for broken images
-                  e.target.parentElement.innerHTML = '<div class="w-full h-full bg-gray-300 flex items-center justify-center"><span class="text-xs text-gray-500">No Image</span></div>';
-                }}
+                // onError={(e) => {
+                //   e.target.parentElement.innerHTML = '<div class="w-full h-full bg-gray-300 flex items-center justify-center"><span class="text-xs text-gray-500">No Image</span></div>';
+                // }}
               />
             ) : (
               <div className="w-full h-full bg-gray-300 flex items-center justify-center">

@@ -1,3 +1,4 @@
+'use client'
 import React from 'react';
 import { TrendingUp, Laptop, Calendar, BarChart3 } from 'lucide-react';
 

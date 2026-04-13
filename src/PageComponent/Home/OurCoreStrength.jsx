@@ -132,6 +132,7 @@ export default function OurCoreStrength() {
               src={imageUrl}
               alt={pageTitle}
               fill
+              priority
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"
             />

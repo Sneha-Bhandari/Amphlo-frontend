@@ -52,6 +52,8 @@ export default function HeroSection() {
             // src={encodeURI(heroData.imageid.imageUrl)}
             src={imageurl}
             alt="Hero background"
+            // height={1000}
+            // weight={1000}
             fill
             priority
             className="object-cover"

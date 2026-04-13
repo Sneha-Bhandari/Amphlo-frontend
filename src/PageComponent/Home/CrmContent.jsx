@@ -65,6 +65,8 @@ export default function CrmContent() {
             alt="Background"
             fill
             priority
+            // height={1000}
+            // weight={1000}
             className="object-cover"
             onError={(e) => {
               console.error("Background image failed to load:", backgroundImageUrl);
@@ -93,6 +95,8 @@ export default function CrmContent() {
               fill
               className="object-contain w-full h-full"
               priority
+              // height={1000}
+              // weight={1000}
               onError={(e) => {
                 console.error("Side image failed to load:", sideImageUrl);
                 e.currentTarget.style.display = "none";
