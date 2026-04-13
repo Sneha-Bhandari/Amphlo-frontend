@@ -27,7 +27,7 @@ function DynamicForm({ section, data, onSuccess }) {
     const formData = new FormData();
     formData.append("images", file);
 
-    const response = await fetch(process.env.NEXT_PUBLIC_UPLOAD_URL, {
+    const response = await fetch(process.env.NEXT_PUBLIC_IMAGE_HOST, {
       method: "POST",
       body: formData,
     });
@@ -321,7 +321,7 @@ export default function Page() {
     {
       name: "Partner With Us",
       displayPath: "partnerwithus",
-      apiPath: "partnerwithus",
+      apiPath: "partnerWithUs",
     },
     {
       name: "Book an Appointment",

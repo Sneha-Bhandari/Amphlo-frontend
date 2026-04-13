@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { api } from "@/lib/api";
+import { uploadImageData } from "@/lib/frontendApi"; // ✅ ADD THIS
 
 export const useApi = () => {
   const [loading, setLoading] = useState(false);
@@ -12,15 +13,9 @@ export const useApi = () => {
     setError(null);
 
     try {
-      console.log("API CALL:", config); 
-
       const res = await api(config);
-
-      console.log("API SUCCESS:", res); 
-
       return res;
     } catch (err) {
-      console.error("API ERROR:", err); 
       setError(err);
       throw err;
     } finally {
@@ -40,6 +35,9 @@ export const useApi = () => {
 
     deletedata: (url) =>
       handleRequest({ url, method: "DELETE" }),
+
+    // ✅ ADD THIS (IMPORTANT FIX)
+    uploadImageData,
 
     loading,
     error,

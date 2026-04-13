@@ -1,26 +1,22 @@
 /** @type {import('next').NextConfig} */
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://frontbackend.amphlo.com";
+const IMAGE_HOST = process.env.NEXT_PUBLIC_IMAGE_HOST || "frontbackend.amphlo.com";
+
 const nextConfig = {
   reactCompiler: true,
 
   images: {
-    unoptimized: true,
     remotePatterns: [
       {
-        protocol: "http",
-        hostname: "192.168.1.77",
-        port: "3001",
-        pathname: "/uploads/**",
-      },
-      {
-        protocol: "http",
-        hostname: "localhost",
-        port: "3001",
-        pathname: "/uploads/**",
-      },
-      {
         protocol: "https",
-        hostname: "frontbackend.amphlo.com",
-        pathname: "/**",
+        hostname: IMAGE_HOST,
+        pathname: "/uploads/**",
+      },
+      {
+        protocol: "http",
+        hostname: IMAGE_HOST,
+        pathname: "/uploads/**",
       },
     ],
   },
@@ -29,15 +25,14 @@ const nextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "https://frontbackend.amphlo.com/api/:path*",
+        destination: `${API_URL}/api/:path*`,
       },
-      // Rewrite for your login API (192.168.1.97:3000)
       {
         source: "/auth/:path*",
-        destination: "http://192.168.1.97:3000/auth/:path*",
+        destination: `${API_URL}/auth/:path*`,
       },
     ];
-  }
+  },
 };
 
 export default nextConfig;

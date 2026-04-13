@@ -1,28 +1,30 @@
-// lib/frontendApi.js
-export const fetchData = async (data) => {
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+
+const buildUrl = (endpoint) =>
+  `${BASE_URL}/${endpoint.replace(/^\//, "")}`;
+
+export const fetchData = async (endpoint) => {
   try {
-    const res = await fetch(`https://frontbackend.amphlo.com/${data}`);
-    
+    const res = await fetch(buildUrl(endpoint));
+
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
-    
+
     const text = await res.text();
-    const json = text ? JSON.parse(text) : {}; 
-  
-    return json;
+    return text ? JSON.parse(text) : {};
   } catch (error) {
     console.error("Fetch error:", error);
-    throw error; 
+    throw error;
   }
 };
 
 export const postData = async (endpoint, data) => {
   try {
-    const res = await fetch(`https://frontbackend.amphlo.com/${endpoint}`, {
-      method: 'POST',
+    const res = await fetch(buildUrl(endpoint), {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
     });
@@ -31,8 +33,7 @@ export const postData = async (endpoint, data) => {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
 
-    const json = await res.json();
-    return json;
+    return await res.json();
   } catch (error) {
     console.error("Post error:", error);
     throw error;
@@ -41,10 +42,10 @@ export const postData = async (endpoint, data) => {
 
 export const patchData = async (endpoint, data) => {
   try {
-    const res = await fetch(`https://frontbackend.amphlo.com/${endpoint}`, {
-      method: 'PATCH',
+    const res = await fetch(buildUrl(endpoint), {
+      method: "PATCH",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
     });
@@ -53,8 +54,7 @@ export const patchData = async (endpoint, data) => {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
 
-    const json = await res.json();
-    return json;
+    return await res.json();
   } catch (error) {
     console.error("Patch error:", error);
     throw error;
@@ -64,10 +64,10 @@ export const patchData = async (endpoint, data) => {
 export const uploadImageData = async (file) => {
   try {
     const formData = new FormData();
-    formData.append('images', file);
-    
-    const res = await fetch('https://frontbackend.amphlo.com/file-upload', {
-      method: 'POST',
+    formData.append("images", file);
+
+    const res = await fetch(`${BASE_URL}/file-upload/`, {
+      method: "POST",
       body: formData,
     });
 
@@ -75,8 +75,7 @@ export const uploadImageData = async (file) => {
       throw new Error(`Upload failed: ${res.status}`);
     }
 
-    const result = await res.json();
-    return result;
+    return await res.json();
   } catch (error) {
     console.error("Upload error:", error);
     throw error;
@@ -85,16 +84,15 @@ export const uploadImageData = async (file) => {
 
 export const deleteData = async (endpoint) => {
   try {
-    const res = await fetch(`https://frontbackend.amphlo.com/${endpoint}`, {
-      method: 'DELETE',
+    const res = await fetch(buildUrl(endpoint), {
+      method: "DELETE",
     });
 
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
 
-    const json = await res.json();
-    return json;
+    return await res.json();
   } catch (error) {
     console.error("Delete error:", error);
     throw error;

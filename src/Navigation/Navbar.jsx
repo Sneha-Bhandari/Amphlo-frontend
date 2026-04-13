@@ -193,7 +193,7 @@ export default function Navbar() {
             {loginDropdownOpen && (
               <div className="absolute flex flex-col bg-white/80 shadow-lg rounded-md mt-6 w-40 text-sm z-50 -right-8 py-3">
                 <Link
-  href="/login?type=university" 
+  href="/university" 
   className="px-4 py-2 hover:bg-gray-100 transition"
   onClick={closeAllDropdowns}
 >

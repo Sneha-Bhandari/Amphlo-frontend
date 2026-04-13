@@ -86,7 +86,7 @@ export default function WhyPartnerWithUs() {
                             {title}
                         </h2>
                         <div
-  className="text-sm md:text-base text-gray-600 leading-relaxed"
+  className="text-sm md:text-base text-gray-600 leading-relaxed mb-6"
   dangerouslySetInnerHTML={{ __html: description }}
 />
                         <div className="grid sm:grid-cols-2 gap-4 mb-10">
@@ -99,7 +99,7 @@ export default function WhyPartnerWithUs() {
                         </div>
                         <div className="flex flex-wrap gap-4">
                             <Link 
-                                href="/register?type=partner" 
+                                href="/partnerwithus" 
                                 className="inline-flex items-center gap-2 bg-[#FDC653] text-black px-6 py-3 rounded-xl font-semibold hover:bg-[#04413D] hover:text-white transition-all shadow-md hover:shadow-lg hover:scale-102 transform"
                             >
                                 Become a Partner
@@ -136,7 +136,7 @@ export default function WhyPartnerWithUs() {
                             </div>
                         </div>
                                    
-                        <div className="absolute -top-6 -right-6 bg-linear-to-r from-[#FDC653] to-[#04413D]/50 rounded-xl p-4 shadow-lg">
+                        <div className="absolute -top-6 -right-6 bg-linear-to-r from-[#FDC653] to-[#04413D]/80 rounded-xl p-4 shadow-lg">
                             <div className="text-center">
                                 <div className="text-2xl font-bold text-white">{satisfactionPercent}</div>
                                 <div className="text-xs text-blue-100">{satisfactionTitle}</div>

@@ -15,7 +15,6 @@ export default function CmsLoginPage() {
   const router = useRouter();
   const { checkAuth, loggedIn } = useAuth();
 
-  // Redirect if already logged in
   useEffect(() => {
     if (loggedIn) {
       router.push("/admin");
@@ -44,20 +43,16 @@ export default function CmsLoginPage() {
         return;
       }
   
-      // Store auth data in localStorage
       localStorage.setItem("cms_auth", JSON.stringify({ 
         loggedIn: true, 
         user: result.user,
         timestamp: Date.now() 
       }));
       
-      // Wait for cookies to be set
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Re-check authentication status
       await checkAuth();
       
-      // Force a hard navigation to admin
       window.location.href = "/admin";
   
     } catch (err) {

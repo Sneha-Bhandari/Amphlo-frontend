@@ -8,7 +8,7 @@ export default function PartnerWithUs(){
     return(
         <div>
             <PartnerBanner/>
-            <WhyPartnerWithUs/>
+            {/* <WhyPartnerWithUs/> */}
             <PartnerForm/>
             <FAQ/>
             <GetInTouch/>

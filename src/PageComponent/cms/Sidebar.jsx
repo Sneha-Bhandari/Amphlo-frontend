@@ -160,6 +160,12 @@ export default function Sidebar({ children }) {
       color: "text-red-500",
     },
     {
+      name: "University",
+      path: "/admin/university",
+      icon: Settings,
+      color: "text-gray-500",
+    },
+    {
       name: "FAQ",
       path: "/admin/faq",
       icon: BarChart3,
@@ -171,12 +177,7 @@ export default function Sidebar({ children }) {
       icon: Bell,
       color: "text-pink-500",
     },
-    {
-      name: "Images",
-      path: "/admin/settings",
-      icon: Settings,
-      color: "text-gray-500",
-    },
+   
   ];
 
   const isActive = (path) => {

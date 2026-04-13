@@ -15,8 +15,7 @@ export default function PartnerBanner() {
     const getPartnerData = async () => {
       try {
         const data = await fetchData("banner");
-        // Filter to find the banner with path "partnerwithus"
-        const partnerBanner = data.find(item => item.path === "partnerwithus");
+        const partnerBanner = data.find(item => item.path === "partnerWithUs");
         setPartnerData(partnerBanner || null);
         setLoading(false);
       } catch (error) {
@@ -47,7 +46,7 @@ export default function PartnerBanner() {
   const imageUrl = partnerData.imageid?.imageUrl || "";
 
   return (
-    <div className="h-[70vh] relative">
+    <div className="h-[70vh] relative ">
       {imageUrl ? (
         <Image
           className="h-full w-full object-cover"
@@ -61,7 +60,7 @@ export default function PartnerBanner() {
           <p className="text-gray-600">Image Not Found</p>
         </div>
       )}
-      <div className="absolute bg-[#04413D]/30 inset-0"></div>
+      <div className="absolute bg-[#04413D]/20 inset-0"></div>
       <div className="absolute flex flex-col mx-auto top-1/2 left-12 inset-0 gap-2 text-white navtext">
         <h1 className="text-5xl font-semibold tracking-tight">
           {partnerData.title || "Partner Page"}
@@ -75,7 +74,7 @@ export default function PartnerBanner() {
         </button>
         <h1>/</h1>
         <h1 className="font-medium text-white underline underline-offset-3">
-          {partnerData.path === "partnerwithus" ? "Partner With Us" : partnerData.title || "Partner With Us"}
+          {partnerData.path === "partnerWithUs" ? "Partner Us" : partnerData.title || "Partner Us"}
         </h1>
       </div>
     </div>

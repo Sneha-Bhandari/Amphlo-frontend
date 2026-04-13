@@ -55,7 +55,7 @@ const AboutOurBusiness = () => {
     const formData = new FormData();
     formData.append("images", file);
 
-    const response = await fetch(process.env.NEXT_PUBLIC_UPLOAD_URL, {
+    const response = await fetch(process.env.NEXT_PUBLIC_IMAGE_HOST, {
       method: "POST",
       body: formData,
     });

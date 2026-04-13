@@ -15,7 +15,7 @@ export default function OurCoreStrength() {
   const [loading, setLoading] = useState(true);
   
   // Fetch top section data for "Our Core Strength" page
-  const { data: topSectionData, loading: topSectionLoading } = useTopSection("core-strengths");
+  const { data: topSectionData, loading: topSectionLoading } = useTopSection("CoreStrength");
 
   useEffect(() => {
     const getCoreStrengthData = async () => {
@@ -32,6 +32,14 @@ export default function OurCoreStrength() {
 
     getCoreStrengthData();
   }, []);
+
+  // if (!topSectionData) {
+  //   return (
+  //     <div className="h-40 flex items-center justify-center text-gray-400">
+  //       No content available
+  //     </div>
+  //   );
+  // }
 
   if (loading || topSectionLoading) {
     return (
@@ -63,8 +71,8 @@ export default function OurCoreStrength() {
   const imageUrl = coreStrengthData?.imageid?.imageUrl || "";
 
   // Use top section data for title and description, fallback to defaults if not available
-  const pageTitle = topSectionData?.title || "Our Core Strengths";
-  const pageDescription = topSectionData?.description || "Client relationship management, strategic consulting, and B2B growth solutions.";
+  const pageTitle = topSectionData?.title;
+  const pageDescription = topSectionData?.description;
 
   if (stats.length === 0) {
     return null;

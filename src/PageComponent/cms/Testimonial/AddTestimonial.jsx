@@ -58,7 +58,7 @@ export default function AddTestimonial({ isOpen, onClose, onSuccess }) {
       const formData = new FormData();
       formData.append("images", file);
     
-      const uploadRes = await fetch(process.env.NEXT_PUBLIC_UPLOAD_URL, {
+      const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/file-upload/`, {
         method: "POST",
         body: formData,
       });
@@ -74,7 +74,7 @@ export default function AddTestimonial({ isOpen, onClose, onSuccess }) {
       
       if (imageId) {
         setFieldValue("imageid", imageId);
-        setTouched({ imageid: true }); // Mark as touched to remove validation error
+        setTouched({ imageid: true }); 
         toast.success("Image uploaded successfully");
       } else {
         throw new Error("No image ID returned from server");
@@ -108,7 +108,7 @@ export default function AddTestimonial({ isOpen, onClose, onSuccess }) {
         imageid: values.imageid
       };
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}testimonial`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/testimonial`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
