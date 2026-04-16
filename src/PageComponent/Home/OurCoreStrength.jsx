@@ -38,7 +38,7 @@ export default function OurCoreStrength() {
   //   );
   // }
 
-  if (loading || topSectionLoading) {
+  if (loading ) {
     return (
       <div className="h-screen flex items-center justify-center">
         <Loading />
@@ -68,8 +68,8 @@ export default function OurCoreStrength() {
   const imageUrl = coreStrengthData?.imageid?.imageUrl || "";
 
   // Use top section data for title and description, fallback to defaults if not available
-  const pageTitle = topSectionData?.title;
-  const pageDescription = topSectionData?.description;
+  // const pageTitle = topSectionData?.title;
+  // const pageDescription = topSectionData?.description;
 
   if (stats.length === 0) {
     return null;
@@ -80,16 +80,16 @@ export default function OurCoreStrength() {
       <div className="w-11/12 mx-auto grid md:grid-cols-2 gap-16 items-center navtext">
         <div className="flex flex-col gap-4">
           {/* Dynamic Title from Top Section CMS */}
-          <h2 className="text-5xl font-bold text-[#04413D]">
+          {/* <h2 className="text-5xl font-bold text-[#04413D]">
             {pageTitle}
-          </h2>
+          </h2> */}
           
           {/* Dynamic Description from Top Section CMS */}
-          {pageDescription && (
+          {/* {pageDescription && (
             <div className="text-gray-500 mb-4">
               <div dangerouslySetInnerHTML={{ __html: pageDescription }} />
             </div>
-          )}
+          )} */}
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
             {stats.map((stat, index) => (
@@ -127,7 +127,7 @@ export default function OurCoreStrength() {
           {imageUrl ? (
             <Image
               src={imageUrl}
-              alt={pageTitle}
+              alt={"hii"}
               fill
               priority
               className="object-cover"
