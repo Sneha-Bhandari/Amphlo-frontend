@@ -56,6 +56,7 @@ export default function HeroSection() {
             // weight={1000}
             fill
             priority
+            // unoptimized
             className="object-cover"
           />
         ) : (

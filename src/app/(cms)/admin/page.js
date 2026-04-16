@@ -14,7 +14,7 @@ import {
   LogOut
 } from "lucide-react";
 import ProtectedRoute from "@/app/(cms)/ProtectedRoute";
-import { useAuth } from "./contexts/AuthContext";
+import { useAuth } from "../../../contexts/AuthContext";
 
 export default function AdminPage() {
   const { user, logout, loading } = useAuth();

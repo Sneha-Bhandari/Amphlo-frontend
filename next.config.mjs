@@ -14,7 +14,14 @@ const nextConfig = {
       },
       {
         protocol: "http",
-        hostname: "frontbackend.amphlo.com",
+        hostname: "localhost",
+        port: "3001",
+        pathname: "/uploads/**",
+      },
+      {
+        protocol: "http",
+        hostname: "192.168.1.78",
+        port: "3001",
         pathname: "/uploads/**",
       },
     ],

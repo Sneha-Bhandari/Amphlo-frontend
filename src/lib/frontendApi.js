@@ -1,23 +1,48 @@
 // lib/frontendApi.js
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://frontbackend.amphlo.com";
 
-export const fetchData = async (endpoint) => {
-  try {
-    const res = await fetch(`${API_URL}/${endpoint.replace(/^\//, "")}`);
+// export const fetchData = async (endpoint) => {
+//   try {
+//     const res = await fetch(`${API_URL}/${endpoint.replace(/^\//, "")}`);
     
-    if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`);
-    }
+//     if (!res.ok) {
+//       throw new Error(`HTTP error! status: ${res.status}`);
+//     }
     
-    const text = await res.text();
-    const json = text ? JSON.parse(text) : {}; 
+//     const text = await res.text();
+//     const json = text ? JSON.parse(text) : {}; 
   
-    return json;
-  } catch (error) {
-    console.error("Fetch error:", error);
-    throw error; 
-  }
+//     return json;
+//   } catch (error) {
+//     console.error("Fetch error:", error);
+//     throw error; 
+//   }
+// };
+
+
+
+export const fetchData = async (endpoint) => {
+  const res = await fetch(`${API_URL}/${endpoint.replace(/^\//, "")}`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  return handleResponse(res);
 };
+
+export const handleResponse = async (res) => {
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(errorText || `HTTP error ${res.status}`);
+  }
+
+  const text = await res.text();
+  return text ? JSON.parse(text) : {};
+};
+
+
+
+
 
 export const postData = async (endpoint, data) => {
   try {
@@ -70,7 +95,7 @@ export const uploadImageData = async (file) => {
     const formData = new FormData();
     formData.append('images', file);
     
-    const res = await fetch(`${API_URL}/file-upload`, {
+    const res = await fetch(`${API_URL}/file-upload/`, {
       method: 'POST',
       body: formData,
       credentials: "include",

@@ -1,34 +1,42 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useApi } from "@/hooks/useApi";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import toast, { Toaster } from "react-hot-toast";
 import Image from "next/image";
 
-export default function HeroSection() {
-  const { getdata, postdatas, patchdata, uploadImageData, loading } = useApi();
+import {
+  fetchData,
+  postData,
+  patchData,
+  uploadImageData,
+} from "@/lib/frontendApi";
 
+export default function HeroSection() {
   const [data, setData] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const fields = [
     { label: "Title", name: "title", type: "text" },
     { label: "Subtitle", name: "subtitle", type: "text" },
-    { label: "Image", name: "imageid", type: "file" },
-  ];
+    { label: "Image", name: "images", type: "file" },
+  ]
 
   useEffect(() => {
     const fetchHero = async () => {
       try {
-        const res = await getdata("hero-section");
+        setLoading(true);
+        const res = await fetchData("hero-section");
         if (res && res.length > 0) {
           setData(res[0]);
         }
       } catch (err) {
         console.error(err);
         toast.error("Failed to fetch hero section data");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -38,7 +46,11 @@ export default function HeroSection() {
   const validationSchema = Yup.object({
     title: Yup.string().required("Title is required"),
     subtitle: Yup.string().required("Subtitle is required"),
-    imageid: Yup.mixed().nullable(),
+    images: Yup.mixed().when([], {
+      is: () => !data,
+      then: (schema) => schema.required("Image is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
   });
 
   return (
@@ -60,7 +72,8 @@ export default function HeroSection() {
           initialValues={{
             title: data?.title || "",
             subtitle: data?.subTitle || "",
-            imageid: null,
+            images: null,
+            existingImage: data?.imageid?.id || null,
           }}
           validationSchema={validationSchema}
           onSubmit={async (values, { resetForm }) => {
@@ -69,14 +82,19 @@ export default function HeroSection() {
             );
 
             try {
+              setLoading(true);
+
               let imageId = data?.imageid?.id;
 
-              // ✅ USE HOOK INSTEAD OF DIRECT FETCH
-              if (values.imageid) {
+              if (values.images) {
                 toast.loading("Uploading image...", { id: toastId });
 
-                const uploadRes = await uploadImageData(values.imageid);
+                const uploadRes = await uploadImageData(values.images);
                 imageId = uploadRes?.id;
+              }
+
+              if (!imageId) {
+                throw new Error("Image is required");
               }
 
               const payload = {
@@ -86,12 +104,12 @@ export default function HeroSection() {
               };
 
               if (data?.id) {
-                await patchdata(`hero-section/${data.id}`, payload);
+                await patchData(`hero-section/${data.id}`, payload);
                 toast.success("Hero section updated successfully!", {
                   id: toastId,
                 });
               } else {
-                await postdatas("hero-section", payload);
+                await postData("hero-section", payload);
                 toast.success("Hero section created successfully!", {
                   id: toastId,
                 });
@@ -104,19 +122,20 @@ export default function HeroSection() {
               toast.error(err.message || "Something went wrong!", {
                 id: toastId,
               });
+            } finally {
+              setLoading(false);
             }
           }}
         >
           {({ setFieldValue, isSubmitting }) => (
             <Form className="space-y-4">
-
-              {fields.map((field) => (
-                <div key={field.name}>
+              {fields.map((val, i) => (
+                <div key={i}>
                   <label className="block mb-1 font-medium text-gray-700">
-                    {field.label}
+                    {val.label}
                   </label>
 
-                  {field.type === "file" ? (
+                  {val.type === "file" ? (
                     <>
                       <input
                         type="file"
@@ -126,7 +145,7 @@ export default function HeroSection() {
                           const file = e.target.files?.[0];
 
                           if (file) {
-                            setFieldValue("imageid", file);
+                            setFieldValue("images", file);
                             setPreview(URL.createObjectURL(file));
                           }
                         }}
@@ -139,6 +158,7 @@ export default function HeroSection() {
                             width={3000}
                             src={preview || data?.imageid?.imageUrl}
                             alt="Preview"
+                            unoptimized
                             className="my-5 w-68 h-38 object-contain"
                           />
 
@@ -146,7 +166,7 @@ export default function HeroSection() {
                             type="button"
                             onClick={() => {
                               setPreview(null);
-                              setFieldValue("imageid", null);
+                              setFieldValue("images", null);
                             }}
                             className="absolute top-4 right-4 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100"
                           >
@@ -157,15 +177,15 @@ export default function HeroSection() {
                     </>
                   ) : (
                     <Field
-                      name={field.name}
-                      type={field.type}
+                      name={val.name}
+                      type={val.type}
                       className="w-full border border-gray-300 rounded-lg p-2"
-                      placeholder={`Enter ${field.label}`}
+                      placeholder={`Enter ${val.label}`}
                     />
                   )}
 
                   <ErrorMessage
-                    name={field.name}
+                    name={val.name}
                     component="div"
                     className="text-red-500 text-sm mt-1"
                   />
@@ -180,8 +200,8 @@ export default function HeroSection() {
                 {isSubmitting || loading
                   ? "Processing..."
                   : data
-                  ? "Update Hero Section"
-                  : "Create Hero Section"}
+                    ? "Update Hero Section"
+                    : "Create Hero Section"}
               </button>
             </Form>
           )}

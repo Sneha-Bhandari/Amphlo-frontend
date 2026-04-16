@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { useAuth } from "@/app/(cms)/admin/contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard,
   Settings,
@@ -37,10 +37,10 @@ export default function Sidebar({ children }) {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
@@ -56,36 +56,20 @@ export default function Sidebar({ children }) {
   };
 
   const handleLogout = async () => {
+
+    await logout();
+
     try {
-      await fetch("/auth/logout", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      await postData("auth/logout");
     } catch (err) {
       console.error("Logout error:", err);
     }
 
-    document.cookie.split(";").forEach(function(cookie) {
-      document.cookie = cookie
-        .replace(/^ +/, "")
-        .replace(/=.*/, "=; expires=" + new Date().toUTCString() + "; path=/");
-    });
-
     localStorage.removeItem("cms_auth");
-    localStorage.removeItem("cms_token");
+    localStorage.removeItem("token");
+    localStorage.removeItem("access_token");
     sessionStorage.clear();
 
-    const cookiesToClear = ['connect.sid', 'token', 'auth_token', 'session'];
-    cookiesToClear.forEach(cookieName => {
-      document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-      document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/admin;`;
-      document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname};`;
-    });
-
-    
     window.location.href = "/cms-login";
   };
 
@@ -120,7 +104,7 @@ export default function Sidebar({ children }) {
       dropdownName: "contentpage",
       items: [
         { name: "Our Core Strength", path: "/admin/corestrength", icon: Shield },
-        { name: "CRM", path: "/admin/crm", icon: Shield, color: "text-red-500"},
+        { name: "CRM", path: "/admin/crm", icon: Shield, color: "text-red-500" },
         { name: "Connected Countries", path: "/admin/connectedcountries", icon: Image },
         { name: "Get In Touch", path: "/admin/getintouch", icon: Image },
         { name: "Why Partner With Us", path: "/admin/whypartnerwithus", icon: Image },
@@ -146,7 +130,7 @@ export default function Sidebar({ children }) {
       icon: GraduationCap,
       color: "text-indigo-500",
     },
-   
+
     {
       name: "Testimonials",
       path: "/admin/testimonial",
@@ -177,7 +161,7 @@ export default function Sidebar({ children }) {
       icon: Bell,
       color: "text-pink-500",
     },
-   
+
   ];
 
   const isActive = (path) => {
@@ -205,7 +189,7 @@ export default function Sidebar({ children }) {
           </div>
         </div>
       </div>
-      
+
       <nav className="flex-1 overflow-y-auto py-4 sm:py-6 px-2 sm:px-4">
         <ul className="space-y-1 sm:space-y-2">
           {navItems.map((item, index) => (
@@ -234,8 +218,8 @@ export default function Sidebar({ children }) {
                           <Link
                             href={subItem.path}
                             className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-200 text-xs sm:text-sm ${isActive(subItem.path)
-                                ? "bg-[#04413D] text-white"
-                                : "text-gray-600 hover:bg-gray-50 hover:text-[#04413D]"
+                              ? "bg-[#04413D] text-white"
+                              : "text-gray-600 hover:bg-gray-50 hover:text-[#04413D]"
                               }`}
                           >
                             <subItem.icon className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -250,8 +234,8 @@ export default function Sidebar({ children }) {
                 <Link
                   href={item.path}
                   className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-all duration-200 group ${isActive(item.path)
-                      ? "bg-[#04413D] text-white shadow-md"
-                      : "text-gray-700 hover:bg-gray-50 hover:text-[#04413D]"
+                    ? "bg-[#04413D] text-white shadow-md"
+                    : "text-gray-700 hover:bg-gray-50 hover:text-[#04413D]"
                     }`}
                 >
                   <item.icon
@@ -277,7 +261,7 @@ export default function Sidebar({ children }) {
             <p className="text-sm font-medium text-gray-700 truncate">{user.email || "Admin"}</p>
           </div>
         )}
-        
+
         <div className="space-y-1 sm:space-y-2">
           <Link
             href="/admin/help"
@@ -286,7 +270,7 @@ export default function Sidebar({ children }) {
             <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5" />
             <span className="font-medium truncate">Help & Support</span>
           </Link>
-          
+
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-all duration-200 text-sm sm:text-base cursor-pointer"

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Store, Lock, Mail, Eye, EyeOff } from "lucide-react";
-import { useAuth } from "@/app/(cms)/admin/contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { postData } from "@/lib/frontendApi";
 
 export default function CmsLoginPage() {
@@ -12,7 +12,8 @@ export default function CmsLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const auth = useAuth();
+  console.log("AUTH CONTEXT:", auth);
   const router = useRouter();
   const { checkAuth, loggedIn } = useAuth();
 
@@ -26,44 +27,20 @@ export default function CmsLoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-  
+
     try {
-      // Use postData instead of fetch
       const result = await postData("auth/login", { email, password });
-      
-      console.log("Login response:", result);
-  
-      if (!result || result.error) {
-        setError(result?.message || result?.error || "Login failed");
+
+      if (!result) {
+        setError("Login failed");
         return;
       }
-  
-      // Store token if returned
-      if (result.token) {
-        localStorage.setItem("token", result.token);
-      }
-      
-      if (result.accessToken) {
-        localStorage.setItem("access_token", result.accessToken);
-      }
-      
-      // Store user data
-      const userData = result.user || result.data?.user || result;
-      localStorage.setItem("cms_auth", JSON.stringify({ 
-        loggedIn: true, 
-        user: userData,
-        timestamp: Date.now() 
-      }));
-      
-      // Update AuthContext state
-      await checkAuth();
-      
-      // Redirect to admin
+
+      await checkAuth(); // backend cookie will now be set
       router.push("/admin");
-  
+
     } catch (err) {
-      console.error("Login error:", err);
-      setError(err.message || "Server not reachable. Please try again.");
+      setError(err.message || "Login failed");
     } finally {
       setLoading(false);
     }

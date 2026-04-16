@@ -1,9 +1,8 @@
-// app/(cms)/admin/components/ProtectedRoute.jsx
 'use client';
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../(cms)/admin/contexts/AuthContext"; // Fixed path (removed ./admin/)
+import { useAuth } from "@/contexts/AuthContext";
 import Loading from "@/Global/Loading";
 
 export default function ProtectedRoute({ children }) {
@@ -14,15 +13,9 @@ export default function ProtectedRoute({ children }) {
     if (!loading && !loggedIn) {
       router.replace("/cms-login");
     }
-  }, [loggedIn, loading, router]);
+  }, [loggedIn, loading]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loading />
-      </div>
-    );
-  }
+  if (loading) return <Loading />;
 
   return loggedIn ? children : null;
 }
