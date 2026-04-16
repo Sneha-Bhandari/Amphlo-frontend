@@ -24,6 +24,7 @@ import {
   Bell,
   HelpCircle,
 } from "lucide-react";
+import { postData } from "@/lib/frontendApi"; // Add this import
 
 export default function Sidebar({ children }) {
   const pathname = usePathname();
@@ -32,6 +33,7 @@ export default function Sidebar({ children }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openDropdowns, setOpenDropdowns] = useState({});
   const [isMobile, setIsMobile] = useState(false);
+  const [logoError, setLogoError] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -56,7 +58,6 @@ export default function Sidebar({ children }) {
   };
 
   const handleLogout = async () => {
-
     await logout();
 
     try {
@@ -88,8 +89,7 @@ export default function Sidebar({ children }) {
       dropdownName: "content",
       items: [
         { name: "Hero Section", path: "/admin/hero", icon: Star },
-        // { name: "Our Core Strength", path: "/admin/corestrength", icon: Shield },
-        { name: "Banner", path: "/admin/banner", icon: Image },
+        { name: "Banner", path: "/admin/banner", icon: FileText }, // Changed from Image to FileText
         { name: "Services & Offerings", path: "/admin/service-offerings", icon: Handshake },
         { name: "About Us", path: "/admin/about", icon: Building2 },
         { name: "Top Section", path: "/admin/topsection", icon: Building2 },
@@ -105,11 +105,10 @@ export default function Sidebar({ children }) {
       items: [
         { name: "Our Core Strength", path: "/admin/corestrength", icon: Shield },
         { name: "CRM", path: "/admin/crm", icon: Shield, color: "text-red-500" },
-        { name: "Connected Countries", path: "/admin/connectedcountries", icon: Image },
-        { name: "Get In Touch", path: "/admin/getintouch", icon: Image },
-        { name: "Why Partner With Us", path: "/admin/whypartnerwithus", icon: Image },
+        { name: "Connected Countries", path: "/admin/connectedcountries", icon: Globe }, // Changed from Image to Globe
+        { name: "Get In Touch", path: "/admin/getintouch", icon: Mail }, // Changed from Image to Mail
+        { name: "Why Partner With Us", path: "/admin/whypartnerwithus", icon: Handshake }, // Changed from Image to Handshake
         { name: "Our Features", path: "/admin/features", icon: Shield },
-
       ],
     },
     {
@@ -130,7 +129,6 @@ export default function Sidebar({ children }) {
       icon: GraduationCap,
       color: "text-indigo-500",
     },
-
     {
       name: "Testimonials",
       path: "/admin/testimonial",
@@ -161,7 +159,6 @@ export default function Sidebar({ children }) {
       icon: Bell,
       color: "text-pink-500",
     },
-
   ];
 
   const isActive = (path) => {
@@ -173,15 +170,22 @@ export default function Sidebar({ children }) {
     <div className="h-full flex flex-col bg-white shadow-xl">
       <div className="p-4 sm:p-6 border-b border-gray-200">
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center overflow-hidden">
-            <Image
-              src="/headerlogo.png"
-              alt="logo"
-              width={100}
-              height={100}
-              className="object-cover"
-              priority
-            />
+          <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center overflow-hidden bg-gray-100">
+            {!logoError ? (
+              <Image
+                src="/headerlogo.png"
+                alt="Amphlo CMS Logo"
+                width={100}
+                height={100}
+                className="object-cover"
+                onError={() => setLogoError(true)}
+                priority
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-[#04413D] text-white font-bold text-xl">
+                A
+              </div>
+            )}
           </div>
           <div>
             <h2 className="text-lg sm:text-xl font-bold text-[#04413D]">Amphlo CMS</h2>
@@ -218,8 +222,8 @@ export default function Sidebar({ children }) {
                           <Link
                             href={subItem.path}
                             className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-200 text-xs sm:text-sm ${isActive(subItem.path)
-                              ? "bg-[#04413D] text-white"
-                              : "text-gray-600 hover:bg-gray-50 hover:text-[#04413D]"
+                                ? "bg-[#04413D] text-white"
+                                : "text-gray-600 hover:bg-gray-50 hover:text-[#04413D]"
                               }`}
                           >
                             <subItem.icon className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -234,8 +238,8 @@ export default function Sidebar({ children }) {
                 <Link
                   href={item.path}
                   className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-all duration-200 group ${isActive(item.path)
-                    ? "bg-[#04413D] text-white shadow-md"
-                    : "text-gray-700 hover:bg-gray-50 hover:text-[#04413D]"
+                      ? "bg-[#04413D] text-white shadow-md"
+                      : "text-gray-700 hover:bg-gray-50 hover:text-[#04413D]"
                     }`}
                 >
                   <item.icon
@@ -288,6 +292,7 @@ export default function Sidebar({ children }) {
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-[#04413D] text-white rounded-lg shadow-lg cursor-pointer"
+        aria-label="Toggle menu"
       >
         {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
@@ -301,6 +306,7 @@ export default function Sidebar({ children }) {
           <div
             className="lg:hidden fixed inset-0 bg-black/50 z-40"
             onClick={() => setIsMobileMenuOpen(false)}
+            aria-label="Close menu"
           />
           <div className="lg:hidden fixed top-0 left-0 w-64 sm:w-72 h-full z-40 animate-slide-in shadow-2xl">
             <SidebarContent />

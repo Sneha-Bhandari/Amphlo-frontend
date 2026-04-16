@@ -7,15 +7,12 @@ import { fetchData } from "@/lib/frontendApi";
 import Loading from "@/Global/Loading";
 import CountUp from "react-countup";
 import { useInView } from "react-intersection-observer";
-import { useTopSection } from "@/hooks/useTopSection";
 
 export default function OurCoreStrength() {
   const { ref, inView } = useInView({ triggerOnce: false, threshold: 0.2 });
   const [coreStrengthData, setCoreStrengthData] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  // Fetch top section data for "Our Core Strength" page
-  const { data: topSectionData, loading: topSectionLoading } = useTopSection("CoreStrength");
 
   useEffect(() => {
     const getCoreStrengthData = async () => {
