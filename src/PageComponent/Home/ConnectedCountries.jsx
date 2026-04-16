@@ -83,7 +83,8 @@ export default function ConnectedCountries() {
                 alt={"Map of connected countries"}
                 fill
                 className="object-contain rounded-3xl"
-                priority
+                // priority
+                unoptimized
               />
             ) : (
               <div className="bg-gray-200 w-full h-full flex items-center justify-center rounded-3xl">

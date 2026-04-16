@@ -55,6 +55,7 @@ const TestimonialCard = ({ review }) => {
                 alt={review.clientName}
                 fill
                 // priority
+                unoptimized
                 className="object-cover"
                 // onError={(e) => {
                 //   e.target.parentElement.innerHTML = '<div class="w-full h-full bg-gray-300 flex items-center justify-center"><span class="text-xs text-gray-500">No Image</span></div>';

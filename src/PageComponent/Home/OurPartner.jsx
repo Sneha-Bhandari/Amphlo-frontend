@@ -79,22 +79,26 @@ export default function OurPartner() {
             repeat: Infinity,
           }}
         >
-          {[...partners, ...partners].map((partner, index) => (
-            <div
+          {[...partners, ...partners].map((partner, index) => {
+            const image=partner.imageUrl.split('/')
+            console.log(image,"here")
+          const newurl=`${process.env.NEXT_PUBLIC_API_URL}/${image[3]}/${image[4]}`
+           return <div
               key={`${partner.id}-${index}`}
               className="shrink-0 grayscale hover:grayscale-0 transition-all duration-300 cursor-pointer"
             >
               <div className="relative w-40 h-30">
                 <Image
-                  src={partner.logo}
+                  src={newurl}
                   alt={partner.name}
                   fill
+                  unoptimized
                   // priority
                   className="object-contain"
                 />
               </div>
             </div>
-          ))}
+})}
         </motion.div>
       </div>
     </section>

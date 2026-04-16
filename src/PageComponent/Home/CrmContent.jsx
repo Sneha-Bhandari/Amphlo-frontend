@@ -64,7 +64,8 @@ export default function CrmContent() {
             src={backgroundImageUrl}
             alt="Background"
             fill
-            priority
+            unoptimized
+            // priority
             // height={1000}
             // weight={1000}
             className="object-cover"

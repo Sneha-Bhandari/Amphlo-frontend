@@ -27,6 +27,7 @@ export default function CmsLoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
+    
 
     try {
       const result = await postData("auth/login", { email, password });

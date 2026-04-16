@@ -5,7 +5,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://frontbackend.amphlo.
 const nextConfig = {
   reactCompiler: true,
 
-  images: {
+images: {
     remotePatterns: [
       {
         protocol: "https",
@@ -15,13 +15,13 @@ const nextConfig = {
       {
         protocol: "http",
         hostname: "localhost",
-        port: "3001",
+        port: "3000",
         pathname: "/uploads/**",
       },
       {
         protocol: "http",
-        hostname: "192.168.1.78",
-        port: "3001",
+        hostname: "192.168.1.97",
+        port: "3002",
         pathname: "/uploads/**",
       },
     ],

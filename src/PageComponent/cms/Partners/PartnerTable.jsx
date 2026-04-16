@@ -56,6 +56,7 @@ export default function PartnerTable({ partners, onView, onEdit, onDelete }) {
                             src={imageUrl}
                             alt={`Partner ${serialNumber}`}
                             fill
+                            unoptimized
                             className="object-contain p-1"
                             onError={(e) => {
                               e.target.style.display = 'none';

@@ -95,7 +95,8 @@ export default function ServicesAndOffering() {
                   src={imageUrl}
                   alt={currentOffering.title}
                   fill
-                  priority
+                  // priority
+                  unoptimized
                   className="object-cover rounded-2xl shadow-lg"
                 />
               ) : (
