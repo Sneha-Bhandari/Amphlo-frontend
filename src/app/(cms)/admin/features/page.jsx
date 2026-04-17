@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { fetchData } from "@/lib/frontendApi";
+import { fetchData, deleteData } from "@/lib/frontendApi";
 import Loading from "@/Global/Loading";
 import AddFeature from "@/PageComponent/cms/Features/AddFeature";
 import EditFeature from "@/PageComponent/cms/Features/EditFeature";
@@ -46,6 +46,17 @@ export default function FeaturesCMS() {
       setFeatures([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteFeature = async (featureId) => {
+    try {
+      await deleteData(`our-features/${featureId}`);
+      await fetchFeatures(); // Refresh the list
+      return true;
+    } catch (error) {
+      console.error("Error deleting feature:", error);
+      throw error;
     }
   };
 
@@ -134,16 +145,6 @@ export default function FeaturesCMS() {
             onEdit={handleEdit}
             onDelete={handleDelete}
           />
-          
-          {filteredFeatures.length > itemsPerPage && (
-            <div className="mt-6">
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-              />
-            </div>
-          )}
         </div>
       </div>
 
@@ -171,6 +172,7 @@ export default function FeaturesCMS() {
         onClose={() => setIsDeleteModalOpen(false)}
         onSuccess={fetchFeatures}
         feature={selectedFeature}
+        onDelete={handleDeleteFeature}
       />
     </>
   );

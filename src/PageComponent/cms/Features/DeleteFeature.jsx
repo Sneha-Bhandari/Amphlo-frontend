@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { MdClose } from "react-icons/md";
+import { deleteData } from "@/lib/frontendApi";
 
 export default function DeleteFeature({ isOpen, onClose, onSuccess, feature }) {
   const [loading, setLoading] = useState(false);
@@ -17,16 +18,9 @@ export default function DeleteFeature({ isOpen, onClose, onSuccess, feature }) {
     const loadingToast = toast.loading("Deleting feature...");
     
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}our-features/${feature.id}`, {
-        method: 'DELETE',
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Delete failed: ${response.status}`);
-      }
-      
+      await deleteData(`our-features/${feature.id}`);
       toast.success("Feature deleted successfully", { id: loadingToast });
-      if (onSuccess) onSuccess();
+      if (onSuccess) await onSuccess();
       onClose();
     } catch (error) {
       console.error("Error deleting feature:", error);

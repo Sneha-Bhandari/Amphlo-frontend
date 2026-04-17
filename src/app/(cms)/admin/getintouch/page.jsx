@@ -14,16 +14,16 @@ import {
   uploadImageData,
 } from "@/lib/frontendApi";
 
-export default function ConnectedCountriesCms() {
+export default function GetInTouchCMS() {
   const [data, setData] = useState(null);
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchConnectedCountries = async () => {
+    const fetchGetInTouch = async () => {
       try {
         setLoading(true);
-        const res = await fetchData("connected-countries");
+        const res = await fetchData("get-in-touch");
 
         if (res && res.length > 0) {
           setData(res[0]);
@@ -34,13 +34,13 @@ export default function ConnectedCountriesCms() {
         }
       } catch (err) {
         console.error(err);
-        toast.error("Failed to fetch connected countries data");
+        toast.error("Failed to fetch get in touch data");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchConnectedCountries();
+    fetchGetInTouch();
   }, []);
 
   const validationSchema = Yup.object({
@@ -56,7 +56,7 @@ export default function ConnectedCountriesCms() {
       {/* Header */}
       <div className="flex flex-col md:items-center gap-3">
         <div className="text-4xl text-[#04413D] font-bold">
-          Connected Countries Section
+          Get In Touch Section
         </div>
         <div className="text-sm text-gray-500">
           Manage title, description, and image
@@ -96,10 +96,15 @@ export default function ConnectedCountriesCms() {
               };
 
               if (data?.id) {
-                await patchData(`connected-countries/${data.id}`, payload);
+                await patchData(`get-in-touch/${data.id}`, payload);
                 toast.success("Updated successfully!", { id: toastId });
+                
+                // Update preview if new image was uploaded
+                if (values.imageid) {
+                  setPreview(URL.createObjectURL(values.imageid));
+                }
               } else {
-                await postData("connected-countries", payload);
+                await postData("get-in-touch", payload);
                 toast.success("Created successfully!", { id: toastId });
                 resetForm();
                 setPreview(null);
@@ -201,7 +206,7 @@ export default function ConnectedCountriesCms() {
                       <button
                         type="button"
                         onClick={() => {
-                          setPreview(null);
+                          setPreview(data?.imageid?.imageUrl || null);
                           setFieldValue("imageid", null);
                           toast.success("Image removed");
                         }}
@@ -225,8 +230,8 @@ export default function ConnectedCountriesCms() {
                 {loading
                   ? "Processing..."
                   : data
-                  ? "Update Connected Countries"
-                  : "Create Connected Countries"}
+                  ? "Update Get In Touch"
+                  : "Create Get In Touch"}
               </button>
             </Form>
           )}

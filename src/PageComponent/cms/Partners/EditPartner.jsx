@@ -1,16 +1,16 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import toast, { Toaster } from 'react-hot-toast';
 import { MdClose } from "react-icons/md";
+import { patchData, uploadImageData } from "@/lib/frontendApi";
 
 const PartnerSchema = Yup.object().shape({
   partnerName: Yup.string()
-    .min(2, "Name must be at least 2 characters")
     .max(100, "Name must not exceed 100 characters")
-    .required("Partner name is required"),
+    .optional(),
 });
 
 export default function EditPartner({ isOpen, onClose, onSuccess, partner }) {
@@ -39,51 +39,29 @@ export default function EditPartner({ isOpen, onClose, onSuccess, partner }) {
       if (values.imageFile) {
         toast.loading("Uploading image...", { id: loadingToast });
         
-        const formData = new FormData();
-        formData.append("images", values.imageFile);
-      
-        const uploadRes = await fetch(process.env.NEXT_PUBLIC_UPLOAD_URL, {
-          method: "POST",
-          body: formData,
-        });
-      
-        if (!uploadRes.ok) {
-          const errText = await uploadRes.text();
-          console.error("UPLOAD ERROR:", errText);
-          throw new Error("Image upload failed");
+        const uploadRes = await uploadImageData(values.imageFile);
+        imageId = uploadRes?.id;
+        
+        if (!imageId) {
+          throw new Error("Failed to upload image");
         }
-      
-        const uploadData = await uploadRes.json();
-        imageId = uploadData.id;
         toast.success("Image uploaded successfully!", { id: loadingToast });
       } else if (values.imageRemoved) {
         imageId = null;
       }
 
       const payload = {
-        partnerName: values.partnerName.trim(),
+        partnerName: values.partnerName?.trim() || "",
         imageid: imageId,
       };
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}partners/${data.id}`, {
-        method: 'PATCH',
-        headers: { 
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
+      await patchData(`partners/${data.id}`, payload);
       
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Update failed with status ${response.status}`);
-      }
-      
-      const result = await response.json();
       toast.success("Partner updated successfully!", { id: loadingToast });
       
       resetForm();
       setPreview(null);
-      if (onSuccess) onSuccess(result);
+      if (onSuccess) onSuccess();
       onClose();
     } catch (error) {
       console.error("Error updating partner:", error);
@@ -217,14 +195,14 @@ export default function EditPartner({ isOpen, onClose, onSuccess, partner }) {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Partner Name *
+                    Partner Name (Optional)
                   </label>
                   <Field
                     name="partnerName"
                     className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all ${
                       errors.partnerName && touched.partnerName ? "border-red-500" : "border-gray-300"
                     }`}
-                    placeholder="Enter partner name"
+                    placeholder="Enter partner name (optional)"
                   />
                   <ErrorMessage name="partnerName" component="div" className="text-red-500 text-sm mt-1" />
                 </div>
