@@ -3,27 +3,28 @@
 import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { MdClose } from "react-icons/md";
+import { deleteData } from "@/lib/frontendApi";
 
-export default function DeleteTeamMember({ isOpen, onClose, onSuccess, teamMember, onDelete }) {
+export default function DeleteService({ isOpen, onClose, onSuccess, service, onDelete }) {
   const [loading, setLoading] = useState(false);
 
   const handleDelete = async () => {
-    if (!teamMember?.id) {
-      toast.error("Team member ID is missing");
+    if (!service?.id) {
+      toast.error("Service ID is missing");
       return;
     }
 
     setLoading(true);
-    const loadingToast = toast.loading("Deleting team member...");
+    const loadingToast = toast.loading("Deleting service...");
     
     try {
-      await onDelete(teamMember.id);
-      toast.success("Team member deleted successfully", { id: loadingToast });
+      await onDelete(service.id);
+      toast.success("Service deleted successfully", { id: loadingToast });
       if (onSuccess) await onSuccess();
       onClose();
     } catch (error) {
-      console.error("Error deleting team member:", error);
-      toast.error(error.message || "Failed to delete team member", { 
+      console.error("Error deleting service:", error);
+      toast.error(error.message || "Failed to delete service", { 
         id: loadingToast,
         duration: 4000 
       });
@@ -32,7 +33,7 @@ export default function DeleteTeamMember({ isOpen, onClose, onSuccess, teamMembe
     }
   };
 
-  if (!isOpen || !teamMember) return null;
+  if (!isOpen || !service) return null;
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
@@ -50,7 +51,7 @@ export default function DeleteTeamMember({ isOpen, onClose, onSuccess, teamMembe
         
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-red-600">Delete Team Member</h2>
+            <h2 className="text-2xl font-bold text-red-600">Delete Service</h2>
             <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
               <MdClose size={24} />
             </button>
@@ -58,24 +59,11 @@ export default function DeleteTeamMember({ isOpen, onClose, onSuccess, teamMembe
 
           <div className="mb-6">
             <p className="text-gray-700 mb-2">
-              Are you sure you want to delete this team member?
+              Are you sure you want to delete this service?
             </p>
             <div className="bg-gray-50 p-4 rounded-lg mt-3">
-              <div className="flex items-center gap-3 mb-2">
-                {teamMember.imageid?.imageUrl && (
-                  <img 
-                    src={teamMember.imageid.imageUrl} 
-                    alt={teamMember.name}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                )}
-                <div>
-                  <p className="font-medium text-gray-900">{teamMember.name}</p>
-                  <p className="text-sm text-gray-600">{teamMember.position}</p>
-                </div>
-              </div>
-              <p className="text-sm text-gray-500">{teamMember.email}</p>
-              <p className="text-sm text-gray-500">{teamMember.phone}</p>
+              <p className="font-medium text-gray-900">{service.title}</p>
+              <p className="text-sm text-gray-600 mt-2">{service.description}</p>
             </div>
           </div>
 

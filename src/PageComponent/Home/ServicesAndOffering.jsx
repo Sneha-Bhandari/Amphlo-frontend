@@ -108,9 +108,10 @@ export default function ServicesAndOffering() {
 
             <div className="w-full lg:w-1/2 text-left">
               <h2 className="text-4xl font-bold text-[#04413D] mb-4">{currentOffering.title}</h2>
-              <p className="text-gray-600 leading-relaxed text-md text-justify">
-                {currentOffering.description}
-              </p>
+             
+               
+                <p className="text-gray-600 leading-relaxed text-md text-justify" dangerouslySetInnerHTML={{ __html: currentOffering.description }} />
+           
               <ul className="mt-6 space-y-3 text-[#04413D] font-medium">
                 {currentOffering.features.map((feature, index) => (
                   <li className='flex items-center gap-3' key={index}>

@@ -129,7 +129,8 @@ export default function OurCoreStrength() {
               src={imageUrl}
               alt={"hii"}
               fill
-              priority
+              // priority
+              unoptimized
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"
             />

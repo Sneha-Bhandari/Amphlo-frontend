@@ -53,7 +53,8 @@ export default function PartnerBanner() {
           src={imageUrl}
           alt={partnerData.title || "Partner banner"}
           fill
-          priority
+          // priority
+          unoptimized
         />
       ) : (
         <div className="h-full w-full bg-gray-200 flex items-center justify-center">

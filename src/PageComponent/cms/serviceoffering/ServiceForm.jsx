@@ -30,17 +30,17 @@ export default function ServiceForm({ section, data, onSubmit }) {
         <Form className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
           {/* LEFT */}
-          <div className="bg-white p-6 rounded-2xl border space-y-5">
-
+          <div className="bg-white p-6 rounded-2xl border space-y-3">
             <h2 className="text-lg font-semibold">
               {section.name}
             </h2>
-
+        <h1 className="text-lg">Title:</h1>
             <Field
               name="title"
               className="w-full p-3 border rounded-xl"
               placeholder="Title"
             />
+        <h1 className="text-lg">Description:</h1>
 
             <JoditEditor
               value={values.description}
@@ -48,6 +48,7 @@ export default function ServiceForm({ section, data, onSubmit }) {
                 setFieldValue("description", content)
               }
             />
+        <h1 className="text-lg">Features:</h1>
 
             <FieldArray name="features">
               {({ push, remove }) => (
@@ -73,6 +74,7 @@ export default function ServiceForm({ section, data, onSubmit }) {
                 </div>
               )}
             </FieldArray>
+            <h1 className="text-lg">Image Section</h1>
 
             {/* IMAGE */}
             <input

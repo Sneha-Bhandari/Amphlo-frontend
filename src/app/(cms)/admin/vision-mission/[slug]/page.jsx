@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 
 import Loading from "@/Global/Loading";
-import ServiceForm from "@/PageComponent/cms/serviceoffering/ServiceForm";
+import VisionMissionForm from "@/PageComponent/cms/missionvision/MissionVisionForm";
 
 import {
   fetchData,
@@ -15,8 +15,8 @@ import {
 } from "@/lib/frontendApi";
 
 const sectionsMap = {
-  partner: { name: "Partner", apiPath: "partner" },
-  university: { name: "University", apiPath: "university" },
+  vision: { name: "Vision", apiPath: "vision" },
+  mission: { name: "Mission", apiPath: "mission" },
 };
 
 export default function Page() {
@@ -29,9 +29,14 @@ export default function Page() {
 
   const load = async () => {
     try {
-      const res = await fetchData("service-offerings");
+      const res = await fetchData("vision-mission");
+      console.log("Vision Mission API Response:", res);
+      
       const found = res.find((x) => x.path === section.apiPath);
       setData(found || null);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast.error("Failed to fetch data");
     } finally {
       setLoading(false);
     }
@@ -50,23 +55,29 @@ export default function Page() {
 
       const payload = {
         title: values.title,
+        subTitle: values.subTitle,
         description: values.description,
-        features: values.features.filter(Boolean),
         path: section.apiPath,
-        imageid: imageId,
       };
 
+      if (imageId) {
+        payload.imageid = imageId;
+      }
+
+      console.log("Final payload:", payload);
+
       if (data) {
-        await patchData(`service-offerings/${data.path}`, payload);
-        toast.success("Updated", { id: toastId });
+        await patchData(`vision-mission/${data.id}`, payload);
+        toast.success("Updated successfully!", { id: toastId });
       } else {
-        await postData("service-offerings", payload);
-        toast.success("Created", { id: toastId });
+        await postData("vision-mission", payload);
+        toast.success("Created successfully!", { id: toastId });
       }
 
       load();
     } catch (err) {
-      toast.error(err.message, { id: toastId });
+      console.error("Error:", err);
+      toast.error(err.message || "Something went wrong", { id: toastId });
     } finally {
       actions.setSubmitting(false);
     }
@@ -76,11 +87,11 @@ export default function Page() {
     if (section) load();
   }, [slug]);
 
-  if (!section) return <p>Invalid</p>;
+  if (!section) return <p>Invalid section</p>;
 
   return (
     <div className="p-6">
-      <Toaster />
+      <Toaster position="top-right" />
       <button
           onClick={() => router.back()}
           className="px-4 py-2 bg-white border border-gray-200 rounded-xl 
@@ -91,7 +102,7 @@ export default function Page() {
       {loading ? (
         <Loading />
       ) : (
-        <ServiceForm
+        <VisionMissionForm
           section={section}
           data={data}
           onSubmit={handleSubmit}

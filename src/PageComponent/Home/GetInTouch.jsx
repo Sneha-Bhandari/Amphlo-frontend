@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { fetchData } from "@/lib/frontendApi";
 import background from "../../../public/footer-bg.png";
+import Loading from "@/Global/Loading";
 
 export default function GetInTouch() {
   const [touchData, setTouchData] = useState(null);
@@ -19,11 +20,14 @@ export default function GetInTouch() {
         
         if (Array.isArray(data) && data.length > 0) {
           setTouchData(data[0]);
-        } else {
+        } else if (data && typeof data === 'object') {
           setTouchData(data);
+        } else {
+          setTouchData(null);
         }
       } catch (error) {
         console.error("Error fetching get in touch data:", error);
+        setTouchData(null);
       } finally {
         setLoading(false);
       }
@@ -32,10 +36,10 @@ export default function GetInTouch() {
     getTouchData();
   }, []);
 
-  const title = touchData?.title || "Get In Touch With Us";
-  const description = touchData?.description || "If you have any business-related questions, or concerns, please send us a message and a member of our team will get in touch with you.";
-  
-  const imageUrl = touchData?.imageid?.imageUrl || null;
+  // No default values - only show if data exists
+  const title = touchData?.title;
+  const description = touchData?.description;
+  const imageUrl = touchData?.imageid?.imageUrl;
 
   console.log("Image URL:", imageUrl);
   console.log("Full Data:", touchData);
@@ -48,6 +52,13 @@ export default function GetInTouch() {
     );
   }
 
+  // Don't render section if no data exists
+  if (!touchData || (!title && !description && !imageUrl)) {
+    return (
+    <Loading/>
+    )
+  }
+
   return (
     <section className="relative w-full h-[50vh] flex items-center justify-center overflow-hidden bg-white navtext">
      
@@ -56,7 +67,8 @@ export default function GetInTouch() {
           src={imageUrl}
           alt="Global Reach"
           fill
-          priority
+          // priority
+          unoptimized
           className="object-cover"
           onError={() => {
             console.error("Image failed to load:", imageUrl);
@@ -76,10 +88,17 @@ export default function GetInTouch() {
       <div className="absolute inset-0 bg-[#04413D]/30" />
 
       <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 gap-6 navtext">
-        <h2 className="text-4xl md:text-5xl font-bold text-[#04413D]">
-          {title} <span className="text-white"></span>
-        </h2>
-        <p className="text-[#245e5a] w-11/12">{description}</p>
+        {title && (
+          <h2 className="text-4xl md:text-5xl font-bold text-[#04413D]">
+            {title}
+          </h2>
+        )}
+        
+        {description && (
+          // <p className="text-[#245e5a] w-11/12">{description}</p>
+          <p className="text-[#245e5a] w-11/12" dangerouslySetInnerHTML={{ __html: description }} />
+
+        )}
         
         <Link 
           href="/enquiry"

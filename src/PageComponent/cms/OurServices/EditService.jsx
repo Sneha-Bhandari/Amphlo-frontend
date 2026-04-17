@@ -8,50 +8,57 @@ import toast, { Toaster } from 'react-hot-toast';
 import { MdClose } from "react-icons/md";
 import { patchData } from "@/lib/frontendApi";
 
-const FaqSchema = Yup.object().shape({
+const ServiceSchema = Yup.object().shape({
   title: Yup.string()
-    .min(5, "Question must be at least 5 characters")
-    .max(200, "Question must not exceed 200 characters")
-    .required("Question is required"),
+    .min(2, "Title must be at least 2 characters")
+    .max(100, "Title must not exceed 100 characters")
+    .required("Title is required"),
   description: Yup.string()
-    .min(10, "Answer must be at least 10 characters")
-    .required("Answer is required"),
+    .min(5, "Description must be at least 5 characters")
+    .required("Description is required"),
 });
 
-export default function EditFaq({ isOpen, onClose, onSuccess, faq }) {
+export default function EditService({ isOpen, onClose, onSuccess, service }) {
   const editor = useRef(null);
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    if (faq) {
-      setData(faq);
+    if (service) {
+      setData(service);
     }
-  }, [faq]);
+  }, [service]);
 
-  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+  const handleSubmit = async (values, { setSubmitting }) => {
     if (!data?.id) {
-      toast.error("FAQ ID is missing");
+      toast.error("Service ID is missing");
       return;
     }
 
-    const loadingToast = toast.loading("Updating FAQ...");
+    const loadingToast = toast.loading("Updating service...");
     
     try {
+      // Clean the description - remove empty paragraphs
+      let cleanDescription = values.description;
+      if (cleanDescription === "<p><br></p>") {
+        cleanDescription = "";
+      }
+      
       const payload = {
         title: values.title.trim(),
-        description: values.description,
+        description: cleanDescription,
       };
       
-      await patchData(`faq/${data.id}`, payload);
+      console.log("Updating service:", data.id, payload);
       
-      toast.success("FAQ updated successfully!", { id: loadingToast });
+      await patchData(`our-services/${data.id}`, payload);
       
-      resetForm();
-      if (onSuccess) onSuccess();
+      toast.success("Service updated successfully!", { id: loadingToast });
+      
+      if (onSuccess) await onSuccess();
       onClose();
     } catch (error) {
-      console.error("Error updating FAQ:", error);
-      toast.error(error.message || "Failed to update FAQ", {
+      console.error("Error updating service:", error);
+      toast.error(error.message || "Failed to update service", {
         id: loadingToast,
         duration: 4000,
       });
@@ -92,8 +99,8 @@ export default function EditFaq({ isOpen, onClose, onSuccess, faq }) {
         
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10">
           <div>
-            <h2 className="text-2xl font-bold text-[#04413D]">Edit FAQ</h2>
-            <p className="text-gray-600 text-sm mt-1">Edit frequently asked question</p>
+            <h2 className="text-2xl font-bold text-[#04413D]">Edit Service</h2>
+            <p className="text-gray-600 text-sm mt-1">Edit service title and description</p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
             <MdClose size={24} />
@@ -107,44 +114,43 @@ export default function EditFaq({ isOpen, onClose, onSuccess, faq }) {
               title: data.title || "",
               description: data.description || "",
             }}
-            validationSchema={FaqSchema}
+            validationSchema={ServiceSchema}
             onSubmit={handleSubmit}
           >
-            {({ values, setFieldValue, setTouched, isSubmitting, errors, touched, submitForm }) => (
+            {({ values, setFieldValue, isSubmitting, errors, touched, submitForm, setTouched }) => (
               <Form className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Question *
+                    Service Title *
                   </label>
                   <Field
-                    as="textarea"
                     name="title"
-                    rows="3"
                     className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all ${
                       errors.title && touched.title ? "border-red-500" : "border-gray-300"
                     }`}
-                    placeholder="Enter the frequently asked question"
+                    placeholder="Enter service title"
                   />
                   <ErrorMessage name="title" component="div" className="text-red-500 text-sm mt-1" />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Answer *
+                    Description *
                   </label>
                   <JoditEditor
                     ref={editor}
                     value={values.description}
-                    onBlur={(newContent) => {
-                      setFieldValue("description", newContent);
-                      if (newContent && touched.description === undefined) {
+                    onBlur={(content) => {
+                      setFieldValue("description", content);
+                      if (content && touched.description === undefined) {
                         setTouched({ description: true });
                       }
                     }}
                     config={{
-                      readonly: false,
                       height: 300,
-                      placeholder: "Write your answer here...",
+                      placeholder: 'Enter service description...',
+                      removeButtons: ['source', 'about'],
+                      toolbarAdaptive: false,
                     }}
                   />
                   {touched.description && errors.description && (
@@ -156,10 +162,18 @@ export default function EditFaq({ isOpen, onClose, onSuccess, faq }) {
                   <button
                     type="button"
                     onClick={() => {
-                      setTouched({
-                        title: true,
-                        description: true,
-                      });
+                      if (!values.title.trim()) {
+                        toast.error("Please enter a title");
+                        setTouched({ title: true });
+                        return;
+                      }
+                      
+                      if (!values.description || values.description === "<p><br></p>") {
+                        toast.error("Please enter a description");
+                        setTouched({ description: true });
+                        return;
+                      }
+                      
                       submitForm();
                     }}
                     disabled={isSubmitting}
@@ -178,7 +192,7 @@ export default function EditFaq({ isOpen, onClose, onSuccess, faq }) {
                         Updating...
                       </span>
                     ) : (
-                      "Update FAQ"
+                      "Update Service"
                     )}
                   </button>
                   <button

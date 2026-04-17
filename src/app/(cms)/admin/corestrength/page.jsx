@@ -86,7 +86,6 @@ export default function CoreStrengthsCMS() {
 
               let imageId = data?.imageid?.id;
 
-              // ✅ Upload new image if selected
               if (values.imageid) {
                 const uploadRes = await uploadImageData(values.imageid);
                 imageId = uploadRes?.id;

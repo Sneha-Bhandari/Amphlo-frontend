@@ -49,14 +49,10 @@ export default function HeroSection() {
       >
         {heroData?.imageid?.imageUrl ? (
           <Image
-            // src={encodeURI(heroData.imageid.imageUrl)}
             src={imageurl}
             alt="Hero background"
-            // height={1000}
-            // weight={1000}
             fill
-            priority
-            // unoptimized
+            unoptimized
             className="object-cover"
           />
         ) : (

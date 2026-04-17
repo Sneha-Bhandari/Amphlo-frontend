@@ -5,6 +5,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import toast, { Toaster } from 'react-hot-toast';
 import { MdClose } from "react-icons/md";
+import { patchData, uploadImageData } from "@/lib/frontendApi";
 
 const TeamMemberSchema = Yup.object().shape({
   name: Yup.string()
@@ -33,7 +34,7 @@ export default function EditTeamMember({ isOpen, onClose, onSuccess, teamMember 
   useEffect(() => {
     if (teamMember) {
       setData(teamMember);
-      setPreview(null); 
+      setPreview(null);
     }
   }, [teamMember]);
 
@@ -51,22 +52,12 @@ export default function EditTeamMember({ isOpen, onClose, onSuccess, teamMember 
       if (values.imageFile) {
         toast.loading("Uploading image...", { id: loadingToast });
         
-        const formData = new FormData();
-        formData.append("images", values.imageFile);
-      
-        const uploadRes = await fetch(process.env.NEXT_PUBLIC_UPLOAD_URL, {
-          method: "POST",
-          body: formData,
-        });
-      
-        if (!uploadRes.ok) {
-          const errText = await uploadRes.text();
-          console.error("UPLOAD ERROR:", errText);
-          throw new Error("Image upload failed");
+        const uploadRes = await uploadImageData(values.imageFile);
+        imageId = uploadRes?.id;
+        
+        if (!imageId) {
+          throw new Error("Failed to upload image");
         }
-      
-        const uploadData = await uploadRes.json();
-        imageId = uploadData.id;
         toast.success("Image uploaded successfully!", { id: loadingToast });
       } else if (values.imageRemoved) {
         imageId = null;
@@ -80,25 +71,13 @@ export default function EditTeamMember({ isOpen, onClose, onSuccess, teamMember 
         imageid: imageId,
       };
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}our-team/${data.id}`, {
-        method: 'PATCH',
-        headers: { 
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
+      await patchData(`our-team/${data.id}`, payload);
       
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Update failed with status ${response.status}`);
-      }
-      
-      const result = await response.json();
       toast.success("Team member updated successfully!", { id: loadingToast });
       
       resetForm();
       setPreview(null);
-      if (onSuccess) onSuccess(result);
+      if (onSuccess) await onSuccess();
       onClose();
     } catch (error) {
       console.error("Error updating team member:", error);
@@ -159,8 +138,8 @@ export default function EditTeamMember({ isOpen, onClose, onSuccess, teamMember 
               position: data.position || "",
               email: data.email || "",
               phone: data.phone || "",
-              imageFile: null, 
-              imageRemoved: false, 
+              imageFile: null,
+              imageRemoved: false,
             }}
             validationSchema={TeamMemberSchema}
             onSubmit={handleSubmit}
@@ -174,7 +153,7 @@ export default function EditTeamMember({ isOpen, onClose, onSuccess, teamMember 
                   
                   <input
                     type="file"
-                    accept="image/jpeg,image/png,image/jpg,image/webp"
+                    accept="image/jpeg,image/png,image/jpg,image/webp,image/gif"
                     className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
@@ -185,9 +164,9 @@ export default function EditTeamMember({ isOpen, onClose, onSuccess, teamMember 
                           return;
                         }
                         
-                        const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+                        const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/gif'];
                         if (!validTypes.includes(file.type)) {
-                          toast.error("Please upload a valid image (JPEG, PNG, WEBP)");
+                          toast.error("Please upload a valid image (JPEG, PNG, WEBP, GIF)");
                           e.target.value = '';
                           return;
                         }

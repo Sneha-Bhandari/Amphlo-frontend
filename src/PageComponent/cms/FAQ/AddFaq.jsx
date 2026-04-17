@@ -6,6 +6,7 @@ import * as Yup from "yup";
 import JoditEditor from "jodit-react";
 import toast, { Toaster } from 'react-hot-toast';
 import { MdClose } from "react-icons/md";
+import { postData } from "@/lib/frontendApi";
 
 const FaqSchema = Yup.object().shape({
   title: Yup.string()
@@ -28,29 +29,32 @@ export default function AddFaq({ isOpen, onClose, onSuccess }) {
         title: values.title.trim(),
         description: values.description,
       };
+            
+      await postData("faq", payload);
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}faq`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.text();
-        throw new Error(errorData || 'Create failed');
-      }
-      
-      const result = await response.json();
       toast.success("FAQ created successfully!", { id: loadingToast });
       
       resetForm();
-      if (onSuccess) onSuccess(result);
+      if (onSuccess) onSuccess();
       onClose();
     } catch (error) {
       console.error("Error creating FAQ:", error);
-      toast.error(error.message || "Failed to create FAQ", {
+      
+      // More descriptive error message
+      let errorMessage = "Failed to create FAQ";
+      if (error.message.includes("ERR_NAME_NOT_RESOLVED")) {
+        errorMessage = "Cannot connect to server. Please check your internet connection or contact support.";
+      } else if (error.message.includes("404")) {
+        errorMessage = "API endpoint not found. Please check if the backend is running.";
+      } else if (error.message.includes("500")) {
+        errorMessage = "Server error. Please try again later.";
+      } else {
+        errorMessage = error.message || "Failed to create FAQ";
+      }
+      
+      toast.error(errorMessage, {
         id: loadingToast,
-        duration: 4000,
+        duration: 5000,
       });
     } finally {
       setSubmitting(false);
@@ -78,7 +82,7 @@ export default function AddFaq({ isOpen, onClose, onSuccess }) {
               },
             },
             error: {
-              duration: 4000,
+              duration: 5000,
               iconTheme: {
                 primary: '#EF4444',
                 secondary: '#fff',
@@ -104,9 +108,6 @@ export default function AddFaq({ isOpen, onClose, onSuccess }) {
               description: "",
             }}
             validationSchema={FaqSchema}
-            validateOnMount={false}
-            validateOnChange={true}
-            validateOnBlur={true}
             onSubmit={handleSubmit}
           >
             {({ values, setFieldValue, setTouched, isSubmitting, errors, touched, submitForm }) => (
@@ -142,7 +143,7 @@ export default function AddFaq({ isOpen, onClose, onSuccess }) {
                     }}
                     config={{
                       height: 300,
-                      placeholder: 'Write your testimonial description here...',
+                      placeholder: 'Write your answer here...',
                     }}
                   />
                   {touched.description && errors.description && (

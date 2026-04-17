@@ -5,7 +5,8 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import JoditEditor from "jodit-react";
 import toast, { Toaster } from 'react-hot-toast';
-import { MdClose } from "react-icons/md";
+import { MdCloudUpload, MdClose } from "react-icons/md";
+import { patchData, uploadImageData } from "@/lib/frontendApi";
 
 const TestimonialSchema = Yup.object().shape({
   clientName: Yup.string()
@@ -35,7 +36,7 @@ export default function EditTestimonial({ isOpen, onClose, onSuccess, testimonia
   useEffect(() => {
     if (testimonial) {
       setData(testimonial);
-      setPreview(null); 
+      setPreview(null);
     }
   }, [testimonial]);
 
@@ -53,22 +54,12 @@ export default function EditTestimonial({ isOpen, onClose, onSuccess, testimonia
       if (values.imageFile) {
         toast.loading("Uploading image...", { id: loadingToast });
         
-        const formData = new FormData();
-        formData.append("images", values.imageFile);
-      
-        const uploadRes = await fetch(process.env.NEXT_PUBLIC_UPLOAD_URL, {
-          method: "POST",
-          body: formData,
-        });
-      
-        if (!uploadRes.ok) {
-          const errText = await uploadRes.text();
-          console.error("UPLOAD ERROR:", errText);
-          throw new Error("Image upload failed");
+        const uploadRes = await uploadImageData(values.imageFile);
+        imageId = uploadRes?.id;
+        
+        if (!imageId) {
+          throw new Error("Failed to upload image");
         }
-      
-        const uploadData = await uploadRes.json();
-        imageId = uploadData.id;
         toast.success("Image uploaded successfully!", { id: loadingToast });
       } else if (values.imageRemoved) {
         imageId = null;
@@ -83,25 +74,13 @@ export default function EditTestimonial({ isOpen, onClose, onSuccess, testimonia
         imageid: imageId,
       };
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}testimonial/${data.id}`, {
-        method: 'PATCH',
-        headers: { 
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
+      await patchData(`testimonial/${data.id}`, payload);
       
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Update failed with status ${response.status}`);
-      }
-      
-      const result = await response.json();
       toast.success("Testimonial updated successfully!", { id: loadingToast });
       
       resetForm();
       setPreview(null);
-      if (onSuccess) onSuccess(result);
+      if (onSuccess) await onSuccess();
       onClose();
     } catch (error) {
       console.error("Error updating testimonial:", error);
@@ -163,8 +142,8 @@ export default function EditTestimonial({ isOpen, onClose, onSuccess, testimonia
               companyName: data.companyName || "",
               rating: data.rating || 5,
               description: data.description || "",
-              imageFile: null, 
-              imageRemoved: false, 
+              imageFile: null,
+              imageRemoved: false,
             }}
             validationSchema={TestimonialSchema}
             onSubmit={handleSubmit}
@@ -176,47 +155,12 @@ export default function EditTestimonial({ isOpen, onClose, onSuccess, testimonia
                     Client Image
                   </label>
                   
-                  <input
-                    type="file"
-                    accept="image/jpeg,image/png,image/jpg,image/webp"
-                    className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        if (file.size > 5 * 1024 * 1024) {
-                          toast.error("Image size should be less than 5MB");
-                          e.target.value = '';
-                          return;
-                        }
-                        
-                        const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-                        if (!validTypes.includes(file.type)) {
-                          toast.error("Please upload a valid image (JPEG, PNG, WEBP)");
-                          e.target.value = '';
-                          return;
-                        }
-                        
-                        setFieldValue("imageFile", file);
-                        setFieldValue("imageRemoved", false);
-                        if (preview) URL.revokeObjectURL(preview);
-                        setPreview(URL.createObjectURL(file));
-                        toast.success("Image selected successfully!");
-                      } else {
-                        setFieldValue("imageFile", null);
-                        if (preview) {
-                          URL.revokeObjectURL(preview);
-                          setPreview(null);
-                        }
-                      }
-                    }}
-                  />
-
-                  {(preview || (data?.imageid?.imageUrl && !values.imageRemoved)) && (
-                    <div className="mt-4 relative group border-2 border-dashed hover:border-gray-900 cursor-pointer border-gray-400 rounded-lg items-center justify-center mx-auto flex flex-col">
+                  {(preview || (data?.imageid?.imageUrl && !values.imageRemoved)) ? (
+                    <div className="flex items-center gap-4 p-4 border rounded-lg">
                       <img
                         src={preview || data?.imageid?.imageUrl}
                         alt="Preview"
-                        className="my-5 w-32 h-32 rounded-full object-cover"
+                        className="w-24 h-24 rounded-full object-cover border-2 border-[#04413D]"
                       />
                       <button
                         type="button"
@@ -227,14 +171,32 @@ export default function EditTestimonial({ isOpen, onClose, onSuccess, testimonia
                           setFieldValue("imageRemoved", true);
                           toast.success("Image removed");
                         }}
-                        className="absolute top-4 right-4 bg-red-500 text-white cursor-pointer rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="text-red-600 flex items-center gap-1 hover:text-red-700"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        <MdClose /> Remove Image
                       </button>
                     </div>
+                  ) : (
+                    <label className="border-2 border-dashed rounded-lg p-8 block text-center cursor-pointer hover:border-[#04413D] transition-colors border-gray-300">
+                      <MdCloudUpload size={48} className="mx-auto mb-2 text-gray-400" />
+                      <p className="text-gray-600">Click to upload image</p>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        hidden
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setFieldValue("imageFile", file);
+                            setFieldValue("imageRemoved", false);
+                            if (preview) URL.revokeObjectURL(preview);
+                            setPreview(URL.createObjectURL(file));
+                          }
+                        }}
+                      />
+                    </label>
                   )}
+                  {uploadingImage && <p className="text-sm text-blue-600 mt-1">Uploading image...</p>}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -291,11 +253,11 @@ export default function EditTestimonial({ isOpen, onClose, onSuccess, testimonia
                         errors.rating && touched.rating ? "border-red-500" : "border-gray-300"
                       }`}
                     >
-                      <option value="5"> 5 </option>
-                      <option value="4"> 4</option>
-                      <option value="3"> 3</option>
-                      <option value="2"> 2</option>
-                      <option value="1"> 1 </option>
+                      <option value="5">★★★★★ (5)</option>
+                      <option value="4">★★★★☆ (4)</option>
+                      <option value="3">★★★☆☆ (3)</option>
+                      <option value="2">★★☆☆☆ (2)</option>
+                      <option value="1">★☆☆☆☆ (1)</option>
                     </Field>
                     <ErrorMessage name="rating" component="div" className="text-red-500 text-sm mt-1" />
                   </div>
