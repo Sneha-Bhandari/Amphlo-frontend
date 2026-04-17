@@ -3,9 +3,8 @@
 import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { MdClose } from "react-icons/md";
-import { deleteData } from "@/lib/frontendApi";
 
-export default function DeleteFaq({ isOpen, onClose, onSuccess, faq }) {
+export default function DeleteFaq({ isOpen, onClose, onSuccess, faq, onDelete }) {
   const [loading, setLoading] = useState(false);
 
   const handleDelete = async () => {
@@ -18,8 +17,7 @@ export default function DeleteFaq({ isOpen, onClose, onSuccess, faq }) {
     const loadingToast = toast.loading("Deleting FAQ...");
     
     try {
-      await deleteData(`faq/${faq.id}`);
-      
+      await onDelete(faq.id);
       toast.success("FAQ deleted successfully", { id: loadingToast });
       if (onSuccess) onSuccess();
       onClose();
@@ -64,7 +62,9 @@ export default function DeleteFaq({ isOpen, onClose, onSuccess, faq }) {
             </p>
             <div className="bg-gray-50 p-4 rounded-lg mt-3">
               <p className="font-medium text-gray-900">{faq.title}</p>
-              <p className="text-sm text-gray-600 mt-2 line-clamp-2">{faq.description}</p>
+              <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                {faq.description?.replace(/<[^>]*>/g, '')}
+              </p>
             </div>
           </div>
 

@@ -3,80 +3,78 @@
 import React, { useState, useEffect } from "react";
 import { fetchData, deleteData } from "@/lib/frontendApi";
 import Loading from "@/Global/Loading";
-import AddFaq from "@/PageComponent/cms/Faq/AddFaq";
-import EditFaq from "@/PageComponent/cms/Faq/EditFaq";
-import DeleteFaq from "@/PageComponent/cms/Faq/DeleteFaq";
-import ViewFaq from "@/PageComponent/cms/Faq/ViewFaq";
-import FaqTable from "@/PageComponent/cms/Faq/FaqTable";
+import AddService from "@/PageComponent/cms/OurServices/AddService";
+import EditService from "@/PageComponent/cms/OurServices/EditService";
+import DeleteService from "@/PageComponent/cms/OurServices/DeleteService";
+import ViewService from "@/PageComponent/cms/OurServices/ViewService";
+import ServicesTable from "@/PageComponent/cms/OurServices/ServiceTable";
 import { Toaster } from "react-hot-toast";
 
-export default function FaqsCMS() {
-  const [faqs, setFaqs] = useState([]);
+export default function ServicesCms() {
+  const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [selectedFaq, setSelectedFaq] = useState(null);
+  const [selectedService, setSelectedService] = useState(null);
   
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetchFaqs();
+    fetchServices();
   }, []);
 
-  const fetchFaqs = async () => {
+  const fetchServices = async () => {
     try {
       setLoading(true);
-      const data = await fetchData("faq");
-      console.log("Fetched FAQs:", data);
+      const data = await fetchData("our-services");
+      console.log("Fetched services:", data);
       
       if (Array.isArray(data)) {
-        setFaqs(data);
+        setServices(data);
       } else if (data && typeof data === 'object' && !Array.isArray(data)) {
-        setFaqs([data]);
+        setServices([data]);
       } else {
-        setFaqs([]);
+        setServices([]);
       }
     } catch (error) {
-      console.error("Error fetching FAQs:", error);
-      setFaqs([]);
+      console.error("Error fetching services:", error);
+      setServices([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteFaq = async (faqId) => {
+  const handleDeleteService = async (serviceId) => {
     try {
-      await deleteData(`faq/${faqId}`);
-      await fetchFaqs();
+      await deleteData(`our-services/${serviceId}`);
+      await fetchServices();
       return true;
     } catch (error) {
-      console.error("Error deleting FAQ:", error);
+      console.error("Error deleting service:", error);
       throw error;
     }
   };
 
-  const handleView = (faq) => {
-    setSelectedFaq(faq);
+  const handleView = (service) => {
+    setSelectedService(service);
     setIsViewModalOpen(true);
   };
 
-  const handleEdit = (faq) => {
-    setSelectedFaq(faq);
+  const handleEdit = (service) => {
+    setSelectedService(service);
     setIsEditModalOpen(true);
   };
 
-  const handleDelete = (faq) => {
-    setSelectedFaq(faq);
+  const handleDelete = (service) => {
+    setSelectedService(service);
     setIsDeleteModalOpen(true);
   };
 
-  // Filter FAQs based on search
-  const filteredFaqs = faqs.filter(faq => {
-    return faq.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           faq.description?.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredServices = services.filter(service => {
+    return service.title?.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   if (loading) {
@@ -89,13 +87,13 @@ export default function FaqsCMS() {
 
   return (
     <>
-      <div className="min-h-screen w-full p-6">
+      <div className="min-h-screen w-full p-6 mt-16">
         <Toaster position="top-right" />
         <div className="w-full mx-auto">
           <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-[#04413D]">FAQ Management</h1>
-              <p className="text-gray-600 mt-1">Manage frequently asked questions</p>
+            <div className="mb-12">
+              <h1 className="text-3xl font-bold text-[#04413D]">Services Management</h1>
+              <p className="text-gray-600 mt-1">Manage services with title and description</p>
             </div>
             <button
               onClick={() => setIsAddModalOpen(true)}
@@ -104,7 +102,7 @@ export default function FaqsCMS() {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              Add FAQ
+              Add Service
             </button>
           </div>
 
@@ -113,7 +111,7 @@ export default function FaqsCMS() {
             <div className="relative max-w-md">
               <input
                 type="text"
-                placeholder="Search by question or answer..."
+                placeholder="Search by title..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-4 py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
@@ -128,13 +126,9 @@ export default function FaqsCMS() {
               </svg>
             </div>
           </div>
-          
-          <div className="text-sm text-gray-600 flex justify-end mb-5">
-            Total: {filteredFaqs.length} FAQ{filteredFaqs.length !== 1 ? 's' : ''}
-          </div>
 
-          <FaqTable 
-            faqs={filteredFaqs}
+          <ServicesTable 
+            services={filteredServices}
             onView={handleView}
             onEdit={handleEdit}
             onDelete={handleDelete}
@@ -142,31 +136,31 @@ export default function FaqsCMS() {
         </div>
       </div>
 
-      <AddFaq 
+      <AddService 
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onSuccess={fetchFaqs}
+        onSuccess={fetchServices}
       />
 
-      <ViewFaq 
+      <ViewService 
         isOpen={isViewModalOpen}
         onClose={() => setIsViewModalOpen(false)}
-        faq={selectedFaq}
+        service={selectedService}
       />
 
-      <EditFaq 
+      <EditService 
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        onSuccess={fetchFaqs}
-        faq={selectedFaq}
+        onSuccess={fetchServices}
+        service={selectedService}
       />
 
-      <DeleteFaq 
+      <DeleteService 
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        onSuccess={fetchFaqs}
-        faq={selectedFaq}
-        onDelete={handleDeleteFaq}
+        onSuccess={fetchServices}
+        service={selectedService}
+        onDelete={handleDeleteService}
       />
     </>
   );

@@ -168,7 +168,7 @@ export default function HeroSection() {
                               setPreview(null);
                               setFieldValue("images", null);
                             }}
-                            className="absolute top-4 right-4 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100"
+                            className="absolute top-4 right-4 bg-red-500 text-white rounded-full py-1 px-2 opacity-0 group-hover:opacity-100"
                           >
                             ✕
                           </button>

@@ -4,14 +4,14 @@ import React, { useState } from "react";
 import { MdVisibility, MdEdit, MdDelete } from "react-icons/md";
 import Pagination from "@/Global/Pagination";
 
-export default function FaqTable({ faqs, onView, onEdit, onDelete }) {
+export default function ServiceTable({ services, onView, onEdit, onDelete }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = faqs.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(faqs.length / itemsPerPage);
+  const currentItems = services.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(services.length / itemsPerPage);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -20,7 +20,7 @@ export default function FaqTable({ faqs, onView, onEdit, onDelete }) {
 
   const handleItemsPerPageChange = (newItemsPerPage) => {
     setItemsPerPage(newItemsPerPage);
-    setCurrentPage(1);
+    setCurrentPage(1); 
   };
 
   return (
@@ -28,60 +28,41 @@ export default function FaqTable({ faqs, onView, onEdit, onDelete }) {
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-300">
           <thead className="bg-linear-to-r from-gray-200 to-gray-100">
-            <tr className="text-center">
+            <tr>
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">S.N.</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Question</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Answer</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Title</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Description</th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-300 bg-[#04413D]/10">
             {currentItems.length > 0 ? (
-              currentItems.map((faq, index) => {
+              currentItems.map((service, index) => {
                 const serialNumber = indexOfFirstItem + index + 1;
-                const plainDescription = faq.description?.replace(/<[^>]*>/g, '');
                 
                 return (
-                  <tr 
-                    key={faq.id} 
-                    className="hover:bg-linear-to-r hover:from-[#04413D]/20 hover:to-transparent transition-all duration-500 group"
-                  >
+                  <tr key={service.id} className="hover:bg-linear-to-r hover:from-[#04413D]/20 hover:to-transparent transition-all duration-500 group">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{serialNumber}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm font-semibold text-gray-900">
-                        {faq.title?.length > 80 ? `${faq.title.substring(0, 80)}...` : faq.title}
-                      </div>
+                      <div className="text-sm font-semibold text-gray-900">{service.title}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm text-gray-600">
-                        {plainDescription?.length > 100 
-                          ? `${plainDescription.substring(0, 100)}...` 
-                          : plainDescription}
-                      </div>
+                    <div
+  className="text-sm md:text-base text-gray-600 leading-relaxed "
+  dangerouslySetInnerHTML={{ __html: service.description }}
+/>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex gap-3">
-                        <button
-                          onClick={() => onView(faq)}
-                          className="text-green-600 hover:text-green-700 transition-colors duration-200 transform hover:scale-110"
-                          title="View"
-                        >
+                        <button onClick={() => onView(service)} className="text-green-600 hover:text-green-700 transition-colors duration-200 transform hover:scale-110" title="View">
                           <MdVisibility size={20} />
                         </button>
-                        <button
-                          onClick={() => onEdit(faq)}
-                          className="text-blue-600 hover:text-blue-700 transition-colors duration-200 transform hover:scale-110"
-                          title="Edit"
-                        >
+                        <button onClick={() => onEdit(service)} className="text-blue-600 hover:text-blue-700 transition-colors duration-200 transform hover:scale-110" title="Edit">
                           <MdEdit size={20} />
                         </button>
-                        <button
-                          onClick={() => onDelete(faq)}
-                          className="text-red-600 hover:text-red-700 transition-colors duration-200 transform hover:scale-110"
-                          title="Delete"
-                        >
+                        <button onClick={() => onDelete(service)} className="text-red-600 hover:text-red-700 transition-colors duration-200 transform hover:scale-110" title="Delete">
                           <MdDelete size={20} />
                         </button>
                       </div>
@@ -94,10 +75,10 @@ export default function FaqTable({ faqs, onView, onEdit, onDelete }) {
                 <td colSpan="4" className="px-6 py-12 text-center">
                   <div className="flex flex-col items-center justify-center gap-3">
                     <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
-                    <div className="text-[#04413D] text-lg">No FAQs found</div>
-                    <p className="text-[#04413D]/60 text-sm">Start by adding your first FAQ</p>
+                    <div className="text-[#04413D] text-lg">No services found</div>
+                    <p className="text-[#04413D]/60 text-sm">Start by adding your first service</p>
                   </div>
                 </td>
               </tr>
@@ -106,7 +87,7 @@ export default function FaqTable({ faqs, onView, onEdit, onDelete }) {
         </table>
       </div>
       
-      {faqs.length > 0 && (
+      {services.length > 0 && (
         <div className="px-6 py-4">
           <Pagination
             currentPage={currentPage}

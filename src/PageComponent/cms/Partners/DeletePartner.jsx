@@ -5,7 +5,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { MdClose } from "react-icons/md";
 import { deleteData } from "@/lib/frontendApi";
 
-export default function DeletePartner({ isOpen, onClose, onSuccess, partner }) {
+export default function DeletePartner({ isOpen, onClose, onSuccess, partner, onDelete }) {
   const [loading, setLoading] = useState(false);
 
   const handleDelete = async () => {
@@ -18,8 +18,7 @@ export default function DeletePartner({ isOpen, onClose, onSuccess, partner }) {
     const loadingToast = toast.loading("Deleting partner...");
     
     try {
-      await deleteData(`partners/${partner.id}`);
-      
+      await onDelete(partner.id);
       toast.success("Partner deleted successfully", { id: loadingToast });
       if (onSuccess) onSuccess();
       onClose();
@@ -67,7 +66,7 @@ export default function DeletePartner({ isOpen, onClose, onSuccess, partner }) {
                 {partner.imageid?.imageUrl ? (
                   <img 
                     src={partner.imageid.imageUrl} 
-                    alt={partner.partnerName}
+                    alt="Partner logo"
                     className="w-12 h-12 object-contain rounded"
                   />
                 ) : (
@@ -77,7 +76,7 @@ export default function DeletePartner({ isOpen, onClose, onSuccess, partner }) {
                     </svg>
                   </div>
                 )}
-                <p className="font-medium text-gray-900">{partner.partnerName}</p>
+                <p className="font-medium text-gray-900">Partner {partner.id?.slice(0, 8)}</p>
               </div>
             </div>
           </div>

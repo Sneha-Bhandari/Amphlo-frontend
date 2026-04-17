@@ -53,7 +53,8 @@ export default function AboutBanner() {
           src={imageUrl}
           alt={aboutData.title || "About banner"}
           fill
-          priority
+          // priority
+          unoptimized
         />
       ) : (
         <div className="h-full w-full bg-gray-200 flex items-center justify-center">

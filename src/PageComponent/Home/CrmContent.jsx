@@ -95,7 +95,8 @@ export default function CrmContent() {
               alt="CRM Software Interface"
               fill
               className="object-contain w-full h-full"
-              priority
+              // priority
+              unoptimized
               // height={1000}
               // weight={1000}
               onError={(e) => {

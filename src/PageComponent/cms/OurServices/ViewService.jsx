@@ -3,16 +3,16 @@
 import React from "react";
 import { MdClose } from "react-icons/md";
 
-export default function ViewFaq({ isOpen, onClose, faq }) {
-  if (!isOpen || !faq) return null;
+export default function ViewService({ isOpen, onClose, service }) {
+  if (!isOpen || !service) return null;
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10">
           <div>
-            <h2 className="text-2xl font-bold text-[#04413D]">FAQ Details</h2>
-            <p className="text-gray-600 text-sm mt-1">View frequently asked question details</p>
+            <h2 className="text-2xl font-bold text-[#04413D]">Service Details</h2>
+            <p className="text-gray-600 text-sm mt-1">View service information</p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
             <MdClose size={24} />
@@ -22,15 +22,13 @@ export default function ViewFaq({ isOpen, onClose, faq }) {
         <div className="p-6">
           <div className="space-y-6">
             <div className="border-b pb-4">
-              <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Question</h3>
-              <p className="text-lg font-medium text-gray-900">{faq.title}</p>
+              <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Title</h3>
+              <p className="text-lg font-medium text-gray-900">{service.title}</p>
             </div>
 
             <div className="border-b pb-4">
-              <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Answer</h3>
-              <div className="prose prose-sm max-w-none bg-gray-50 p-4 rounded-lg">
-                <div dangerouslySetInnerHTML={{ __html: faq.description }} />
-              </div>
+              <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Description</h3>
+              <p className="text-gray-700">{service.description}</p>
             </div>
           </div>
 

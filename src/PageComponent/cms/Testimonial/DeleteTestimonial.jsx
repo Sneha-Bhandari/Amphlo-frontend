@@ -3,9 +3,8 @@
 import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { MdClose } from "react-icons/md";
-import { deleteData } from "@/lib/frontendApi";
 
-export default function DeleteTestimonial({ isOpen, onClose, onSuccess, testimonial }) {
+export default function DeleteTestimonial({ isOpen, onClose, onSuccess, testimonial, onDelete }) {
   const [loading, setLoading] = useState(false);
 
   const handleDelete = async () => {
@@ -18,10 +17,9 @@ export default function DeleteTestimonial({ isOpen, onClose, onSuccess, testimon
     const loadingToast = toast.loading("Deleting testimonial...");
     
     try {
-      await deleteData(`testimonial/${testimonial.id}`);
-      
+      await onDelete(testimonial.id);
       toast.success("Testimonial deleted successfully", { id: loadingToast });
-      if (onSuccess) onSuccess();
+      if (onSuccess) await onSuccess();
       onClose();
     } catch (error) {
       console.error("Error deleting testimonial:", error);
@@ -63,8 +61,19 @@ export default function DeleteTestimonial({ isOpen, onClose, onSuccess, testimon
               Are you sure you want to delete this testimonial?
             </p>
             <div className="bg-gray-50 p-4 rounded-lg mt-3">
-              <p className="font-medium text-gray-900">{testimonial.clientName}</p>
-              <p className="text-sm text-gray-600">{testimonial.jobTitle}</p>
+              <div className="flex items-center gap-3 mb-2">
+                {testimonial.imageid?.imageUrl && (
+                  <img 
+                    src={testimonial.imageid.imageUrl} 
+                    alt={testimonial.clientName}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                )}
+                <div>
+                  <p className="font-medium text-gray-900">{testimonial.clientName}</p>
+                  <p className="text-sm text-gray-600">{testimonial.jobTitle}</p>
+                </div>
+              </div>
               {testimonial.companyName && (
                 <p className="text-sm text-gray-500">{testimonial.companyName}</p>
               )}

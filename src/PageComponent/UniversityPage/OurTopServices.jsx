@@ -1,37 +1,61 @@
 'use client'
-import React from 'react';
-import { TrendingUp, Laptop, Calendar, BarChart3 } from 'lucide-react';
 
-const services = [
-  {
-    title: "Service Name",
-    description: "Dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
-    icon: <TrendingUp size={40} strokeWidth={1.5} />,
-    bgColor: "bg-[#04413D]" // Teal
-  },
-  {
-    title: "Service Name",
-    description: "Dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
-    icon: <Laptop size={40} strokeWidth={1.5} />,
-    bgColor: "bg-[#04413D]" // Dark Slate
-  },
-  {
-    title: "Service Name",
-    description: "Dolor sit amet, consectetuer adipiscing elit, sed diam nonummy ",
-    icon: <Calendar size={40} strokeWidth={1.5} />,
-    bgColor: "bg-[#04413D]"
-  },
-  {
-    title: "Service Name",
-    description: "Dolor sit amet, consectetuer adipiscing elit, sed diam nonummy ",
-    icon: <BarChart3 size={40} strokeWidth={1.5} />,
-    bgColor: "bg-[#04413D]"
-  }
+import React, { useEffect, useState } from 'react';
+import { TrendingUp, Laptop, Calendar, BarChart3 } from 'lucide-react';
+import { fetchData } from "@/lib/frontendApi";
+import Loading from "@/Global/Loading";
+
+// Icon mapping based on index or you can add icon field in API
+const icons = [
+  <TrendingUp size={40} strokeWidth={1.5} />,
+  <Laptop size={40} strokeWidth={1.5} />,
+  <Calendar size={40} strokeWidth={1.5} />,
+  <BarChart3 size={40} strokeWidth={1.5} />,
 ];
 
 export default function OurTopServices() {
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchData("our-services");
+        console.log("Services API Response:", data);
+        
+        if (Array.isArray(data) && data.length > 0) {
+          setServices(data);
+        } else {
+          setServices([]);
+        }
+      } catch (error) {
+        console.error("Error fetching services:", error);
+        setServices([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
+
+  if (loading) {
+    return (
+      <main className="bg-[#04413D]/10 font-sans">
+        <section className="relative h-[40vh] w-full flex flex-col items-center justify-center text-center px-4 overflow-hidden">
+          <Loading />
+        </section>
+      </main>
+    );
+  }
+
+  if (!services.length) {
+    return null;
+  }
+
   return (
-    <main className=" bg-[#04413D]/10 font-sans ">
+    <main className="bg-[#04413D]/10 font-sans">
       <section className="relative h-[40vh] w-full flex flex-col items-center justify-center text-center px-4 overflow-hidden">
         <div 
           className="absolute inset-0 bg-cover bg-center"
@@ -39,8 +63,8 @@ export default function OurTopServices() {
         />
         <div className="absolute inset-0 bg-[#04413D]/70 mix-blend-multiply" />
 
-        <div className="relative z-10 max-w-4xl mb-6 ">
-          <h1 className="text-white text-3xl md:text-5xl font-bold mb-2 ">
+        <div className="relative z-10 max-w-4xl mb-6">
+          <h1 className="text-white text-3xl md:text-5xl font-bold mb-2">
             Our Services
           </h1>
           <p className="text-white text-md font-light max-w-2xl mx-auto leading-relaxed">
@@ -50,11 +74,11 @@ export default function OurTopServices() {
       </section>
 
       <section className="relative max-w-7xl mx-auto px-6 pb-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4  gap-4 -mt-16">
-          {services.map((item, index) => (
-            <div key={index} className="flex flex-col items-center text-center cursor-pointer group">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 -mt-16">
+          {services.map((service, index) => (
+            <div key={service.id} className="flex flex-col items-center text-center cursor-pointer group">
               <div className={`
-                ${item.bgColor} 
+                bg-[#04413D] 
                 w-38 h-38 
                 rounded-full 
                 flex items-center justify-center 
@@ -65,15 +89,16 @@ export default function OurTopServices() {
                 z-20
                 group-hover:shadow-xl group-hover:shadow-[#FDC653]/50 group-hover:scale-105 duration-500 ease-in-out transition-all
               `}>
-                {item.icon}
+                {icons[index % icons.length]}
               </div>
 
-              {/* Text Content */}
               <h3 className="text-[#04413D] font-bold text-xl mb-2 uppercase tracking-wider">
-                {item.title}
+                {service.title}
               </h3>
-              <p className="text-gray-400 text-[15px] leading-relaxed px-4 ">
-                {item.description}
+              <p
+  className="text-sm md:text-base text-gray-600 leading-relaxed mb-6"
+  dangerouslySetInnerHTML={{ __html: service.description }}
+> 
               </p>
             </div>
           ))}

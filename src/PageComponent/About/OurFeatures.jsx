@@ -16,9 +16,16 @@ export default function OurFeatures() {
       try {
         setLoading(true);
         const data = await fetchData("our-features");
-        setFeaturesData(data);
+        console.log("Features API Response:", data);
+        
+        if (data && Array.isArray(data) && data.length > 0) {
+          setFeaturesData(data);
+        } else {
+          setFeaturesData([]);
+        }
       } catch (error) {
         console.error("Error fetching features data:", error);
+        setFeaturesData([]);
       } finally {
         setLoading(false);
       }
@@ -27,33 +34,15 @@ export default function OurFeatures() {
     getFeaturesData();
   }, []);
 
-  // Default features in case API fails
-  const defaultFeatures = [
-    { title: "Partner Registration & Onboarding", points: ["Automated onboarding", "Real-time verification", "Quick setup"] },
-    { title: "Centralized Partner Dashboard", points: ["Unified data view", "Task management", "Custom widgets"] },
-    { title: "Communication & Collaboration Tools", points: ["Secure messaging", "Shared workspace", "Real-time editing"] },
-    { title: "Searching & Easy Access", points: ["Instant indexing", "Filter by category", "Global search"] },
-    { title: "Partner Performance Tracking", points: ["KPI monitoring", "Growth insights", "Visual trends"] },
-    { title: "Reporting & Analytics", points: ["Predictive reports", "Automated exports", "Data drill-down"] },
-    { title: "Mobile Access & User-Friendly Interface", points: ["Responsive design", "Touch-friendly", "Anywhere access"] },
-    { title: "Lead & Opportunity Management", points: ["Pipeline tracking", "Status updates", "Opportunity scoring"] },
-    { title: "Training & Resources Access", points: ["Expert video library", "Course tracking", "Certification"] },
-    { title: "Document & Contract Management", points: ["Digital signing", "Version control", "Secure storage"] },
-    { title: "Payment & Incentive Management", points: ["Payment automation", "Reward calculation", "Audit logs"] },
-    { title: "Integration with CRM and ERP System", points: ["CRM native sync", "ERP connectivity", "API access"] },
-    { title: "Feedback & Partner Satisfaction Surveys", points: ["Satisfaction surveys", "Sentiment analysis", "Improvement logs"] },
-    { title: "Event & Webinar Management", points: ["Webinar scheduling", "Attendee tracking", "Resource sharing"] },
-  ];
-
   // Transform API data to match the component's expected format
   const transformFeatures = () => {
     if (featuresData && Array.isArray(featuresData) && featuresData.length > 0) {
       return featuresData.map((item) => ({
         title: item.title || "Untitled Feature",
-        points: item.points && Array.isArray(item.points) ? item.points : ["No points available"]
+        points: item.points && Array.isArray(item.points) ? item.points : []
       }));
     }
-    return defaultFeatures;
+    return [];
   };
 
   const allFeatures = transformFeatures();
@@ -72,6 +61,11 @@ export default function OurFeatures() {
         <Loading />
       </div>
     );
+  }
+
+  // Don't render section if no features exist
+  if (!allFeatures.length) {
+    return null;
   }
 
   return (
@@ -123,23 +117,25 @@ export default function OurFeatures() {
           </AnimatePresence>
         </div>
 
-        <div className="flex justify-end mt-20">
-          {visibleCount < allFeatures.length ? (
-            <button 
-              onClick={showMore}
-              className='bg-[#04413D] text-[#FDC653] px-3 py-2 rounded-2xl text-md font-medium cursor-pointer hover:bg-[#04413D]/50 transition-all duration-500 ease-in-out hover:scale-105 shadow-md'
-            >
-              View More
-            </button>
-          ) : (
-            <button 
-              onClick={showLess}
-              className='border-2 border-[#04413D] text-[#04413D] p-2 rounded-2xl text-md font-medium cursor-pointer hover:bg-[#04413D] hover:text-white transition-all duration-500 ease-in-out hover:scale-105 shadow-md'
-            >
-              View Less
-            </button>
-          )}
-        </div>
+        {allFeatures.length > 5 && (
+          <div className="flex justify-end mt-20">
+            {visibleCount < allFeatures.length ? (
+              <button 
+                onClick={showMore}
+                className='bg-[#04413D] text-[#FDC653] px-3 py-2 rounded-2xl text-md font-medium cursor-pointer hover:bg-[#04413D]/50 transition-all duration-500 ease-in-out hover:scale-105 shadow-md'
+              >
+                View More
+              </button>
+            ) : (
+              <button 
+                onClick={showLess}
+                className='borxder-2 border-[#04413D] text-[#04413D] p-2 rounded-2xl text-md font-medium cursor-pointer hover:bg-[#04413D] hover:text-white transition-all duration-500 ease-in-out hover:scale-105 shadow-md'
+              >
+                View Less
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </section>
   );

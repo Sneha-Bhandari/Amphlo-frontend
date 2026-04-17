@@ -3,83 +3,40 @@
 import React, { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import toast, { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from "react-hot-toast";
 import { MdCloudUpload, MdClose } from "react-icons/md";
+import { postData, uploadImageData } from "@/lib/frontendApi";
 
 const TeamMemberSchema = Yup.object().shape({
-  name: Yup.string()
-    .min(2, "Name must be at least 2 characters")
-    .max(100, "Name must not exceed 100 characters")
-    .required("Name is required"),
-  position: Yup.string()
-    .min(2, "Position must be at least 2 characters")
-    .max(100, "Position must not exceed 100 characters")
-    .required("Position is required"),
-  email: Yup.string()
-    .email("Invalid email address")
-    .required("Email is required"),
+  name: Yup.string().min(2).max(100).required("Name is required"),
+  position: Yup.string().min(2).max(100).required("Position is required"),
+  email: Yup.string().email("Invalid email").required("Email is required"),
   phone: Yup.string()
-    .matches(/^[0-9+\-\s()]+$/, "Invalid phone number format")
-    .min(10, "Phone number must be at least 10 digits")
-    .max(20, "Phone number must not exceed 20 digits")
-    .required("Phone number is required"),
-  imageid: Yup.mixed().required("Profile image is required"),
+    .matches(/^[0-9+\-\s()]+$/, "Invalid phone")
+    .min(10)
+    .max(20)
+    .required("Phone is required"),
 });
 
 export default function AddTeamMember({ isOpen, onClose, onSuccess }) {
-  const [uploadingImage, setUploadingImage] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const handleImageUpload = async (file, setFieldValue, setTouched) => {
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image size should be less than 5MB");
-      return;
-    }
-
-    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/gif'];
-    if (!validTypes.includes(file.type)) {
-      toast.error("Please upload a valid image (JPEG, PNG, WEBP, GIF)");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result);
-    };
-    reader.readAsDataURL(file);
-
+    // Create preview immediately
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
     setUploadingImage(true);
     
     try {
-      const formData = new FormData();
-      formData.append("images", file);
-    
-      const uploadRes = await fetch(process.env.NEXT_PUBLIC_UPLOAD_URL, {
-        method: "POST",
-        body: formData,
-      });
-    
-      if (!uploadRes.ok) {
-        const errText = await uploadRes.text();
-        console.error("UPLOAD ERROR:", errText);
-        throw new Error("Upload failed");
-      }
-    
-      const uploadData = await uploadRes.json();
-      const imageId = uploadData.id;
-      
-      if (imageId) {
-        setFieldValue("imageid", imageId);
-        setTouched({ imageid: true }); // Mark as touched to remove validation error
-        toast.success("Image uploaded successfully");
-      } else {
-        throw new Error("No image ID returned from server");
-      }
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      toast.error(error.message || "Failed to upload image");
+      const res = await uploadImageData(file);
+      setFieldValue("imageid", res?.id);
+      setTouched({ imageid: true });
+      toast.success("Image uploaded");
+    } catch (err) {
+      toast.error("Upload failed");
       setImagePreview(null);
       setFieldValue("imageid", null);
     } finally {
@@ -88,41 +45,30 @@ export default function AddTeamMember({ isOpen, onClose, onSuccess }) {
   };
 
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
-    const loadingToast = toast.loading("Adding team member...");
-    
+    if (!values.imageid) {
+      toast.error("Please upload an image");
+      setSubmitting(false);
+      return;
+    }
+
+    const t = toast.loading("Adding...");
+
     try {
-      const payload = {
-        name: values.name,
-        position: values.position,
-        email: values.email,
-        phone: values.phone,
-        imageid: values.imageid
-      };
-      
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}our-team`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+      await postData("our-team", {
+        ...values,
+        name: values.name.trim(),
+        position: values.position.trim(),
+        email: values.email.trim(),
+        phone: values.phone.trim(),
       });
-      
-      if (!response.ok) {
-        const errorData = await response.text();
-        throw new Error(errorData || 'Create failed');
-      }
-      
-      const result = await response.json();
-      toast.success("Team member added successfully!", { id: loadingToast });
-      
+
+      toast.success("Added!", { id: t });
       resetForm();
       setImagePreview(null);
-      if (onSuccess) onSuccess(result);
+      onSuccess?.();
       onClose();
-    } catch (error) {
-      console.error("Error adding team member:", error);
-      toast.error(error.message || "Failed to add team member", {
-        id: loadingToast,
-        duration: 4000,
-      });
+    } catch (e) {
+      toast.error("Failed", { id: t });
     } finally {
       setSubmitting(false);
     }
@@ -161,7 +107,7 @@ export default function AddTeamMember({ isOpen, onClose, onSuccess }) {
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10">
           <div>
             <h2 className="text-2xl font-bold text-[#04413D]">Add Team Member</h2>
-            <p className="text-gray-600 text-sm mt-1">Add a new team member to your organization</p>
+            <p className="text-gray-600 text-sm mt-1">Add a new team member</p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
             <MdClose size={24} />
@@ -178,9 +124,6 @@ export default function AddTeamMember({ isOpen, onClose, onSuccess }) {
               imageid: null,
             }}
             validationSchema={TeamMemberSchema}
-            validateOnMount={false}
-            validateOnChange={true}
-            validateOnBlur={true}
             onSubmit={handleSubmit}
           >
             {({ values, setFieldValue, setTouched, isSubmitting, errors, touched, submitForm }) => (
@@ -209,13 +152,12 @@ export default function AddTeamMember({ isOpen, onClose, onSuccess }) {
                       </button>
                     </div>
                   ) : (
-                    <label className={`border-2 border-dashed rounded-lg p-8 block text-center cursor-pointer hover:border-[#04413D] transition-colors ${touched.imageid && errors.imageid ? 'border-red-500' : 'border-gray-300'}`}>
+                    <label className="border-2 border-dashed rounded-lg p-8 block text-center cursor-pointer hover:border-[#04413D] transition-colors border-gray-300">
                       <MdCloudUpload size={48} className="mx-auto mb-2 text-gray-400" />
                       <p className="text-gray-600">Click to upload image</p>
-                      <p className="text-gray-400 text-sm mt-1">PNG, JPG, JPEG, WEBP up to 5MB</p>
                       <input
                         type="file"
-                        accept="image/jpeg,image/png,image/jpg,image/webp,image/gif"
+                        accept="image/*"
                         hidden
                         onChange={(e) => {
                           const file = e.target.files[0];
@@ -225,9 +167,6 @@ export default function AddTeamMember({ isOpen, onClose, onSuccess }) {
                         }}
                       />
                     </label>
-                  )}
-                  {touched.imageid && errors.imageid && (
-                    <div className="text-red-500 text-sm mt-1">{errors.imageid}</div>
                   )}
                   {uploadingImage && <p className="text-sm text-blue-600 mt-1">Uploading image...</p>}
                 </div>
@@ -256,7 +195,7 @@ export default function AddTeamMember({ isOpen, onClose, onSuccess }) {
                       className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all ${
                         errors.position && touched.position ? "border-red-500" : "border-gray-300"
                       }`}
-                      placeholder="e.g., Managing Director, IT Consultant"
+                      placeholder="Enter position"
                     />
                     <ErrorMessage name="position" component="div" className="text-red-500 text-sm mt-1" />
                   </div>
@@ -265,7 +204,7 @@ export default function AddTeamMember({ isOpen, onClose, onSuccess }) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Address *
+                      Email *
                     </label>
                     <Field
                       name="email"
@@ -273,21 +212,21 @@ export default function AddTeamMember({ isOpen, onClose, onSuccess }) {
                       className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all ${
                         errors.email && touched.email ? "border-red-500" : "border-gray-300"
                       }`}
-                      placeholder="example@company.com"
+                      placeholder="Enter email address"
                     />
                     <ErrorMessage name="email" component="div" className="text-red-500 text-sm mt-1" />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Phone Number *
+                      Phone *
                     </label>
                     <Field
                       name="phone"
                       className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all ${
                         errors.phone && touched.phone ? "border-red-500" : "border-gray-300"
                       }`}
-                      placeholder="+977 98XXXXXXXX"
+                      placeholder="Enter phone number"
                     />
                     <ErrorMessage name="phone" component="div" className="text-red-500 text-sm mt-1" />
                   </div>
@@ -297,7 +236,13 @@ export default function AddTeamMember({ isOpen, onClose, onSuccess }) {
                   <button
                     type="button"
                     onClick={() => {
-                      // Manually trigger validation and submit
+                      setTouched({
+                        name: true,
+                        position: true,
+                        email: true,
+                        phone: true,
+                        imageid: true,
+                      });
                       submitForm();
                     }}
                     disabled={isSubmitting || uploadingImage}

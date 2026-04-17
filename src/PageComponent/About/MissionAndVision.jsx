@@ -10,11 +10,13 @@ import Loading from "@/Global/Loading";
 export default function MissionAndVision() {
   const [missionVision, setMissionVision] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [imageErrors, setImageErrors] = useState({});
 
   useEffect(() => {
     const getMissionVision = async () => {
       try {
         const data = await fetchData("vision-mission");
+        console.log("Mission Vision Data:", data);
         setMissionVision(data);
         setLoading(false);
       } catch (error) {
@@ -25,6 +27,10 @@ export default function MissionAndVision() {
 
     getMissionVision();
   }, []);
+
+  const handleImageError = (id) => {
+    setImageErrors(prev => ({ ...prev, [id]: true }));
+  };
 
   if (loading) {
     return (
@@ -57,55 +63,73 @@ export default function MissionAndVision() {
 
   return (
     <section className="py-24 overflow-hidden w-full bg-gray-100 flex mx-auto h-full navtext">
+     
+
       <motion.div
-        className="max-w-7xl mx-auto px-6 space-y-32"
+        className="max-w-6xl mx-auto px-6 space-y-32 w-full"
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
       >
+         <div className="text-center flex flex-col md:mb-16 mb-6">
+          <h2 className="text-5xl md:text-6xl font-bold text-[#04413D] tracking-tight mb-4">
+            Our Vision and Mission 
+          </h2>
+          <p className="text-lg text-gray-600 font-medium">
+            Passionate. Proactive. Expert.
+          </p>
+        </div>
         {missionVision.map((item, index) => {
           const imageUrl = item.imageid?.imageUrl || "";
+          const hasError = imageErrors[item.id];
           
           return (
             <div
               key={item.id}
-              className={`flex flex-col items-center gap-12 lg:gap-20 w-11/12 mx-auto ${
-                index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
+              className={`flex flex-col items-center gap-12 lg:gap-20 w-full mx-auto ${
+                index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
               }`}
             >
               <motion.div className="flex-1 relative group w-full" variants={itemVariants}>
                 <div 
                   className={`absolute -inset-4 bg-[#04413D]/10 rounded-3xl transition-transform group-hover:rotate-1 ${
-                    index % 2 === 0 ? "rotate-3" : "-rotate-3"
-                  }`} 
+                    index % 2 === 0 ? "lg:rotate-3" : "lg:-rotate-3"
+                  } hidden lg:block`} 
                 />
-                <div className="relative h-[50vh] w-full bg-[#04413D]/20 rounded-2xl overflow-hidden shadow-2xl cursor-pointer">
-                  {imageUrl ? (
-                    <Image 
+                <div className="relative h-[40vh] lg:h-[50vh] w-full bg-[#04413D]/10 rounded-2xl overflow-hidden shadow-2xl">
+                  {imageUrl && !hasError ? (
+                    <img 
                       src={imageUrl} 
                       alt={item.title} 
-                      fill 
-                      className="object-cover" 
+                      className="w-full h-full object-cover"
+                      onError={() => handleImageError(item.id)}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                      <p className="text-gray-600">Image Not Found</p>
+                    <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-[#04413D]/5 to-[#04413D]/20">
+                      <div className="text-center">
+                        <svg className="w-16 h-16 mx-auto text-[#04413D]/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p className="text-[#04413D]/60 mt-2">No Image Available</p>
+                      </div>
                     </div>
                   )}
                 </div>
               </motion.div>
 
-              <motion.div className="flex-1 space-y-6" variants={itemVariants}>
-                <div className="inline-block px-4 py-1 rounded-full bg-[#FDC653]/30 text-[#04413D] text-sm font-bold uppercase tracking-widest">
+              <motion.div className="flex-1 space-y-6 w-full" variants={itemVariants}>
+                <div className="inline-block px-4 py-1 rounded-full bg-[#FDC653]/20 text-[#04413D] text-sm font-bold uppercase tracking-widest">
                   {item.title}
                 </div>
                 <h2 className="text-2xl lg:text-4xl font-bold text-[#04413D] leading-tight">
                   {item.subTitle}
                 </h2>
-                <p className="text-md text-slate-600 leading-relaxed text-justify">
-                  {item.description}
-                </p>
+                
+                <div 
+                  className="text-md text-slate-600 leading-relaxed text-justify prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: item.description }} 
+                />
               </motion.div>
             </div>
           );

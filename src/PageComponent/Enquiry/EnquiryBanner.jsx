@@ -15,7 +15,6 @@ export default function EnquiryBanner() {
     const getEnquiryData = async () => {
       try {
         const data = await fetchData("banner");
-        // Filter to find the banner with exact path "bookAnAppointment"
         const enquiryBanner = data.find(item => item.path === "bookAnAppointment");
         setEnquiryData(enquiryBanner || null);
         setLoading(false);
@@ -54,7 +53,8 @@ export default function EnquiryBanner() {
           src={imageUrl}
           alt={enquiryData.title || "Enquiry banner"}
           fill
-          priority
+          // priority
+          unoptimized
         />
       ) : (
         <div className="h-full w-full bg-gray-200 flex items-center justify-center">

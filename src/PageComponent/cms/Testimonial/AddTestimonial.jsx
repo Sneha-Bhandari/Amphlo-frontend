@@ -6,6 +6,7 @@ import * as Yup from "yup";
 import JoditEditor from "jodit-react";
 import toast, { Toaster } from 'react-hot-toast';
 import { MdCloudUpload, MdClose } from "react-icons/md";
+import { postData, uploadImageData } from "@/lib/frontendApi";
 
 const TestimonialSchema = Yup.object().shape({
   clientName: Yup.string()
@@ -18,13 +19,13 @@ const TestimonialSchema = Yup.object().shape({
     .required("Job title is required"),
   companyName: Yup.string().max(50, "Company name must not exceed 50 characters"),
   rating: Yup.number()
+    .typeError("Rating must be a number")
     .min(1, "Minimum rating is 1")
     .max(5, "Maximum rating is 5")
     .required("Rating is required"),
   description: Yup.string()
     .min(10, "Description must be at least 10 characters")
     .required("Description is required"),
-  imageid: Yup.mixed().required("Client image is required"),
 });
 
 export default function AddTestimonial({ isOpen, onClose, onSuccess }) {
@@ -35,53 +36,18 @@ export default function AddTestimonial({ isOpen, onClose, onSuccess }) {
   const handleImageUpload = async (file, setFieldValue, setTouched) => {
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image size should be less than 5MB");
-      return;
-    }
-
-    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/gif'];
-    if (!validTypes.includes(file.type)) {
-      toast.error("Please upload a valid image (JPEG, PNG, WEBP, GIF)");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result);
-    };
-    reader.readAsDataURL(file);
-
+    // Create preview immediately
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
     setUploadingImage(true);
     
     try {
-      const formData = new FormData();
-      formData.append("images", file);
-    
-      const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/file-upload/`, {
-        method: "POST",
-        body: formData,
-      });
-    
-      if (!uploadRes.ok) {
-        const errText = await uploadRes.text();
-        console.error("UPLOAD ERROR:", errText);
-        throw new Error("Upload failed");
-      }
-    
-      const uploadData = await uploadRes.json();
-      const imageId = uploadData.id;
-      
-      if (imageId) {
-        setFieldValue("imageid", imageId);
-        setTouched({ imageid: true }); 
-        toast.success("Image uploaded successfully");
-      } else {
-        throw new Error("No image ID returned from server");
-      }
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      toast.error(error.message || "Failed to upload image");
+      const res = await uploadImageData(file);
+      setFieldValue("imageid", res?.id);
+      setTouched({ imageid: true });
+      toast.success("Image uploaded");
+    } catch (err) {
+      toast.error("Upload failed");
       setImagePreview(null);
       setFieldValue("imageid", null);
     } finally {
@@ -100,31 +66,21 @@ export default function AddTestimonial({ isOpen, onClose, onSuccess }) {
     
     try {
       const payload = {
-        clientName: values.clientName,
-        jobTitle: values.jobTitle,
-        companyName: values.companyName || "",
+        clientName: values.clientName.trim(),
+        jobTitle: values.jobTitle.trim(),
+        companyName: values.companyName?.trim() || "",
         description: values.description,
-        rating: values.rating,
+        rating: Number(values.rating), // Convert to number here
         imageid: values.imageid
       };
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/testimonial`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      await postData("testimonial", payload);
       
-      if (!response.ok) {
-        const errorData = await response.text();
-        throw new Error(errorData || 'Create failed');
-      }
-      
-      const result = await response.json();
       toast.success("Testimonial created successfully!", { id: loadingToast });
       
       resetForm();
       setImagePreview(null);
-      if (onSuccess) onSuccess(result);
+      if (onSuccess) await onSuccess();
       onClose();
     } catch (error) {
       console.error("Error creating testimonial:", error);
@@ -188,9 +144,6 @@ export default function AddTestimonial({ isOpen, onClose, onSuccess }) {
               imageid: null,
             }}
             validationSchema={TestimonialSchema}
-            validateOnMount={false}
-            validateOnChange={true}
-            validateOnBlur={true}
             onSubmit={handleSubmit}
           >
             {({ values, setFieldValue, setTouched, isSubmitting, errors, touched, submitForm }) => (
@@ -222,10 +175,9 @@ export default function AddTestimonial({ isOpen, onClose, onSuccess }) {
                     <label className={`border-2 border-dashed rounded-lg p-8 block text-center cursor-pointer hover:border-[#04413D] transition-colors ${touched.imageid && errors.imageid ? 'border-red-500' : 'border-gray-300'}`}>
                       <MdCloudUpload size={48} className="mx-auto mb-2 text-gray-400" />
                       <p className="text-gray-600">Click to upload image</p>
-                      <p className="text-gray-400 text-sm mt-1">PNG, JPG, JPEG, WEBP up to 5MB</p>
                       <input
                         type="file"
-                        accept="image/jpeg,image/png,image/jpg,image/webp,image/gif"
+                        accept="image/*"
                         hidden
                         onChange={(e) => {
                           const file = e.target.files[0];
@@ -296,11 +248,11 @@ export default function AddTestimonial({ isOpen, onClose, onSuccess }) {
                         errors.rating && touched.rating ? "border-red-500" : "border-gray-300"
                       }`}
                     >
-                      <option value="5">★★★★★ (5)</option>
-                      <option value="4">★★★★☆ (4)</option>
-                      <option value="3">★★★☆☆ (3)</option>
-                      <option value="2">★★☆☆☆ (2)</option>
-                      <option value="1">★☆☆☆☆ (1)</option>
+                      <option value={5}>★★★★★ (5)</option>
+                      <option value={4}>★★★★☆ (4)</option>
+                      <option value={3}>★★★☆☆ (3)</option>
+                      <option value={2}>★★☆☆☆ (2)</option>
+                      <option value={1}>★☆☆☆☆ (1)</option>
                     </Field>
                     <ErrorMessage name="rating" component="div" className="text-red-500 text-sm mt-1" />
                   </div>
@@ -315,9 +267,6 @@ export default function AddTestimonial({ isOpen, onClose, onSuccess }) {
                     value={values.description}
                     onBlur={(content) => {
                       setFieldValue("description", content);
-                      if (content && touched.description === undefined) {
-                        setTouched({ description: true });
-                      }
                     }}
                     config={{
                       height: 300,
@@ -333,7 +282,6 @@ export default function AddTestimonial({ isOpen, onClose, onSuccess }) {
                   <button
                     type="button"
                     onClick={() => {
-                      // Mark all fields as touched to show validation errors
                       setTouched({
                         clientName: true,
                         jobTitle: true,
@@ -341,7 +289,6 @@ export default function AddTestimonial({ isOpen, onClose, onSuccess }) {
                         description: true,
                         imageid: true,
                       });
-                      // Submit the form
                       submitForm();
                     }}
                     disabled={isSubmitting || uploadingImage}

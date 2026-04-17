@@ -1,17 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import toast, { Toaster } from 'react-hot-toast';
-import { MdClose } from "react-icons/md";
+import { MdCloudUpload, MdClose } from "react-icons/md";
 import { patchData, uploadImageData } from "@/lib/frontendApi";
-
-const PartnerSchema = Yup.object().shape({
-  partnerName: Yup.string()
-    .max(100, "Name must not exceed 100 characters")
-    .optional(),
-});
 
 export default function EditPartner({ isOpen, onClose, onSuccess, partner }) {
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -21,11 +15,43 @@ export default function EditPartner({ isOpen, onClose, onSuccess, partner }) {
   useEffect(() => {
     if (partner) {
       setData(partner);
-      setPreview(null); 
+      if (partner.imageid?.imageUrl) {
+        setPreview(partner.imageid.imageUrl);
+      }
     }
   }, [partner]);
 
-  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+  const handleImageUpload = async (file, setFieldValue) => {
+    if (!file) return;
+
+    // Create local preview immediately
+    const localPreview = URL.createObjectURL(file);
+    setPreview(localPreview);
+    setUploadingImage(true);
+    
+    try {
+      const res = await uploadImageData(file);
+      console.log("Upload response:", res);
+      
+      if (res?.id) {
+        setFieldValue("imageFile", res.id);
+        setFieldValue("imageRemoved", false);
+        toast.success("Image uploaded successfully");
+      } else {
+        throw new Error("No image ID returned");
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      toast.error("Upload failed");
+      // Revert to original image on error
+      setPreview(data?.imageid?.imageUrl || null);
+      setFieldValue("imageFile", null);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleSubmit = async (values, { setSubmitting }) => {
     if (!data?.id) {
       toast.error("Partner ID is missing");
       return;
@@ -34,34 +60,34 @@ export default function EditPartner({ isOpen, onClose, onSuccess, partner }) {
     const loadingToast = toast.loading("Updating partner...");
     
     try {
-      let imageId = data?.imageid?.id || data?.imageid || null;
+      let imageId = data?.imageid?.id || null;
 
-      if (values.imageFile) {
-        toast.loading("Uploading image...", { id: loadingToast });
-        
-        const uploadRes = await uploadImageData(values.imageFile);
-        imageId = uploadRes?.id;
-        
-        if (!imageId) {
-          throw new Error("Failed to upload image");
-        }
-        toast.success("Image uploaded successfully!", { id: loadingToast });
-      } else if (values.imageRemoved) {
+      // If new image was uploaded
+      if (values.imageFile && typeof values.imageFile === 'string') {
+        imageId = values.imageFile;
+      } 
+      // If image was removed
+      else if (values.imageRemoved) {
         imageId = null;
       }
 
-      const payload = {
-        partnerName: values.partnerName?.trim() || "",
-        imageid: imageId,
-      };
+      const payload = {};
+      
+      if (imageId) {
+        payload.imageid = imageId;
+      }
+
+      console.log("Updating partner with payload:", payload);
       
       await patchData(`partners/${data.id}`, payload);
       
       toast.success("Partner updated successfully!", { id: loadingToast });
       
-      resetForm();
-      setPreview(null);
-      if (onSuccess) onSuccess();
+      // Refresh the partners list
+      if (onSuccess) {
+        await onSuccess();
+      }
+      
       onClose();
     } catch (error) {
       console.error("Error updating partner:", error);
@@ -107,7 +133,7 @@ export default function EditPartner({ isOpen, onClose, onSuccess, partner }) {
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10">
           <div>
             <h2 className="text-2xl font-bold text-[#04413D]">Edit Partner</h2>
-            <p className="text-gray-600 text-sm mt-1">Edit partner information</p>
+            <p className="text-gray-600 text-sm mt-1">Edit partner logo</p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
             <MdClose size={24} />
@@ -118,93 +144,64 @@ export default function EditPartner({ isOpen, onClose, onSuccess, partner }) {
           <Formik
             enableReinitialize
             initialValues={{
-              partnerName: data.partnerName || "",
-              imageFile: null, 
-              imageRemoved: false, 
+              imageFile: null,
+              imageRemoved: false,
             }}
-            validationSchema={PartnerSchema}
             onSubmit={handleSubmit}
           >
-            {({ values, setFieldValue, isSubmitting, errors, touched }) => (
+            {({ values, setFieldValue, isSubmitting }) => (
               <Form className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Partner Image
+                    Partner Logo
                   </label>
                   
-                  <input
-                    type="file"
-                    accept="image/jpeg,image/png,image/jpg,image/webp"
-                    className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        if (file.size > 5 * 1024 * 1024) {
-                          toast.error("Image size should be less than 5MB");
-                          e.target.value = '';
-                          return;
-                        }
-                        
-                        const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-                        if (!validTypes.includes(file.type)) {
-                          toast.error("Please upload a valid image (JPEG, PNG, WEBP)");
-                          e.target.value = '';
-                          return;
-                        }
-                        
-                        setFieldValue("imageFile", file);
-                        setFieldValue("imageRemoved", false);
-                        if (preview) URL.revokeObjectURL(preview);
-                        setPreview(URL.createObjectURL(file));
-                        toast.success("Image selected successfully!");
-                      } else {
-                        setFieldValue("imageFile", null);
-                        if (preview) {
-                          URL.revokeObjectURL(preview);
-                          setPreview(null);
-                        }
-                      }
-                    }}
-                  />
-
-                  {(preview || (data?.imageid?.imageUrl && !values.imageRemoved)) && (
-                    <div className="mt-4 relative group border-2 border-dashed hover:border-gray-900 cursor-pointer border-gray-400 rounded-lg items-center justify-center mx-auto flex flex-col">
+                  {preview && !values.imageRemoved ? (
+                    <div className="flex items-center gap-4 p-4 border rounded-lg">
                       <img
-                        src={preview || data?.imageid?.imageUrl}
+                        src={preview}
                         alt="Preview"
-                        className="my-5 w-32 h-32 object-contain rounded-lg"
+                        className="w-32 h-32 object-contain border-2 border-[#04413D] rounded-lg"
                       />
                       <button
                         type="button"
                         onClick={() => {
-                          if (preview) URL.revokeObjectURL(preview);
-                          setPreview(null);
+                          // Clean up object URL if it's a blob
+                          if (preview.startsWith('blob:')) {
+                            URL.revokeObjectURL(preview);
+                          }
+                          setPreview(data?.imageid?.imageUrl || null);
                           setFieldValue("imageFile", null);
                           setFieldValue("imageRemoved", true);
                           toast.success("Image removed");
                         }}
-                        className="absolute top-4 right-4 bg-red-500 text-white cursor-pointer rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="text-red-600 flex items-center gap-1 hover:text-red-700"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        <MdClose /> Remove Image
                       </button>
                     </div>
+                  ) : (
+                    <label className="border-2 border-dashed rounded-lg p-8 block text-center cursor-pointer hover:border-[#04413D] transition-colors border-gray-300">
+                      <MdCloudUpload size={48} className="mx-auto mb-2 text-gray-400" />
+                      <p className="text-gray-600">
+                        {values.imageRemoved ? "Click to upload new image" : "Click to upload new image"}
+                      </p>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        hidden
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            setFieldValue("imageRemoved", false);
+                            handleImageUpload(file, setFieldValue);
+                          }
+                          e.target.value = ''; // Reset input
+                        }}
+                      />
+                    </label>
                   )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Partner Name (Optional)
-                  </label>
-                  <Field
-                    name="partnerName"
-                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all ${
-                      errors.partnerName && touched.partnerName ? "border-red-500" : "border-gray-300"
-                    }`}
-                    placeholder="Enter partner name (optional)"
-                  />
-                  <ErrorMessage name="partnerName" component="div" className="text-red-500 text-sm mt-1" />
+                  {uploadingImage && <p className="text-sm text-blue-600 mt-1">Uploading image...</p>}
                 </div>
 
                 <div className="flex gap-3 pt-4 sticky bottom-0 bg-white py-4 border-t">

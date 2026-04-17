@@ -28,7 +28,7 @@ export default function Page() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 p-8">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="mb-10">

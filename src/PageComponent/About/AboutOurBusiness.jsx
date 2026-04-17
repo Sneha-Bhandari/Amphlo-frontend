@@ -31,34 +31,8 @@ export default function AboutBusiness() {
     getAboutData();
   }, []);
 
-  const cleanDescription = (html) => {
-    if (!html) return "";
-    
-    const hasOpeningOl = html.includes("<ol");
-    const hasClosingOl = html.includes("</ol>");
-    
-    if (hasOpeningOl && !hasClosingOl) {
-      html = html + "</ol>";
-    }
-    
-    html = html.replace(/style="[^"]*$/i, '');
-    
-    html = html.replace(/&quot;$/i, '&quot;');
-    
-    return html;
-  };
-
-  const sanitizeDescription = (html) => {
-    if (!html) return "<p>No description available</p>";
-    
-    let cleaned = cleanDescription(html);
-    
-    if (cleaned.length < 100) {
-      return "<p>Description content is being updated.</p>";
-    }
-    
-    return cleaned;
-  };
+  
+  
 
   if (loading) {
     return (
@@ -95,7 +69,8 @@ export default function AboutBusiness() {
                 src={imageUrl}
                 alt={title}
                 fill
-                priority
+                // priority
+                unoptimized
                 className="object-cover rounded-2xl shadow-lg"
                 onError={(e) => {
                   e.target.style.display = 'none';
@@ -116,8 +91,8 @@ export default function AboutBusiness() {
             
             <div className="text-gray-200 leading-relaxed">
               <div 
-                className="about-business-description"
-                dangerouslySetInnerHTML={{ __html: sanitizeDescription(description) }}
+               
+                dangerouslySetInnerHTML={{ __html: (description) }}
               />
             </div>
           </div>

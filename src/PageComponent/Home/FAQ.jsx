@@ -18,13 +18,13 @@ export default function FAQ() {
         
         if (Array.isArray(data) && data.length > 0) {
           setFaqs(data);
+          // Open first FAQ by default
+          setOpenIndex(0);
         } else {
-          // No default values - just set empty array
           setFaqs([]);
         }
       } catch (error) {
         console.error("Error fetching FAQ data:", error);
-        // No default values on error either - just set empty array
         setFaqs([]);
       } finally {
         setLoading(false);
@@ -45,6 +45,14 @@ export default function FAQ() {
   if (!faqs || faqs.length === 0) {
     return null;
   }
+
+  // Function to strip HTML tags for plain text display if needed
+  const stripHtmlTags = (html) => {
+    if (!html) return "";
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
+    return tempDiv.textContent || tempDiv.innerText || "";
+  };
 
   return (
     <div className="bg-linear-to-b from-[#04413D]/30 to-white min-h-full flex flex-col items-center py-16 px-6">
@@ -75,7 +83,7 @@ export default function FAQ() {
                 }`}
                 onClick={() => setOpenIndex(isOpen ? null : index)}
               >
-                {faq.title}
+                <span className="pr-4">{faq.title}</span>
 
                 <motion.div
                   animate={{ rotate: isOpen ? 180 : 0 }}
@@ -97,8 +105,9 @@ export default function FAQ() {
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <div className="px-6 pb-4 text-black border-t border-gray-400 pt-3">
-                      {faq.description}
+                    <div className="px-6 pb-4 text-gray-700 border-t border-gray-200 pt-3 prose prose-sm max-w-none">
+                      {/* Render HTML content safely */}
+                      <div dangerouslySetInnerHTML={{ __html: faq.description }} />
                     </div>
                   </motion.div>
                 )}
@@ -107,7 +116,6 @@ export default function FAQ() {
           );
         })}
       </div>
-
     </div>
   );
 }
