@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import * as Yup from "yup";
 import toast, { Toaster } from 'react-hot-toast';
 import { MdClose, MdAdd, MdDelete } from "react-icons/md";
+import { postData } from "@/lib/frontendApi";
 
 const FeatureSchema = Yup.object().shape({
   title: Yup.string()
-    .min(3, "Title must be at least 3 characters")
+    .min(2, "Title must be at least 2 characters")
     .max(100, "Title must not exceed 100 characters")
     .required("Title is required"),
   points: Yup.array()
@@ -21,33 +22,74 @@ export default function AddFeature({ isOpen, onClose, onSuccess }) {
     const loadingToast = toast.loading("Creating feature...");
     
     try {
-      const payload = {
-        title: values.title.trim(),
-        points: values.points.filter(p => p && p.trim() !== ""),
-      };
+      // Filter out empty points and clean the data
+      const filteredPoints = values.points
+        .filter(p => p && p.trim() !== "")
+        .map(p => p.trim());
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}our-features`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.text();
-        throw new Error(errorData || 'Create failed');
+      if (filteredPoints.length === 0) {
+        toast.error("Please add at least one point", { id: loadingToast });
+        setSubmitting(false);
+        return;
       }
       
-      const result = await response.json();
+      // Clean the title - remove extra spaces
+      const cleanTitle = values.title.trim().replace(/\s+/g, ' ');
+      
+      // First, check if title already exists
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://frontbackend.amphlo.com";
+      const checkResponse = await fetch(`${API_URL}/our-features`, {
+        method: 'GET',
+        credentials: "include",
+      });
+      
+      const existingFeatures = await checkResponse.json();
+      const titleExists = Array.isArray(existingFeatures) && existingFeatures.some(
+        feature => feature.title?.toLowerCase() === cleanTitle.toLowerCase()
+      );
+      
+      if (titleExists) {
+        toast.error(`Feature with title "${cleanTitle}" already exists!`, {
+          id: loadingToast,
+          duration: 4000,
+        });
+        setSubmitting(false);
+        return;
+      }
+      
+      const payload = {
+        title: cleanTitle,
+        points: filteredPoints,
+      };
+      
+      console.log("Sending payload:", JSON.stringify(payload, null, 2));
+      
+      const result = await postData("our-features", payload);
+      
+      console.log("Response:", result);
+      
       toast.success("Feature created successfully!", { id: loadingToast });
       
       resetForm();
-      if (onSuccess) onSuccess(result);
+      
+      if (onSuccess) {
+        await onSuccess();
+      }
+      
       onClose();
+      
     } catch (error) {
       console.error("Error creating feature:", error);
-      toast.error(error.message || "Failed to create feature", {
+      
+      let errorMessage = error.message || "Failed to create feature";
+      
+      if (errorMessage.includes("duplicate") || errorMessage.includes("unique")) {
+        errorMessage = "A feature with this title already exists. Please use a different title.";
+      }
+      
+      toast.error(errorMessage, {
         id: loadingToast,
-        duration: 4000,
+        duration: 5000,
       });
     } finally {
       setSubmitting(false);
@@ -75,7 +117,7 @@ export default function AddFeature({ isOpen, onClose, onSuccess }) {
               },
             },
             error: {
-              duration: 4000,
+              duration: 5000,
               iconTheme: {
                 primary: '#EF4444',
                 secondary: '#fff',
@@ -165,10 +207,24 @@ export default function AddFeature({ isOpen, onClose, onSuccess }) {
                   <button
                     type="button"
                     onClick={() => {
-                      setTouched({
-                        title: true,
-                        points: [true],
-                      });
+                      if (!values.title.trim()) {
+                        toast.error("Please enter a title");
+                        setTouched({ title: true });
+                        return;
+                      }
+                      
+                      const hasEmptyPoints = values.points.some(p => !p.trim());
+                      if (hasEmptyPoints) {
+                        toast.error("Please fill in all points or remove empty ones");
+                        setTouched({ points: values.points.map(() => true) });
+                        return;
+                      }
+                      
+                      if (values.points.length === 0) {
+                        toast.error("Please add at least one point");
+                        return;
+                      }
+                      
                       submitForm();
                     }}
                     disabled={isSubmitting}

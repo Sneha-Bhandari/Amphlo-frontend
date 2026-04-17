@@ -5,6 +5,7 @@ import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import * as Yup from "yup";
 import toast, { Toaster } from 'react-hot-toast';
 import { MdClose, MdAdd, MdDelete } from "react-icons/md";
+import { patchData } from "@/lib/frontendApi";
 
 const FeatureSchema = Yup.object().shape({
   title: Yup.string()
@@ -34,29 +35,23 @@ export default function EditFeature({ isOpen, onClose, onSuccess, feature }) {
     const loadingToast = toast.loading("Updating feature...");
     
     try {
+      const filteredPoints = values.points.filter(p => p && p.trim() !== "");
+      
       const payload = {
         title: values.title.trim(),
-        points: values.points.filter(p => p && p.trim() !== ""),
+        points: filteredPoints,
       };
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}our-features/${data.id}`, {
-        method: 'PATCH',
-        headers: { 
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
+      console.log("Updating feature:", data.id, payload);
       
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Update failed with status ${response.status}`);
-      }
+      const result = await patchData(`our-features/${data.id}`, payload);
       
-      const result = await response.json();
+      console.log("Update response:", result);
+      
       toast.success("Feature updated successfully!", { id: loadingToast });
       
       resetForm();
-      if (onSuccess) onSuccess(result);
+      if (onSuccess) await onSuccess();
       onClose();
     } catch (error) {
       console.error("Error updating feature:", error);
@@ -114,7 +109,7 @@ export default function EditFeature({ isOpen, onClose, onSuccess, feature }) {
             enableReinitialize
             initialValues={{
               title: data.title || "",
-              points: data.points || [""],
+              points: data.points && data.points.length ? data.points : [""],
             }}
             validationSchema={FeatureSchema}
             onSubmit={handleSubmit}
@@ -181,10 +176,19 @@ export default function EditFeature({ isOpen, onClose, onSuccess, feature }) {
                   <button
                     type="button"
                     onClick={() => {
-                      setTouched({
-                        title: true,
-                        points: [true],
-                      });
+                      if (!values.title.trim()) {
+                        toast.error("Please enter a title");
+                        setTouched({ title: true });
+                        return;
+                      }
+                      
+                      const hasEmptyPoints = values.points.some(p => !p.trim());
+                      if (hasEmptyPoints) {
+                        toast.error("Please fill in all points or remove empty ones");
+                        setTouched({ points: values.points.map(() => true) });
+                        return;
+                      }
+                      
                       submitForm();
                     }}
                     disabled={isSubmitting}

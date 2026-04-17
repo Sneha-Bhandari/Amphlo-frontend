@@ -1,25 +1,5 @@
-// lib/frontendApi.js
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://frontbackend.amphlo.com";
-
-// export const fetchData = async (endpoint) => {
-//   try {
-//     const res = await fetch(`${API_URL}/${endpoint.replace(/^\//, "")}`);
-    
-//     if (!res.ok) {
-//       throw new Error(`HTTP error! status: ${res.status}`);
-//     }
-    
-//     const text = await res.text();
-//     const json = text ? JSON.parse(text) : {}; 
-  
-//     return json;
-//   } catch (error) {
-//     console.error("Fetch error:", error);
-//     throw error; 
-//   }
-// };
-
-
 
 export const fetchData = async (endpoint) => {
   const res = await fetch(`${API_URL}/${endpoint.replace(/^\//, "")}`, {
@@ -44,8 +24,34 @@ export const handleResponse = async (res) => {
 
 
 
+// export const postData = async (endpoint, data) => {
+//   try {
+//     const res = await fetch(`${API_URL}/${endpoint.replace(/^\//, "")}`, {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify(data),
+//       credentials: "include",
+//     });
+
+//     if (!res.ok) {
+//       throw new Error(`HTTP error! status: ${res.status}`);
+//     }
+
+//     const json = await res.json();
+//     return json;
+//   } catch (error) {
+//     console.error("Post error:", error);
+//     throw error;
+//   }
+// };
+
 export const postData = async (endpoint, data) => {
   try {
+    console.log(`Posting to: ${API_URL}/${endpoint}`);
+    console.log("Data:", JSON.stringify(data, null, 2));
+    
     const res = await fetch(`${API_URL}/${endpoint.replace(/^\//, "")}`, {
       method: 'POST',
       headers: {
@@ -55,12 +61,26 @@ export const postData = async (endpoint, data) => {
       credentials: "include",
     });
 
+    const responseText = await res.text();
+    console.log("Response status:", res.status);
+    console.log("Response text:", responseText);
+    
     if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`);
+      let errorMessage = `HTTP error! status: ${res.status}`;
+      try {
+        const errorJson = JSON.parse(responseText);
+        errorMessage = errorJson.message || errorJson.error || responseText;
+      } catch (e) {
+        errorMessage = responseText || errorMessage;
+      }
+      throw new Error(errorMessage);
     }
 
-    const json = await res.json();
-    return json;
+    try {
+      return JSON.parse(responseText);
+    } catch (e) {
+      return { success: true, data: responseText };
+    }
   } catch (error) {
     console.error("Post error:", error);
     throw error;

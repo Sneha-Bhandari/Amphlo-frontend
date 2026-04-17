@@ -1,24 +1,31 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import toast, { Toaster } from 'react-hot-toast';
-import { MdCloudUpload, MdClose } from "react-icons/md";
+import Image from "next/image";
+import { MdClose } from "react-icons/md";
+import { postData, uploadImageData } from "@/lib/frontendApi";
 
 const PartnerSchema = Yup.object().shape({
-  partnerName: Yup.string()
-    .min(2, "Name must be at least 2 characters")
-    .max(100, "Name must not exceed 100 characters")
-    .required("Partner name is required"),
-  imageid: Yup.mixed().required("Partner image is required"),
+  images: Yup.mixed().required("Partner image is required"),
 });
 
 export default function AddPartner({ isOpen, onClose, onSuccess }) {
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [uploadedImageId, setUploadedImageId] = useState(null);
 
-  const handleImageUpload = async (file, setFieldValue, setTouched) => {
+  useEffect(() => {
+    if (!isOpen) {
+      setPreview(null);
+      setUploadedImageId(null);
+      setUploadingImage(false);
+    }
+  }, [isOpen]);
+
+  const handleImageUpload = async (file, setFieldValue) => {
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
@@ -32,92 +39,82 @@ export default function AddPartner({ isOpen, onClose, onSuccess }) {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result);
-    };
-    reader.readAsDataURL(file);
-
+    setPreview(URL.createObjectURL(file));
     setUploadingImage(true);
     
     try {
-      const formData = new FormData();
-      formData.append("images", file);
-    
-      const uploadRes = await fetch(process.env.NEXT_PUBLIC_UPLOAD_URL, {
-        method: "POST",
-        body: formData,
-      });
-    
-      if (!uploadRes.ok) {
-        const errText = await uploadRes.text();
-        console.error("UPLOAD ERROR:", errText);
-        throw new Error("Upload failed");
-      }
-    
-      const uploadData = await uploadRes.json();
-      const imageId = uploadData.id;
+      const uploadRes = await uploadImageData(file);
+      console.log("Upload response:", uploadRes);
       
-      if (imageId) {
-        setFieldValue("imageid", imageId);
-        setTouched({ imageid: true }); 
-        toast.success("Image uploaded successfully");
-      } else {
-        throw new Error("No image ID returned from server");
-      }
+      const imageId = uploadRes?.id || uploadRes?.imageId || uploadRes?.data?.id;
+      setUploadedImageId(imageId);
+      setFieldValue("images", imageId);
+      
+      toast.success("Image uploaded successfully");
     } catch (error) {
       console.error("Error uploading image:", error);
       toast.error(error.message || "Failed to upload image");
-      setImagePreview(null);
-      setFieldValue("imageid", null);
+      setPreview(null);
+      setUploadedImageId(null);
+      setFieldValue("images", null);
     } finally {
       setUploadingImage(false);
     }
   };
 
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
-    if (!values.imageid) {
+    if (!uploadedImageId) {
       toast.error("Please upload a partner image");
       setSubmitting(false);
       return;
     }
   
-    const loadingToast = toast.loading("Creating partner...");
+    const toastId = toast.loading("Creating partner...");
     
     try {
-      const payload = {
-        partnerName: values.partnerName.trim(),
-        imageid: values.imageid
-      };
+      // Try different property names
+      const payloadsToTry = [
+        { image: uploadedImageId },      // Try 'image' first
+        { Image: uploadedImageId },      // Try 'Image'
+        { imageId: uploadedImageId },    // Try 'imageId'
+        { image_id: uploadedImageId },   // Try 'image_id'
+        { id: uploadedImageId },         // Try 'id'
+      ];
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}partners`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      let lastError = null;
       
-      if (!response.ok) {
-        const errorData = await response.text();
-        throw new Error(errorData || 'Create failed');
+      for (const payload of payloadsToTry) {
+        try {
+          console.log("Trying payload:", payload);
+          const result = await postData("partners", payload);
+          console.log("Success with payload:", payload, result);
+          
+          toast.success("Partner created successfully!", { id: toastId });
+          
+          resetForm();
+          setPreview(null);
+          setUploadedImageId(null);
+          if (onSuccess) onSuccess();
+          onClose();
+          return;
+        } catch (err) {
+          console.log("Failed with payload:", payload, err.message);
+          lastError = err;
+        }
       }
       
-      const result = await response.json();
-      toast.success("Partner created successfully!", { id: loadingToast });
+      throw lastError || new Error("No valid payload structure found");
       
-      resetForm();
-      setImagePreview(null);
-      if (onSuccess) onSuccess(result);
-      onClose();
-    } catch (error) {
-      console.error("Error creating partner:", error);
-      toast.error(error.message || "Failed to create partner", {
-        id: loadingToast,
-        duration: 4000,
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message || "Something went wrong!", {
+        id: toastId,
       });
     } finally {
       setSubmitting(false);
     }
   };
+
   if (!isOpen) return null;
 
   return (
@@ -160,89 +157,69 @@ export default function AddPartner({ isOpen, onClose, onSuccess }) {
 
         <div className="p-6">
           <Formik
+            enableReinitialize
             initialValues={{
-              partnerName: "",
-              imageid: null,
+              images: null,
             }}
             validationSchema={PartnerSchema}
-            validateOnMount={false}
-            validateOnChange={true}
-            validateOnBlur={true}
             onSubmit={handleSubmit}
           >
-            {({ values, setFieldValue, setTouched, isSubmitting, errors, touched, submitForm }) => (
+            {({ setFieldValue, isSubmitting, errors, touched }) => (
               <Form className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block mb-2 font-semibold text-gray-700 text-lg">
                     Partner Image *
                   </label>
-                  {imagePreview ? (
-                    <div className="flex items-center gap-4 p-4 border rounded-lg">
-                      <img
-                        src={imagePreview}
+                  
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="w-full border border-gray-300 rounded-lg p-2"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        handleImageUpload(file, setFieldValue);
+                      }
+                      e.target.value = '';
+                    }}
+                  />
+
+                  {preview && (
+                    <div className="mt-6 border-2 border-dashed border-gray-300 rounded-lg p-4 flex justify-center relative group">
+                      <Image
+                        src={preview}
                         alt="Preview"
-                        className="w-24 h-24 object-contain border-2 border-[#04413D] rounded-lg bg-gray-50"
+                        width={200}
+                        height={150}
+                        unoptimized
+                        className="object-contain"
                       />
                       <button
                         type="button"
                         onClick={() => {
-                          setImagePreview(null);
-                          setFieldValue("imageid", null);
-                          setTouched({ imageid: false });
+                          setPreview(null);
+                          setUploadedImageId(null);
+                          setFieldValue("images", null);
+                          toast.success("Image removed");
                         }}
-                        className="text-red-600 flex items-center gap-1 hover:text-red-700"
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                       >
-                        <MdClose /> Remove Image
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
                       </button>
                     </div>
-                  ) : (
-                    <label className={`border-2 border-dashed rounded-lg p-8 block text-center cursor-pointer hover:border-[#04413D] transition-colors ${touched.imageid && errors.imageid ? 'border-red-500' : 'border-gray-300'}`}>
-                      <MdCloudUpload size={48} className="mx-auto mb-2 text-gray-400" />
-                      <p className="text-gray-600">Click to upload image</p>
-                      <p className="text-gray-400 text-sm mt-1">PNG, JPG, JPEG, WEBP up to 5MB</p>
-                      <input
-                        type="file"
-                        accept="image/jpeg,image/png,image/jpg,image/webp,image/gif"
-                        hidden
-                        onChange={(e) => {
-                          const file = e.target.files[0];
-                          if (file) {
-                            handleImageUpload(file, setFieldValue, setTouched);
-                          }
-                        }}
-                      />
-                    </label>
                   )}
-                  {touched.imageid && errors.imageid && (
-                    <div className="text-red-500 text-sm mt-1">{errors.imageid}</div>
+
+                  {touched.images && errors.images && !preview && (
+                    <div className="text-red-500 text-sm mt-1">{errors.images}</div>
                   )}
                   {uploadingImage && <p className="text-sm text-blue-600 mt-1">Uploading image...</p>}
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Partner Name *
-                  </label>
-                  <Field
-                    name="partnerName"
-                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all ${
-                      errors.partnerName && touched.partnerName ? "border-red-500" : "border-gray-300"
-                    }`}
-                    placeholder="Enter partner name"
-                  />
-                  <ErrorMessage name="partnerName" component="div" className="text-red-500 text-sm mt-1" />
-                </div>
-
                 <div className="flex gap-3 pt-4 sticky bottom-0 bg-white py-4 border-t">
                   <button
-                    type="button"
-                    onClick={() => {
-                      setTouched({
-                        partnerName: true,
-                        imageid: true,
-                      });
-                      submitForm();
-                    }}
+                    type="submit"
                     disabled={isSubmitting || uploadingImage}
                     className={`flex-1 py-2 rounded-lg font-semibold transition-all transform hover:scale-105 active:scale-95 shadow-md cursor-pointer ${
                       isSubmitting || uploadingImage
