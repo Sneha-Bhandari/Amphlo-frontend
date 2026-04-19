@@ -95,7 +95,7 @@ export default function Page() {
       <button
           onClick={() => router.back()}
           className="px-4 py-2 bg-white border border-gray-200 rounded-xl 
-          hover:bg-green-50 hover:border-green-300 text-[#04413D] transition"
+          hover:bg-green-50 hover:border-green-300 text-[#04413D] transition mb-4"
         >
           ← Back
         </button>

@@ -15,19 +15,94 @@ import {
 } from "lucide-react";
 import ProtectedRoute from "@/app/(cms)/ProtectedRoute";
 import { useAuth } from "../../../contexts/AuthContext";
+import { fetchData } from "@/lib/frontendApi";
+import Loading from "@/Global/Loading";
 
 export default function AdminPage() {
-  const { user, logout, loading } = useAuth();
-  const [stats, setStats] = useState({
-    totalUniversities: 156,
-    totalCountries: 34,
-    totalStudents: 12450,
-    totalPartners: 89,
-    monthlyGrowth: 12.5,
-    placementRate: 87
-  });
+  const { user, logout, loading: authLoading } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [coreStrengthData, setCoreStrengthData] = useState(null);
 
-  const [recentData, setRecentData] = useState({
+  useEffect(() => {
+    const getCoreStrengthData = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchData("core-strengths");
+        setCoreStrengthData(data[0] || null);
+      } catch (error) {
+        console.error("Error fetching core strengths data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getCoreStrengthData();
+  }, []);
+
+  if (authLoading || loading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <Loading />
+      </div>
+    );
+  }
+
+  // Transform stats from core-strength CMS
+  const transformStats = () => {
+    if (coreStrengthData?.stats && Array.isArray(coreStrengthData.stats)) {
+      return coreStrengthData.stats.map(stat => ({
+        label: stat.label,
+        value: stat.count,
+        originalCount: stat.count
+      }));
+    }
+    return [];
+  };
+
+  const stats = transformStats();
+  
+  // Map stats to dashboard cards
+  const getStatValue = (label) => {
+    const stat = stats.find(s => s.label === label);
+    return stat ? stat.originalCount : '0';
+  };
+
+  const statCards = [
+    {
+      title: "Total Universities",
+      value: getStatValue("Universities"),
+      icon: GraduationCap,
+      color: "bg-blue-500",
+      change: "+12",
+      changeType: "increase"
+    },
+    {
+      title: "Partner Countries",
+      value: getStatValue("Countries"),
+      icon: Globe,
+      color: "bg-green-500",
+      change: "+5",
+      changeType: "increase"
+    },
+    {
+      title: "Total Students",
+      value: getStatValue("Students"),
+      icon: Users,
+      color: "bg-purple-500",
+      change: "+18%",
+      changeType: "increase"
+    },
+    {
+      title: "Success Rate",
+      value: getStatValue("Success Rate"),
+      icon: TrendingUp,
+      color: "bg-orange-500",
+      change: "+5%",
+      changeType: "increase"
+    }
+  ];
+
+  const recentData = {
     topCountries: [
       { name: "United States", count: 45, percentage: 28 },
       { name: "United Kingdom", count: 32, percentage: 20 },
@@ -43,44 +118,8 @@ export default function AdminPage() {
       { name: "TU Munich", students: 123, country: "Germany" },
     ],
     monthlyPlacements: [85, 92, 88, 95, 102, 98, 110, 115, 108, 120, 125, 130]
-  });
+  };
 
-  const statCards = [
-    {
-      title: "Total Universities",
-      value: stats.totalUniversities,
-      icon: GraduationCap,
-      color: "bg-blue-500",
-      change: "+12",
-      changeType: "increase"
-    },
-    {
-      title: "Partner Countries",
-      value: stats.totalCountries,
-      icon: Globe,
-      color: "bg-green-500",
-      change: "+5",
-      changeType: "increase"
-    },
-    {
-      title: "Total Students",
-      value: stats.totalStudents.toLocaleString(),
-      icon: Users,
-      color: "bg-purple-500",
-      change: "+18%",
-      changeType: "increase"
-    },
-    {
-      title: "Placement Rate",
-      value: `${stats.placementRate}%`,
-      icon: TrendingUp,
-      color: "bg-orange-500",
-      change: "+5%",
-      changeType: "increase"
-    }
-  ];
-
-  
   return (
     <ProtectedRoute>
       <div className="min-h-screen">
@@ -92,33 +131,34 @@ export default function AdminPage() {
               Welcome back, {user?.email || "Admin"}! Here's what's happening with your B2B consultancy.
             </p>
           </div>
-          
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          {statCards.map((stat, index) => (
-            <div key={index} className="rounded-lg shadow-sm p-5 border border-gray-100 bg-white">
-              <div className="flex items-center justify-between mb-3">
-                <div className={`${stat.color} p-2 rounded-lg text-white`}>
-                  <stat.icon className="w-5 h-5" />
-                </div>
-                <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                  stat.changeType === 'increase' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-                }`}>
-                  {stat.change}
-                </span>
-              </div>
-              <h3 className="text-2xl font-bold text-gray-800">{stat.value}</h3>
-              <p className="text-gray-500 text-sm mt-1">{stat.title}</p>
+        {stats.length > 0 && (
+          <div className="bg-white rounded-lg shadow-sm p-8 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-semibold text-gray-800">Overviews</h2>
+              <Award className="w-5 h-5 text-gray-400" />
             </div>
-          ))}
-        </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {stats.map((stat, index) => (
+                <div
+                  key={index}
+                  className="rounded-xl p-8 bg-linear-to-r from-[#04413D] to-[#06665f]  text-white shadow-md shadow-[#e4c88a] cursor-pointer hover:scale-105 transition-all ease-in-out duration-500"
+                >
+                  <div className="text-xl sm:text-2xl font-bold ">
+                    {stat.value}
+                  </div>
+                  <p className="text-xs text-gray-200 mt-1">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      
           {/* Top Countries Graph */}
-          <div className="bg-white rounded-lg shadow-sm p-5">
+          <div className="bg-white rounded-lg shadow-sm p-5 mb-7">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-800">Top Partner Countries</h2>
               <Globe className="w-5 h-5 text-gray-400" />
@@ -140,26 +180,6 @@ export default function AdminPage() {
               ))}
             </div>
           </div>
-
-          {/* Monthly Placements Graph */}
-          <div className="bg-white rounded-lg shadow-sm p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-800">Monthly Student Placements</h2>
-              <TrendingUp className="w-5 h-5 text-gray-400" />
-            </div>
-            <div className="h-48 flex items-end gap-2">
-              {recentData.monthlyPlacements.map((value, index) => (
-                <div key={index} className="flex-1 flex flex-col items-center">
-                  <div 
-                    className="w-full bg-linear-to-t from-[#04413D] to-[#06665f] rounded-t"
-                    style={{ height: `${(value / 140) * 100}%` }}
-                  ></div>
-                  <span className="text-xs text-gray-500 mt-2">{['J','F','M','A','M','J','J','A','S','O','N','D'][index]}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
 
         {/* Top Universities Table */}
         <div className="bg-white rounded-lg shadow-sm p-5 mb-6">
@@ -195,36 +215,6 @@ export default function AdminPage() {
                 ))}
               </tbody>
             </table>
-          </div>
-        </div>
-
-        {/* Quick Stats Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-linear-to-r from-blue-500 to-blue-600 rounded-lg p-5 text-white">
-            <div className="flex items-center justify-between mb-2">
-              <Award className="w-6 h-6" />
-              <ArrowUp className="w-5 h-5" />
-            </div>
-            <h3 className="text-2xl font-bold">87%</h3>
-            <p className="text-sm opacity-90">Student Satisfaction Rate</p>
-          </div>
-          
-          <div className="bg-linear-to-r from-purple-500 to-purple-600 rounded-lg p-5 text-white">
-            <div className="flex items-center justify-between mb-2">
-              <Users className="w-6 h-6" />
-              <ArrowUp className="w-5 h-5" />
-            </div>
-            <h3 className="text-2xl font-bold">156</h3>
-            <p className="text-sm opacity-90">Active University Partners</p>
-          </div>
-          
-          <div className="bg-linear-to-r from-green-500 to-green-600 rounded-lg p-5 text-white">
-            <div className="flex items-center justify-between mb-2">
-              <Globe className="w-6 h-6" />
-              <ArrowUp className="w-5 h-5" />
-            </div>
-            <h3 className="text-2xl font-bold">34</h3>
-            <p className="text-sm opacity-90">Countries Worldwide</p>
           </div>
         </div>
       </div>

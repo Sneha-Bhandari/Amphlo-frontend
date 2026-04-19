@@ -154,10 +154,15 @@ export default function Sidebar({ children }) {
       color: "text-cyan-500",
     },
     {
-      name: "Notifications",
-      path: "/admin/notifications",
-      icon: Bell,
-      color: "text-pink-500",
+      name: "Messages",
+      icon: FileText,
+      color: "text-yellow-500",
+      dropdown: true,
+      dropdownName: "messagepage",
+      items: [
+        { name: "Book An Appointmant", path: "/admin/bookmessage", icon: Shield },
+        { name: "Partner With Us", path: "/admin/partnermessage", icon: Shield, color: "text-red-500" },
+      ],
     },
   ];
 
@@ -267,14 +272,6 @@ export default function Sidebar({ children }) {
         )}
 
         <div className="space-y-1 sm:space-y-2">
-          <Link
-            href="/admin/help"
-            className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-50 transition-all duration-200 text-sm sm:text-base"
-          >
-            <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span className="font-medium truncate">Help & Support</span>
-          </Link>
-
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-all duration-200 text-sm sm:text-base cursor-pointer"
