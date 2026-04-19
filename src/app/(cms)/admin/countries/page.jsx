@@ -3,89 +3,87 @@
 import React, { useState, useEffect } from "react";
 import { fetchData, deleteData } from "@/lib/frontendApi";
 import Loading from "@/Global/Loading";
-import AddTestimonial from "../../../../PageComponent/cms/Testimonial/AddTestimonial";
-import EditTestimonial from "../../../../PageComponent/cms/Testimonial/EditTestimonial";
-import DeleteTestimonial from "../../../../PageComponent/cms/Testimonial/DeleteTestimonial";
-import ViewTestimonial from "../../../../PageComponent/cms/Testimonial/ViewTestimonial";
-import TestimonialTable from "../../../../PageComponent/cms/Testimonial/TestimonialTable";
+import AddCountry from "../../../../PageComponent/cms/Countries/AddCountry";
+import EditCountry from "../../../../PageComponent/cms/Countries/EditCountry";
+import DeleteCountry from "../../../../PageComponent/cms/Countries/DeleteCountry";
+import ViewCountry from "../../../../PageComponent/cms/Countries/ViewCountry";
+import CountryTable from "../../../../PageComponent/cms/Countries/CountryTable";
 import { Toaster } from "react-hot-toast";
 
-export default function TestimonialsCMS() {
-  const [testimonials, setTestimonials] = useState([]);
+export default function CountriesCMS() {
+  const [countries, setCountries] = useState([]);
   const [loading, setLoading] = useState(true);
   
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [selectedTestimonial, setSelectedTestimonial] = useState(null);
+  const [selectedCountry, setSelectedCountry] = useState(null);
   
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterRating, setFilterRating] = useState("all");
+  const [filterCategory, setFilterCategory] = useState("all");
 
   useEffect(() => {
-    fetchTestimonials();
+    fetchCountries();
   }, []);
 
-  const fetchTestimonials = async () => {
+  const fetchCountries = async () => {
     try {
       setLoading(true);
-      const data = await fetchData("testimonial");
+      const data = await fetchData("countries");
       if (Array.isArray(data)) {
-        setTestimonials(data);
+        setCountries(data);
       } else if (data && typeof data === 'object' && !Array.isArray(data)) {
-        setTestimonials([data]);
+        setCountries([data]);
       } else {
-        setTestimonials([]);
+        setCountries([]);
       }
     } catch (error) {
-      console.error("Error fetching testimonials:", error);
-      setTestimonials([]);
+      console.error("Error fetching countries:", error);
+      setCountries([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteTestimonial = async (testimonialId) => {
+  const handleDeleteCountry = async (countryId) => {
     try {
-      await deleteData(`testimonial/${testimonialId}`);
-      await fetchTestimonials();
+      await deleteData(`countries/${countryId}`);
+      await fetchCountries();
       return true;
     } catch (error) {
-      console.error("Error deleting testimonial:", error);
+      console.error("Error deleting country:", error);
       throw error;
     }
   };
 
-  const handleView = (testimonial) => {
-    setSelectedTestimonial(testimonial);
+  const handleView = (country) => {
+    setSelectedCountry(country);
     setIsViewModalOpen(true);
   };
 
-  const handleEdit = (testimonial) => {
-    setSelectedTestimonial(testimonial);
+  const handleEdit = (country) => {
+    setSelectedCountry(country);
     setIsEditModalOpen(true);
   };
 
-  const handleDelete = (testimonial) => {
-    setSelectedTestimonial(testimonial);
+  const handleDelete = (country) => {
+    setSelectedCountry(country);
     setIsDeleteModalOpen(true);
   };
 
-  // Get unique ratings for filter
-  const uniqueRatings = [...new Set(testimonials.map(t => t.rating).filter(Boolean))].sort((a,b) => b - a);
+  // Get unique categories for filter
+  const uniqueCategories = [...new Set(countries.flatMap(c => c.categories || []))];
 
-  // Filter testimonials based on search and rating
-  const filteredTestimonials = testimonials.filter(testimonial => {
+  // Filter countries based on search and category
+  const filteredCountries = countries.filter(country => {
     const matchesSearch = 
-      testimonial.clientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      testimonial.jobTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      testimonial.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      testimonial.description?.toLowerCase().includes(searchTerm.toLowerCase());
+      country.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      country.description?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesRating = filterRating === "all" || testimonial.rating === parseInt(filterRating);
+    const matchesCategory = filterCategory === "all" || (country.categories || []).includes(filterCategory);
     
-    return matchesSearch && matchesRating;
+    return matchesSearch && matchesCategory;
   });
 
   if (loading) {
@@ -103,8 +101,8 @@ export default function TestimonialsCMS() {
         <div className="w-full mx-auto">
           <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-[#04413D]">Testimonials Management</h1>
-              <p className="text-gray-600 mt-1">Manage client testimonials and reviews</p>
+              <h1 className="text-3xl font-bold text-[#04413D]">Countries Management</h1>
+              <p className="text-gray-600 mt-1">Manage countries, states, and universities</p>
             </div>
             <button
               onClick={() => setIsAddModalOpen(true)}
@@ -113,7 +111,7 @@ export default function TestimonialsCMS() {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              Add Testimonial
+              Add Country
             </button>
           </div>
 
@@ -122,7 +120,7 @@ export default function TestimonialsCMS() {
             <div className="relative flex-1 max-w-md">
               <input
                 type="text"
-                placeholder="Search by client name, job title, company or description..."
+                placeholder="Search by country name or description..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-4 py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
@@ -137,18 +135,16 @@ export default function TestimonialsCMS() {
               </svg>
             </div>
             
-            {uniqueRatings.length > 0 && (
+            {uniqueCategories.length > 0 && (
               <div className="relative">
                 <select
-                  value={filterRating}
-                  onChange={(e) => setFilterRating(e.target.value)}
+                  value={filterCategory}
+                  onChange={(e) => setFilterCategory(e.target.value)}
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all bg-white"
                 >
-                  <option value="all">All Ratings</option>
-                  {uniqueRatings.map(rating => (
-                    <option key={rating} value={rating}>
-                      {"★".repeat(rating)}{"☆".repeat(5-rating)} ({rating})
-                    </option>
+                  <option value="all">All Categories</option>
+                  {uniqueCategories.map(category => (
+                    <option key={category} value={category}>{category}</option>
                   ))}
                 </select>
               </div>
@@ -156,11 +152,11 @@ export default function TestimonialsCMS() {
           </div>
           
           <div className="text-sm text-gray-600 flex justify-end mb-5">
-            Total: {filteredTestimonials.length} testimonial{filteredTestimonials.length !== 1 ? 's' : ''}
+            Total: {filteredCountries.length} countr{filteredCountries.length !== 1 ? 'ies' : 'y'}
           </div>
 
-          <TestimonialTable 
-            testimonials={filteredTestimonials}
+          <CountryTable 
+            countries={filteredCountries}
             onView={handleView}
             onEdit={handleEdit}
             onDelete={handleDelete}
@@ -168,31 +164,31 @@ export default function TestimonialsCMS() {
         </div>
       </div>
 
-      <AddTestimonial 
+      <AddCountry 
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onSuccess={fetchTestimonials}
+        onSuccess={fetchCountries}
       />
 
-      <ViewTestimonial 
+      <ViewCountry 
         isOpen={isViewModalOpen}
         onClose={() => setIsViewModalOpen(false)}
-        testimonial={selectedTestimonial}
+        country={selectedCountry}
       />
 
-      <EditTestimonial 
+      <EditCountry 
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        onSuccess={fetchTestimonials}
-        testimonial={selectedTestimonial}
+        onSuccess={fetchCountries}
+        country={selectedCountry}
       />
 
-      <DeleteTestimonial 
+      <DeleteCountry 
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        onSuccess={fetchTestimonials}
-        testimonial={selectedTestimonial}
-        onDelete={handleDeleteTestimonial}
+        onSuccess={fetchCountries}
+        country={selectedCountry}
+        onDelete={handleDeleteCountry}
       />
     </>
   );

@@ -12,8 +12,6 @@ export default function CmsLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const auth = useAuth();
-  console.log("AUTH CONTEXT:", auth);
   const router = useRouter();
   const { checkAuth, loggedIn } = useAuth();
 
@@ -28,21 +26,69 @@ export default function CmsLoginPage() {
     setError("");
     setLoading(true);
     
-
     try {
       const result = await postData("auth/login", { email, password });
-
+      
+      // Check for various error scenarios
       if (!result) {
-        setError("Login failed");
+        setError("Invalid email or password. Please try again.");
+        setLoading(false);
         return;
       }
-
-      await checkAuth(); // backend cookie will now be set
-      router.push("/admin");
-
+      
+      // Check if response has error
+      if (result.error) {
+        setError("Invalid email or password. Please try again.");
+        setLoading(false);
+        return;
+      }
+      
+      // Check if status is not success (401, 403, etc.)
+      if (result.status === 401 || result.status === 403) {
+        setError("Invalid email or password. Please try again.");
+        setLoading(false);
+        return;
+      }
+      
+      // Check if message indicates invalid credentials
+      if (result.message && (
+        result.message.toLowerCase().includes("invalid") ||
+        result.message.toLowerCase().includes("credential") ||
+        result.message.toLowerCase().includes("password") ||
+        result.message.toLowerCase().includes("email")
+      )) {
+        setError("Invalid email or password. Please try again.");
+        setLoading(false);
+        return;
+      }
+      
+      // If we have a valid token or success, proceed
+      if (result.token || result.success === true || result.user) {
+        await checkAuth();
+        router.push("/admin");
+      } else {
+        // Default error for any other case
+        setError("Invalid email or password. Please try again.");
+        setLoading(false);
+      }
+      
     } catch (err) {
-      setError(err.message || "Login failed");
-    } finally {
+      console.error("Login error:", err);
+      
+      // Handle different types of errors
+      if (err.message) {
+        if (err.message.toLowerCase().includes("network") || 
+            err.message.toLowerCase().includes("fetch")) {
+          setError("Network error. Please check your connection and try again.");
+        } else if (err.message.toLowerCase().includes("401") || 
+                   err.message.toLowerCase().includes("403")) {
+          setError("Invalid email or password. Please try again.");
+        } else {
+          setError("Invalid email or password. Please try again.");
+        }
+      } else {
+        setError("Invalid email or password. Please try again.");
+      }
       setLoading(false);
     }
   };
@@ -81,10 +127,10 @@ export default function CmsLoginPage() {
             </div>
 
             {error && (
-              <div className="mb-6 p-4 bg-red-900/10 border border-red-800/50 rounded-xl backdrop-blur-sm">
-                <div className="flex items-center gap-2 text-red-400">
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                <div className="flex items-center gap-2 text-red-600">
                   <Lock className="w-4 h-4" />
-                  <span className="text-sm whitespace-pre-wrap">{error}</span>
+                  <span className="text-sm">{error}</span>
                 </div>
               </div>
             )}
@@ -105,9 +151,9 @@ export default function CmsLoginPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="user@example.com"
                     required
-                    className="w-full px-5 py-3 bg-gray-100/50 border border-gray-300 rounded-xl placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
+                    className="w-full px-5 py-3 bg-gray-100/50 border border-gray-300 rounded-xl placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#04413D]/50 focus:border-transparent transition-all"
                   />
-                  <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-900" />
+                  <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 </div>
               </div>
 
@@ -126,7 +172,7 @@ export default function CmsLoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     required
-                    className="w-full px-5 py-3 bg-gray-100/50 border border-gray-300 rounded-xl placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all pr-12"
+                    className="w-full px-5 py-3 bg-gray-100/50 border border-gray-300 rounded-xl placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#04413D]/50 focus:border-transparent transition-all pr-12"
                   />
 
                   <button
@@ -135,9 +181,9 @@ export default function CmsLoginPage() {
                     className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer"
                   >
                     {showPassword ? (
-                      <EyeOff className="w-5 h-5 text-gray-600" />
+                      <EyeOff className="w-5 h-5 text-gray-400 hover:text-gray-600" />
                     ) : (
-                      <Eye className="w-5 h-5 text-gray-600" />
+                      <Eye className="w-5 h-5 text-gray-400 hover:text-gray-600" />
                     )}
                   </button>
                 </div>
@@ -146,9 +192,16 @@ export default function CmsLoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 text-white bg-[#04413D] font-semibold rounded-xl hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full py-3 text-white bg-[#04413D] font-semibold rounded-xl hover:bg-[#055a54] transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
-                {loading ? "Signing in..." : "Sign In"}
+                {loading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Signing in...</span>
+                  </div>
+                ) : (
+                  "Sign In"
+                )}
               </button>
             </form>
           </div>

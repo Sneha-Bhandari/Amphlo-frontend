@@ -52,7 +52,7 @@ export default function FeaturesCMS() {
   const handleDeleteFeature = async (featureId) => {
     try {
       await deleteData(`our-features/${featureId}`);
-      await fetchFeatures(); // Refresh the list
+      await fetchFeatures(); 
       return true;
     } catch (error) {
       console.error("Error deleting feature:", error);

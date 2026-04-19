@@ -37,7 +37,8 @@ export default function OurFeatures() {
   // Transform API data to match the component's expected format
   const transformFeatures = () => {
     if (featuresData && Array.isArray(featuresData) && featuresData.length > 0) {
-      return featuresData.map((item) => ({
+      return featuresData.map((item, idx) => ({
+        id: item.id || idx, // Use API id if available, otherwise fallback to index
         title: item.title || "Untitled Feature",
         points: item.points && Array.isArray(item.points) ? item.points : []
       }));
@@ -84,7 +85,7 @@ export default function OurFeatures() {
           <AnimatePresence mode='popLayout'>
             {allFeatures.slice(0, visibleCount).map((feature, index) => (
               <motion.div
-                key={feature.title} 
+                key={feature.id || index} // Use unique id or index as fallback
                 initial={{ opacity: 0, scale: 0.8, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.5 }}

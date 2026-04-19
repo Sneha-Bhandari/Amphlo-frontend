@@ -32,6 +32,8 @@ function Input(props) {
 
 function DynamicForm({ section, data, onSuccess }) {
   const [preview, setPreview] = useState(null);
+  const [liveTitle, setLiveTitle] = useState(data?.title || "");
+  const [liveSubtitle, setLiveSubtitle] = useState(data?.subTitle || "");
 
   const handleSubmit = async (values, { setSubmitting }) => {
     const toastId = toast.loading("Saving changes...");
@@ -78,28 +80,37 @@ function DynamicForm({ section, data, onSuccess }) {
       }}
       onSubmit={handleSubmit}
     >
-      {({ setFieldValue, isSubmitting }) => (
+      {({ setFieldValue, isSubmitting, values }) => (
         <Form className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-
-          {/* LEFT - FORM */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-5">
             <h2 className="text-lg font-semibold text-[#04413D]">
               Banner Details
             </h2>
 
-            {/* Title */}
             <div>
               <label className="text-sm text-gray-600">Title</label>
-              <Input name="title" placeholder="Enter title" />
+              <Input 
+                name="title" 
+                placeholder="Enter title"
+                onChange={(e) => {
+                  setLiveTitle(e.target.value);
+                  setFieldValue("title", e.target.value);
+                }}
+              />
             </div>
 
-            {/* Subtitle */}
             <div>
               <label className="text-sm text-gray-600">Subtitle</label>
-              <Input name="subtitle" placeholder="Enter subtitle" />
+              <Input 
+                name="subtitle" 
+                placeholder="Enter subtitle"
+                onChange={(e) => {
+                  setLiveSubtitle(e.target.value);
+                  setFieldValue("subtitle", e.target.value);
+                }}
+              />
             </div>
 
-            {/* Upload */}
             <div>
               <label className="text-sm text-gray-600">Banner Image</label>
 
@@ -113,7 +124,8 @@ function DynamicForm({ section, data, onSuccess }) {
                     if (!file) return;
 
                     setFieldValue("imageid", file);
-                    setPreview(URL.createObjectURL(file));
+                    const previewUrl = URL.createObjectURL(file);
+                    setPreview(previewUrl);
                   }}
                 />
                 <p className="text-xs text-gray-400 mt-2">
@@ -143,6 +155,7 @@ function DynamicForm({ section, data, onSuccess }) {
                 <img
                   src={preview || data?.imageid?.imageUrl}
                   className="w-full h-64 object-cover"
+                  alt="Banner preview"
                 />
               ) : (
                 <div className="h-64 flex items-center justify-center text-gray-400">
@@ -152,10 +165,10 @@ function DynamicForm({ section, data, onSuccess }) {
 
               <div className="p-4">
                 <h3 className="text-xl font-semibold text-[#04413D]">
-                  {data?.title || "Banner Title"}
+                  {liveTitle || "Banner Title"}
                 </h3>
                 <p className="text-gray-500 mt-1">
-                  {data?.subTitle || "Banner subtitle will appear here"}
+                  {liveSubtitle || "Banner subtitle will appear here"}
                 </p>
               </div>
             </div>

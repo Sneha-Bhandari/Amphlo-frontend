@@ -28,7 +28,10 @@ export default function ViewService({ isOpen, onClose, service }) {
 
             <div className="border-b pb-4">
               <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Description</h3>
-              <p className="text-gray-700">{service.description}</p>
+               <div
+  className=" text-gray-600 "
+  dangerouslySetInnerHTML={{ __html: service.description }}
+            ></div>
             </div>
           </div>
 
