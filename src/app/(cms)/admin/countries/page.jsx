@@ -1,3 +1,4 @@
+// app/cms/countries/page.js
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -170,11 +171,12 @@ export default function CountriesCMS() {
         onSuccess={fetchCountries}
       />
 
-      <ViewCountry 
-        isOpen={isViewModalOpen}
-        onClose={() => setIsViewModalOpen(false)}
-        country={selectedCountry}
-      />
+<ViewCountry 
+  isOpen={isViewModalOpen}
+  onClose={() => setIsViewModalOpen(false)}
+  country={selectedCountry}
+  onSuccess={fetchCountries}  // Add this line
+/>
 
       <EditCountry 
         isOpen={isEditModalOpen}

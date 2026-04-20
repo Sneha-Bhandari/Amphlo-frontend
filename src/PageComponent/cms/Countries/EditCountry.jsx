@@ -1,3 +1,4 @@
+// PageComponent/cms/Countries/EditCountry.js
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -24,12 +25,13 @@ const CountrySchema = Yup.object().shape({
   ),
   universities: Yup.array().of(
     Yup.object().shape({
-      name: Yup.string().required("University name is required"),
+      title: Yup.string(),
+      universityName: Yup.string().required("University name is required"),
       location: Yup.string().required("Location is required"),
       ranking: Yup.string().required("Ranking is required"),
-      programs: Yup.number().nullable(),
-      established: Yup.number().nullable(),
-      students: Yup.number().nullable()
+      program: Yup.string().required("Program is required"),
+      established: Yup.string(),
+      students: Yup.string()
     })
   )
 });
@@ -72,12 +74,16 @@ export default function EditCountry({ isOpen, onClose, onSuccess, country }) {
         imageId = null;
       }
 
+      // Filter out empty states and universities
+      const filteredStates = values.states.filter(state => state.name && state.name.trim() !== "");
+      const filteredUniversities = values.universities.filter(uni => uni.universityName && uni.universityName.trim() !== "");
+      
       const payload = {
         name: values.name.trim(),
         description: values.description,
         categories: values.categories || [],
-        states: values.states || [],
-        universities: values.universities || [],
+        states: filteredStates,
+        universities: filteredUniversities,
         imageid: imageId,
       };
       
@@ -104,7 +110,7 @@ export default function EditCountry({ isOpen, onClose, onSuccess, country }) {
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
         <Toaster 
           position="top-right"
           toastOptions={{
@@ -113,27 +119,13 @@ export default function EditCountry({ isOpen, onClose, onSuccess, country }) {
               background: '#363636',
               color: '#fff',
             },
-            success: {
-              duration: 3000,
-              iconTheme: {
-                primary: '#10B981',
-                secondary: '#fff',
-              },
-            },
-            error: {
-              duration: 4000,
-              iconTheme: {
-                primary: '#EF4444',
-                secondary: '#fff',
-              },
-            },
           }}
         />
         
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10">
           <div>
             <h2 className="text-2xl font-bold text-[#04413D]">Edit Country</h2>
-            <p className="text-gray-600 text-sm mt-1">Edit country information</p>
+            <p className="text-gray-600 text-sm mt-1">Edit country information including states and universities</p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
             <MdClose size={24} />
@@ -148,7 +140,7 @@ export default function EditCountry({ isOpen, onClose, onSuccess, country }) {
               description: data.description || "",
               categories: data.categories || [],
               states: data.states?.length ? data.states : [{ name: "" }],
-              universities: data.universities?.length ? data.universities : [{ name: "", location: "", ranking: "", programs: "", established: "", students: "" }],
+              universities: data.universities?.length ? data.universities : [{ title: "", universityName: "", location: "", ranking: "", program: "", established: "", students: "" }],
               imageFile: null,
               imageRemoved: false,
             }}
@@ -268,13 +260,11 @@ export default function EditCountry({ isOpen, onClose, onSuccess, country }) {
                 {/* States Section */}
                 <div className="border-t pt-4">
                   <div className="flex justify-between items-center mb-4">
-                    <label className="block text-sm font-medium text-gray-700">
-                      States & Regions
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700">States</label>
                     <button
                       type="button"
                       onClick={() => setFieldValue("states", [...values.states, { name: "" }])}
-                      className="text-[#04413D] flex items-center gap-1 text-sm hover:text-[#04413D]/80"
+                      className="text-[#04413D] flex items-center gap-1 text-sm"
                     >
                       <MdAdd /> Add State
                     </button>
@@ -284,19 +274,19 @@ export default function EditCountry({ isOpen, onClose, onSuccess, country }) {
                     {({ remove, push }) => (
                       <div className="space-y-3">
                         {values.states.map((state, index) => (
-                          <div key={index} className="flex gap-3 items-start">
+                          <div key={index} className="flex gap-2 items-start">
                             <div className="flex-1">
                               <Field
                                 name={`states.${index}.name`}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                                placeholder="State/Region name"
+                                placeholder={`State ${index + 1} name`}
+                                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500"
                               />
                               <ErrorMessage name={`states.${index}.name`} component="div" className="text-red-500 text-sm mt-1" />
                             </div>
                             <button
                               type="button"
                               onClick={() => remove(index)}
-                              className="text-red-600 hover:text-red-700 p-2"
+                              className="text-red-600 p-2 hover:bg-red-50 rounded-lg"
                             >
                               <MdDelete size={20} />
                             </button>
@@ -310,13 +300,11 @@ export default function EditCountry({ isOpen, onClose, onSuccess, country }) {
                 {/* Universities Section */}
                 <div className="border-t pt-4">
                   <div className="flex justify-between items-center mb-4">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Universities
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700">Universities</label>
                     <button
                       type="button"
-                      onClick={() => setFieldValue("universities", [...values.universities, { name: "", location: "", ranking: "", programs: "", established: "", students: "" }])}
-                      className="text-[#04413D] flex items-center gap-1 text-sm hover:text-[#04413D]/80"
+                      onClick={() => setFieldValue("universities", [...values.universities, { title: "", universityName: "", location: "", ranking: "", program: "", established: "", students: "" }])}
+                      className="text-[#04413D] flex items-center gap-1 text-sm"
                     >
                       <MdAdd /> Add University
                     </button>
@@ -324,75 +312,75 @@ export default function EditCountry({ isOpen, onClose, onSuccess, country }) {
                   
                   <FieldArray name="universities">
                     {({ remove, push }) => (
-                      <div className="space-y-6">
-                        {values.universities.map((university, index) => (
+                      <div className="space-y-4">
+                        {values.universities.map((uni, index) => (
                           <div key={index} className="border rounded-lg p-4 relative">
                             <button
                               type="button"
                               onClick={() => remove(index)}
-                              className="absolute top-2 right-2 text-red-600 hover:text-red-700"
+                              className="absolute top-2 right-2 text-red-600 hover:bg-red-50 rounded-lg p-1"
                             >
                               <MdDelete size={20} />
                             </button>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                               <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1">University Name *</label>
+                                <label className="text-xs text-gray-600">Title</label>
                                 <Field
-                                  name={`universities.${index}.name`}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                  placeholder="University name"
+                                  name={`universities.${index}.title`}
+                                  placeholder="e.g., Top Engineering School"
+                                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 text-sm"
                                 />
-                                <ErrorMessage name={`universities.${index}.name`} component="div" className="text-red-500 text-xs mt-1" />
                               </div>
-                              
                               <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1">Location *</label>
+                                <label className="text-xs text-gray-600">University Name *</label>
+                                <Field
+                                  name={`universities.${index}.universityName`}
+                                  placeholder="University name"
+                                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 text-sm"
+                                />
+                                <ErrorMessage name={`universities.${index}.universityName`} component="div" className="text-red-500 text-xs mt-1" />
+                              </div>
+                              <div>
+                                <label className="text-xs text-gray-600">Location *</label>
                                 <Field
                                   name={`universities.${index}.location`}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
                                   placeholder="City, State"
+                                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 text-sm"
                                 />
                                 <ErrorMessage name={`universities.${index}.location`} component="div" className="text-red-500 text-xs mt-1" />
                               </div>
-                              
                               <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1">Ranking *</label>
+                                <label className="text-xs text-gray-600">Ranking *</label>
                                 <Field
                                   name={`universities.${index}.ranking`}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                  placeholder="e.g., Ivy League, Russell Group"
+                                  placeholder="#1 in Country"
+                                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 text-sm"
                                 />
                                 <ErrorMessage name={`universities.${index}.ranking`} component="div" className="text-red-500 text-xs mt-1" />
                               </div>
-                              
                               <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1">Programs</label>
+                                <label className="text-xs text-gray-600">Program *</label>
                                 <Field
-                                  name={`universities.${index}.programs`}
-                                  type="number"
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                  placeholder="Number of programs"
+                                  name={`universities.${index}.program`}
+                                  placeholder="Computer Science, Business, etc."
+                                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 text-sm"
                                 />
+                                <ErrorMessage name={`universities.${index}.program`} component="div" className="text-red-500 text-xs mt-1" />
                               </div>
-                              
                               <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1">Established</label>
+                                <label className="text-xs text-gray-600">Established</label>
                                 <Field
                                   name={`universities.${index}.established`}
-                                  type="number"
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                  placeholder="Year established"
+                                  placeholder="1950"
+                                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 text-sm"
                                 />
                               </div>
-                              
                               <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1">Students</label>
+                                <label className="text-xs text-gray-600">Students</label>
                                 <Field
                                   name={`universities.${index}.students`}
-                                  type="number"
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                                  placeholder="Number of students"
+                                  placeholder="10,000+"
+                                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 text-sm"
                                 />
                               </div>
                             </div>

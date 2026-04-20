@@ -24,6 +24,7 @@ images: {
         port: "3002",
         pathname: "/uploads/**",
       },
+      
     ],
   },
 

@@ -1,3 +1,4 @@
+// PageComponent/cms/Countries/AddCountry.js
 "use client";
 
 import React, { useState, useRef } from "react";
@@ -6,6 +7,7 @@ import * as Yup from "yup";
 import JoditEditor from "jodit-react";
 import toast from "react-hot-toast";
 import { MdCloudUpload, MdClose, MdAdd, MdDelete, MdArrowDropDown } from "react-icons/md";
+import { postData, uploadImageData } from "@/lib/frontendApi";
 
 const categoryOptions = [
   { value: "Most Popular", label: "Most Popular" },
@@ -23,17 +25,7 @@ const schema = Yup.object().shape({
       name: Yup.string().required("State name is required")
     })
   ),
-  universities: Yup.array().of(
-    Yup.object().shape({
-      name: Yup.string().required("University name is required"),
-      location: Yup.string().required("Location is required"),
-      ranking: Yup.string().required("Ranking is required"),
-      programs: Yup.number().nullable(),
-      established: Yup.number().nullable(),
-      students: Yup.number().nullable()
-    })
-  ),
-  imageid: Yup.string().required("Image is required"),
+  imageFile: Yup.mixed().required("Image is required"),
 });
 
 export default function AddCountry({ isOpen, onClose, onSuccess }) {
@@ -53,18 +45,12 @@ export default function AddCountry({ isOpen, onClose, onSuccess }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleImageChange = (e, setFieldValue) => {
+  const handleImageChange = async (e, setFieldValue) => {
     const file = e.target.files[0];
     if (file) {
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
-      setUploadingImage(true);
-      // Simulate upload
-      setTimeout(() => {
-        setFieldValue("imageid", "temp_image_id_" + Date.now());
-        setUploadingImage(false);
-        toast.success("Image uploaded");
-      }, 1000);
+      setFieldValue("imageFile", file);
     }
   };
 
@@ -83,7 +69,7 @@ export default function AddCountry({ isOpen, onClose, onSuccess }) {
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
           <div>
             <h2 className="text-2xl font-bold text-[#04413D]">Add New Country</h2>
-            <p className="text-gray-600 text-sm">Add country with states and universities</p>
+            <p className="text-gray-600 text-sm">Add country and states (Universities can be added later)</p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
             <MdClose size={24} />
@@ -96,25 +82,56 @@ export default function AddCountry({ isOpen, onClose, onSuccess }) {
               name: "",
               description: "",
               categories: [],
-              states: [{ name: "" }],
-              universities: [{ name: "", location: "", ranking: "", programs: "", established: "", students: "" }],
-              imageid: null,
+              states: [],
+              imageFile: null,
             }}
             validationSchema={schema}
-            onSubmit={(values, { resetForm, setSubmitting }) => {
-              if (!values.imageid) {
+            onSubmit={async (values, { resetForm, setSubmitting }) => {
+              if (!values.imageFile) {
                 toast.error("Please upload a country image");
                 setSubmitting(false);
                 return;
               }
 
-              console.log("Form submitted:", values);
-              toast.success("Country created successfully!");
-              resetForm();
-              setImagePreview(null);
-              if (onSuccess) onSuccess();
-              onClose();
-              setSubmitting(false);
+              const loadingToast = toast.loading("Creating country...");
+              
+              try {
+                setUploadingImage(true);
+                
+                // Upload image
+                const uploadRes = await uploadImageData(values.imageFile);
+                const imageId = uploadRes?.id || uploadRes?.data?.id;
+                
+                if (!imageId) {
+                  throw new Error("Failed to upload image");
+                }
+                
+                // Filter out empty states
+                const filteredStates = values.states.filter(state => state.name && state.name.trim() !== "");
+                
+                const submitData = {
+                  name: values.name.trim(),
+                  description: values.description,
+                  categories: values.categories || [],
+                  states: filteredStates,
+                  universities: [], // Empty array initially
+                  imageid: imageId,
+                };
+                
+                await postData("countries", submitData);
+                
+                toast.success("Country created successfully!", { id: loadingToast });
+                resetForm();
+                setImagePreview(null);
+                if (onSuccess) await onSuccess();
+                onClose();
+              } catch (error) {
+                console.error("Error creating country:", error);
+                toast.error(error.message || "Failed to create country", { id: loadingToast });
+              } finally {
+                setUploadingImage(false);
+                setSubmitting(false);
+              }
             }}
           >
             {({ values, setFieldValue, isSubmitting, errors, touched }) => (
@@ -129,7 +146,7 @@ export default function AddCountry({ isOpen, onClose, onSuccess }) {
                         type="button"
                         onClick={() => {
                           setImagePreview(null);
-                          setFieldValue("imageid", null);
+                          setFieldValue("imageFile", null);
                         }}
                         className="text-red-600 flex items-center gap-1"
                       >
@@ -148,8 +165,7 @@ export default function AddCountry({ isOpen, onClose, onSuccess }) {
                       />
                     </label>
                   )}
-                  {errors.imageid && touched.imageid && <div className="text-red-500 text-sm mt-1">{errors.imageid}</div>}
-                  {uploadingImage && <p className="text-sm text-blue-600 mt-1">Uploading image...</p>}
+                  {errors.imageFile && touched.imageFile && <div className="text-red-500 text-sm mt-1">{errors.imageFile}</div>}
                 </div>
 
                 {/* Country Name */}
@@ -218,74 +234,42 @@ export default function AddCountry({ isOpen, onClose, onSuccess }) {
                 {/* States Section */}
                 <div className="border-t pt-4">
                   <div className="flex justify-between items-center mb-4">
-                    <label className="text-sm font-medium text-gray-700">States & Regions</label>
-                    <button type="button" onClick={() => setFieldValue("states", [...values.states, { name: "" }])} className="text-[#04413D] flex items-center gap-1 text-sm">
+                    <label className="block text-sm font-medium text-gray-700">States (Add states as comma separated or individually)</label>
+                    <button
+                      type="button"
+                      onClick={() => setFieldValue("states", [...values.states, { name: "" }])}
+                      className="text-[#04413D] flex items-center gap-1 text-sm"
+                    >
                       <MdAdd /> Add State
                     </button>
                   </div>
                   
                   <FieldArray name="states">
-                    {({ remove }) => (
+                    {({ remove, push }) => (
                       <div className="space-y-3">
-                        {values.states.map((_, index) => (
-                          <div key={index} className="flex gap-3 items-start">
-                            <Field name={`states.${index}.name`} className="flex-1 px-4 py-2 border rounded-lg" placeholder="State/Region name" />
-                            <button type="button" onClick={() => remove(index)} className="text-red-600 p-2">
-                              <MdDelete size={20} />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </FieldArray>
-                </div>
-
-                {/* Universities Section */}
-                <div className="border-t pt-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <label className="text-sm font-medium text-gray-700">Universities</label>
-                    <button type="button" onClick={() => setFieldValue("universities", [...values.universities, { name: "", location: "", ranking: "", programs: "", established: "", students: "" }])} className="text-[#04413D] flex items-center gap-1 text-sm">
-                      <MdAdd /> Add University
-                    </button>
-                  </div>
-                  
-                  <FieldArray name="universities">
-                    {({ remove }) => (
-                      <div className="space-y-4">
-                        {values.universities.map((_, index) => (
-                          <div key={index} className="border rounded-lg p-4 relative">
-                            <button type="button" onClick={() => remove(index)} className="absolute top-2 right-2 text-red-600">
-                              <MdDelete size={20} />
-                            </button>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <Field name={`universities.${index}.name`} className="w-full px-3 py-2 border rounded-lg" placeholder="University name *" />
-                                <ErrorMessage name={`universities.${index}.name`} component="div" className="text-red-500 text-xs" />
-                              </div>
-                              <div>
-                                <Field name={`universities.${index}.location`} className="w-full px-3 py-2 border rounded-lg" placeholder="Location *" />
-                                <ErrorMessage name={`universities.${index}.location`} component="div" className="text-red-500 text-xs" />
-                              </div>
-                              <div>
-                                <Field name={`universities.${index}.ranking`} className="w-full px-3 py-2 border rounded-lg" placeholder="Ranking *" />
-                                <ErrorMessage name={`universities.${index}.ranking`} component="div" className="text-red-500 text-xs" />
-                              </div>
-                              <div>
-                                <Field name={`universities.${index}.programs`} type="number" className="w-full px-3 py-2 border rounded-lg" placeholder="Programs" />
-                              </div>
-                              <div>
-                                <Field name={`universities.${index}.established`} type="number" className="w-full px-3 py-2 border rounded-lg" placeholder="Established" />
-                              </div>
-                              <div>
-                                <Field name={`universities.${index}.students`} type="number" className="w-full px-3 py-2 border rounded-lg" placeholder="Students" />
-                              </div>
+                        {values.states.map((state, index) => (
+                          <div key={index} className="flex gap-2 items-start">
+                            <div className="flex-1">
+                              <Field
+                                name={`states.${index}.name`}
+                                placeholder={`State ${index + 1} name`}
+                                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500"
+                              />
+                              <ErrorMessage name={`states.${index}.name`} component="div" className="text-red-500 text-sm mt-1" />
                             </div>
+                            <button
+                              type="button"
+                              onClick={() => remove(index)}
+                              className="text-red-600 p-2 hover:bg-red-50 rounded-lg"
+                            >
+                              <MdDelete size={20} />
+                            </button>
                           </div>
                         ))}
                       </div>
                     )}
                   </FieldArray>
+                  <p className="text-xs text-gray-500 mt-2">Tip: You can add universities for each state from the view page</p>
                 </div>
 
                 {/* Submit Buttons */}
