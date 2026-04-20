@@ -71,7 +71,7 @@ export default function DeleteCountry({ isOpen, onClose, onSuccess, country, onD
                 )}
                 <div>
                   <p className="font-medium text-gray-900">{country.name}</p>
-                  <p className="text-sm text-gray-600">{country.states?.length || 0} states, {country.universities?.length || 0} universities</p>
+                  {/* <p className="text-sm text-gray-600">{country.states?.length || 0} states, {country.universities?.length || 0} universities</p> */}
                 </div>
               </div>
             </div>
