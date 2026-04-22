@@ -143,9 +143,14 @@ export default function Sidebar({ children }) {
     },
     {
       name: "University",
-      path: "/admin/university",
       icon: Settings,
       color: "text-gray-500",
+      dropdown: true,
+      dropdownName: "Add-University",
+      items: [
+        { name: "UniveristyPage", path: "/admin/university", icon: Globe },
+        { name: "adduniveristy", path: "/admin/universities", icon: Globe },
+      ]
     },
     {
       name: "FAQ",
@@ -227,8 +232,8 @@ export default function Sidebar({ children }) {
                           <Link
                             href={subItem.path}
                             className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-200 text-xs sm:text-sm ${isActive(subItem.path)
-                                ? "bg-[#04413D] text-white"
-                                : "text-gray-600 hover:bg-gray-50 hover:text-[#04413D]"
+                              ? "bg-[#04413D] text-white"
+                              : "text-gray-600 hover:bg-gray-50 hover:text-[#04413D]"
                               }`}
                           >
                             <subItem.icon className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -243,8 +248,8 @@ export default function Sidebar({ children }) {
                 <Link
                   href={item.path}
                   className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-all duration-200 group ${isActive(item.path)
-                      ? "bg-[#04413D] text-white shadow-md"
-                      : "text-gray-700 hover:bg-gray-50 hover:text-[#04413D]"
+                    ? "bg-[#04413D] text-white shadow-md"
+                    : "text-gray-700 hover:bg-gray-50 hover:text-[#04413D]"
                     }`}
                 >
                   <item.icon
