@@ -90,7 +90,6 @@ async function CountryPage({ params }) {
                     width={20}
                     height={14}
                   unoptimized
-                    
                     className="rounded-sm object-cover shadow-md"
                   />
                   <span className="text-md font-medium text-gray-700 truncate">
