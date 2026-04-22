@@ -147,7 +147,7 @@ export default function EnquiryForm() {
                       disabled={isSubmitting}
                       className="border border-[#04413D] w-full bg-[#04413D] text-white px-5 py-2 rounded-md hover:bg-[#526e6b] cursor-pointer transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {isSubmitting ? "Submitting..." : "Submit Enquiry"}
+                      {isSubmitting ? "Submitting..." : "Enquiry"}
                     </button>
                   </div>
                 </Form>

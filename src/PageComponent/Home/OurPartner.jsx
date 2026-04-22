@@ -61,7 +61,7 @@ export default function OurPartner() {
   }
 
   return (
-    <section className="py-20 bg-white overflow-hidden">
+    <section className="py-20 bg-[#04413D]/10 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 mb-12 text-center navtext tracking-tight">
         <h2 className="text-5xl font-bold text-[#04413D] mb-4">
           Amphlo's Eminent <span className="text-[#FDC653]">University Tie-Ups</span>
@@ -71,7 +71,7 @@ export default function OurPartner() {
 
       <div className="relative flex overflow-hidden">
         <motion.div
-          className="flex gap-16 items-center"
+          className="flex gap-15 mt-6 items-center"
           animate={{ x: ["0%", "-50%"] }}
           transition={{
             duration: 25,

@@ -68,12 +68,12 @@ export default function ServicesAndOffering() {
           dolores quam repellat, molestias, officiis pariatur.
         </p>
 
-        <div className="flex gap-5 mt-3 w-full justify-center">
+        <div className="flex gap-5 mt-3 w-full justify-center navtext">
           {offerings.map((offering) => (
             <button 
               key={offering.id}
               onClick={() => setActiveTab(offering.path)}
-              className={`rounded-4xl py-2 px-6 text-xl font-medium cursor-pointer transition-all border-2 capitalize ${
+              className={`rounded-4xl py-2 px-6 text-md font-medium cursor-pointer transition-all border-2 capitalize ${
                 activeTab === offering.path 
                 ? 'bg-[#04413D] text-white border-[#04413D]' 
                 : 'bg-white border-[#FDC653] text-[#04413D]'
@@ -84,7 +84,7 @@ export default function ServicesAndOffering() {
           ))}
         </div>
 
-        <div className="mt-8 w-full bg-[#04413D]/10 px-8 py-12 shadow-xl rounded-bl-4xl rounded-tr-4xl">
+        <div className="mt-8 w-full bg-[#04413D]/10 px-8 py-12 shadow-xl rounded-bl-4xl rounded-tr-4xl navtext">
           <div 
             key={currentOffering.id}
             className={`flex flex-col lg:flex-row ${activeTab === 'university' ? 'lg:flex-row-reverse' : ''} items-center gap-10`}
