@@ -41,14 +41,14 @@ export default function ConnectedCountries() {
   const imageUrl = countriesData?.imageid?.imageUrl || "";
 
   return (
-    <div className="min-h-screen w-full bg-[#04413D]/10 py-12 px-6 flex items-center justify-center">
-      <div className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-12 px-12">
+    <div className="min-h-screen w-full bg-white py-8 px-6 flex items-center justify-center overflow-hidden">
+      <div className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-8 px-12">
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
           viewport={{ once: true }}
-          className="w-full lg:w-1/2 flex flex-col items-start gap-6 text-left navtext"
+          className="w-full lg:w-1/2 flex flex-col items-start gap-6 text-left navtext z-10"
         >
           <h1 className="text-4xl md:text-5xl font-semibold text-[#04413D] leading-tight">
             {title}
@@ -78,14 +78,30 @@ export default function ConnectedCountries() {
         >
           <div className="w-full h-full rounded-3xl overflow-hidden p-4">
             {imageUrl ? (
-              <Image
-                src={imageUrl}
-                alt={"Map of connected countries"}
-                fill
-                className="object-contain rounded-3xl"
-                // priority
-                unoptimized
-              />
+              <motion.div
+                className="relative w-full h-full"
+                animate={{
+                  rotate: 360
+                }}
+                transition={{
+                  duration: 20,
+                  repeat: Infinity,
+                  ease: "linear"
+                }}
+                style={{
+                  willChange: "transform",
+                  transform: "translateZ(0)",
+                  backfaceVisibility: "hidden"
+                }}
+              >
+                <Image
+                  src={imageUrl}
+                  alt={"Map of connected countries"}
+                  fill
+                  className="object-contain rounded-3xl"
+                  unoptimized
+                />
+              </motion.div>
             ) : (
               <div className="bg-gray-200 w-full h-full flex items-center justify-center rounded-3xl">
                 <p className="text-gray-600">Image Not Found</p>

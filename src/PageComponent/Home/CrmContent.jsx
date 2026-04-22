@@ -48,14 +48,14 @@ export default function CrmContent() {
   console.log("Full CRM Data:", crmData);
 
   return (
-    <section className="relative w-full min-h-[60vh] flex items-center justify-center py-16 overflow-hidden">
+    <section className="relative w-full min-h-[50vh] flex items-center justify-center py-16 overflow-hidden navtext">
 
       {backgroundImageUrl ? (
         <motion.div
           className="absolute inset-0"
           animate={{ scale: [1, 1.05, 1] }}
           transition={{
-            duration: 15,
+            duration:5,
             repeat: Infinity,
             ease: "easeInOut",
           }}
@@ -65,9 +65,6 @@ export default function CrmContent() {
             alt="Background"
             fill
             unoptimized
-            // priority
-            // height={1000}
-            // weight={1000}
             className="object-cover"
             onError={(e) => {
               console.error("Background image failed to load:", backgroundImageUrl);
@@ -81,51 +78,48 @@ export default function CrmContent() {
       
       <div className="absolute inset-0 bg-[#04413D]/70 -z-10" />
 
-      <div className="w-11/12 mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center relative z-10">
+      <div className="w-11/12 mx-auto grid grid-cols-1 md:grid-cols-2 gap-15 items-center relative z-10">
         
-        <motion.div 
-          className="relative w-full h-[50vh] md:h-[70vh] flex items-center justify-center"
-          initial={{ opacity: 0, x: -40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          {sideImageUrl ? (
-            <Image
-              src={sideImageUrl}
-              alt="CRM Software Interface"
-              fill
-              className="object-contain w-full h-full"
-              // priority
-              unoptimized
-              // height={1000}
-              // weight={1000}
-              onError={(e) => {
-                console.error("Side image failed to load:", sideImageUrl);
-                e.currentTarget.style.display = "none";
-              }}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-700/50 rounded-2xl">
-              <p className="text-white/50">Image Not Found</p>
-            </div>
-          )}
-        </motion.div>
+      <motion.div 
+  className="relative w-full h-[50vh] md:h-[60vh] flex items-center justify-center rounded-xl overflow-hidden"
+  initial={{ opacity: 0, x: -40 }}
+  animate={{ opacity: 1, x: 0 }}
+  transition={{ duration: 0.8 }}
+>
+  {sideImageUrl ? (
+    <Image
+      src={sideImageUrl}
+      alt="CRM Software Interface"
+      fill
+      className="object-cover"
+      unoptimized
+      onError={(e) => {
+        console.error("Side image failed to load:", sideImageUrl);
+        e.currentTarget.style.display = "none";
+      }}
+    />
+  ) : (
+    <div className="w-full h-full flex items-center justify-center bg-gray-700/50 rounded-xl">
+      <p className="text-white/50">Image Not Found</p>
+    </div>
+  )}
+</motion.div>
 
         <motion.div 
-          className="flex flex-col gap-6 text-center md:text-left navtext"
+          className="flex flex-col gap-6 text-center md:text-left"
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <span className="text-[#FDC653] font-semibold tracking-wider uppercase text-xs md:text-sm">
+          <span className="text-[#FDC653] font-semibold tracking-wider uppercase text-xs md:text-sm navtext">
             {title}
           </span>
-          <h2 className="text-3xl md:text-5xl font-bold text-white leading-tight">
+          <h2 className="text-3xl md:text-4xl font-bold text-white  leading-tight navtext">
             {subTitle}
           </h2>
           
           <div 
-            className="text-gray-200 leading-relaxed text-sm md:text-md prose prose-invert max-w-none"
+            className="text-gray-200 leading-relaxed text-sm md:text-md prose prose-invert max-w-none navtext"
             dangerouslySetInnerHTML={{ __html: description }}
           />
 

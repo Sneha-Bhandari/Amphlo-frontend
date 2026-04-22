@@ -34,11 +34,10 @@ export default function OurFeatures() {
     getFeaturesData();
   }, []);
 
-  // Transform API data to match the component's expected format
   const transformFeatures = () => {
     if (featuresData && Array.isArray(featuresData) && featuresData.length > 0) {
       return featuresData.map((item, idx) => ({
-        id: item.id || idx, // Use API id if available, otherwise fallback to index
+        id: item.id || idx, 
         title: item.title || "Untitled Feature",
         points: item.points && Array.isArray(item.points) ? item.points : []
       }));
@@ -63,16 +62,14 @@ export default function OurFeatures() {
       </div>
     );
   }
-
-  // Don't render section if no features exist
   if (!allFeatures.length) {
     return null;
   }
 
   return (
-    <section className="md:py-20 py-6 h-full overflow-hidden w-11/12 flex flex-col mx-auto">
-      <div className="text-center mb-24 navtext">
-        <h1 className="text-6xl font-bold text-[#04413D] tracking-tight">
+    <section className="md:py-16 py-6 h-full overflow-hidden w-full flex flex-col mx-auto bg-[#04413D]/20 navtext">
+      <div className="text-center mb-24">
+        <h1 className="text-5xl font-bold text-[#04413D] tracking-tight">
           Our Features
         </h1>
         <p className="text-gray-700 mt-3">
@@ -85,7 +82,7 @@ export default function OurFeatures() {
           <AnimatePresence mode='popLayout'>
             {allFeatures.slice(0, visibleCount).map((feature, index) => (
               <motion.div
-                key={feature.id || index} // Use unique id or index as fallback
+                key={feature.id || index} 
                 initial={{ opacity: 0, scale: 0.8, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.5 }}
@@ -119,11 +116,11 @@ export default function OurFeatures() {
         </div>
 
         {allFeatures.length > 5 && (
-          <div className="flex justify-end mt-20">
+          <div className="flex justify-center mt-20">
             {visibleCount < allFeatures.length ? (
               <button 
                 onClick={showMore}
-                className='bg-[#04413D] text-[#FDC653] px-3 py-2 rounded-2xl text-md font-medium cursor-pointer hover:bg-[#04413D]/50 transition-all duration-500 ease-in-out hover:scale-105 shadow-md'
+                className='bg-[#04413D]/70 text-[#FDC653] px-3 py-2 rounded-2xl text-md font-medium cursor-pointer hover:bg-[#04413D]/50 transition-all duration-500 ease-in-out hover:scale-105 shadow-md'
               >
                 View More
               </button>

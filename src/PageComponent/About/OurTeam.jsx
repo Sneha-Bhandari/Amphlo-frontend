@@ -76,10 +76,10 @@ export default function OurTeam() {
   }
 
   return (
-    <section className="w-full md:py-20 py-6 bg-white">
+    <section className="w-full md:py-16 py-6 bg-[#04413D]/10">
       <div className="max-w-6xl mx-auto px-6 navtext">
         <div className="text-center md:mb-16 mb-6">
-          <h2 className="text-5xl md:text-6xl font-bold text-[#04413D] tracking-tight mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-[#04413D] tracking-tight mb-4">
             Meet Our Team
           </h2>
           <p className="text-lg text-gray-600 font-medium">
@@ -93,14 +93,14 @@ export default function OurTeam() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-4"
+            className="grid grid-cols-1 md:grid-cols-3 gap-8"
           >
             {teamData.map((member, index) => (
               <motion.div
                 key={member.id || index}
                 variants={itemVariants}
                 whileHover={{ y: -5 }}
-                className="group flex flex-col items-center text-center p-3 transition-all duration-300 rounded-2xl hover:bg-[#04413D]/10 hover:shadow-xl hover:shadow-[#c8ecea]/30 cursor-pointer"
+                className="group flex flex-col items-center text-center p-3 transition-all duration-300 rounded-2xl shadow-[#bde2df] shadow-sm hover:bg-[#04413D]/10 hover:shadow-xl hover:shadow-[#c8ecea]/30 cursor-pointer"
               >
                 <div className="relative h-32 w-32 mb-6">
                   <div className="absolute inset-0 rounded-full overflow-hidden border-2 border-transparent group-hover:border-[#d7eeec] transition-colors duration-500">

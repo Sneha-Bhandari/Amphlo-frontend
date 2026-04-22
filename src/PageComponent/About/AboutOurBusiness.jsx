@@ -55,7 +55,7 @@ export default function AboutBusiness() {
   const imageUrl = aboutData.imageid?.imageUrl || null;
 
   return (
-    <section className="relative w-full h-fit py-5 flex items-center justify-center  overflow-hidden bg-linear-to-br from-[#04413D]/20 to-[#0a5c56]">
+    <section className="relative w-full h-fit py-5 flex items-center justify-center  overflow-hidden bg-white">
       <div className="relative z-10 w-11/12 mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -79,17 +79,17 @@ export default function AboutBusiness() {
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-white/20 rounded-2xl">
-                <p className="text-white/70">No Image Available</p>
+                <p className="text-[#04413D]">No Image Available</p>
               </div>
             )}
           </div>
 
           <div className="w-full lg:w-1/2 text-left">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+            <h2 className="text-3xl md:text-5xl font-bold text-[#04413D] mb-6">
               {title}
             </h2>
             
-            <div className="text-gray-200 leading-relaxed">
+            <div className="text-[#04413D]/70 leading-relaxed">
               <div 
                
                 dangerouslySetInnerHTML={{ __html: (description) }}

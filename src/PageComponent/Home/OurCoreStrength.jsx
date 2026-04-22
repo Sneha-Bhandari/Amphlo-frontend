@@ -76,7 +76,7 @@ export default function OurCoreStrength() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="rounded-xl p-6 shadow-md shadow-[#e4c88a] cursor-pointer hover:scale-105 transition-all ease-in-out duration-500"
+                className="rounded-xl p-6 shadow-lg  shadow-[#f2e7cd] cursor-pointer hover:scale-105 transition-all ease-in-out duration-500"
               >
                 <div className="text-2xl sm:text-3xl font-bold text-[#04413D]">
                   {inView && (
