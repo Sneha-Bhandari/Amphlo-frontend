@@ -20,8 +20,14 @@ images: {
       },
       {
         protocol: "http",
-        hostname: "192.168.1.97",
-        port: "3002",
+        hostname: "192.168.100.115",
+        port: "3009",
+        pathname: "/uploads/**",
+      },
+      {
+        protocol: "http",
+        hostname: "192.168.1.75",
+        port: "3009",
         pathname: "/uploads/**",
       },
       

@@ -1,30 +1,19 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
-import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
-import logo from "../../public/headerlogo.png";
+import Link from "next/link"
+import Image from "next/image"
+import { useState, useEffect } from "react"
+import { usePathname } from "next/navigation"
+import logo from "../../public/headerlogo.png"
+import { fetchData } from "@/lib/frontendApi"
 
 export default function Navbar() {
-  const pathname = usePathname();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [loginDropdownOpen, setLoginDropdownOpen] = useState(false);
-  const [countriesDropdownOpen, setCountriesDropdownOpen] = useState(false);
+  const pathname = usePathname()
 
-  const countries = [
-    { name: "United States", path: "/countries/usa", id: "usa" },
-    { name: "United Kingdom", path: "/countries/uk", id: "uk" },
-    { name: "Canada", path: "/countries/canada", id: "canada" },
-    { name: "Australia", path: "/countries/australia", id: "australia" },
-    { name: "India", path: "/countries/india", id: "india" },
-    { name: "Germany", path: "/countries/germany", id: "germany" },
-    { name: "France", path: "/countries/france", id: "france" },
-    { name: "Japan", path: "/countries/japan", id: "japan" },
-    { name: "Brazil", path: "/countries/brazil", id: "brazil" },
-    { name: "New Zealand", path: "/countries/new-zealand", id: "new-zealand" },
-    { name: "UAE", path: "/countries/uae", id: "uae" },
-  ];
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [loginDropdownOpen, setLoginDropdownOpen] = useState(false)
+  const [countriesDropdownOpen, setCountriesDropdownOpen] = useState(false)
+  const [countries, setCountries] = useState([])
 
   const navitem = [
     { name: "Home", path: "/" },
@@ -34,9 +23,23 @@ export default function Navbar() {
     { name: "Book an Appointment", path: "/enquiry" },
   ];
 
+  // Fetch countries from API
+  useEffect(() => {
+    const loadCountries = async () => {
+      try {
+        const res = await fetchData("/countries")
+        setCountries(res.data || [])
+      } catch (err) {
+        console.error("Failed to load countries", err)
+      }
+    }
+
+    loadCountries()
+  }, [])
+
   const handlePartnerLogin = () => {
-    window.open("https://crm.amphlo.com", "_blank", "noopener,noreferrer");
-  };
+    window.location.href = 'https://crm.amphlo.com'
+  }
 
   useEffect(() => {
     closeAllDropdowns();
@@ -59,7 +62,9 @@ export default function Navbar() {
     setCountriesDropdownOpen(false);
   };
 
-  const isActiveCountry = (countryPath) => pathname === countryPath;
+  const isActiveCountry = (id) => {
+    return pathname === `/countries/${id}`
+  }
 
   const isCountriesActive = () =>
     pathname === "/countries" || pathname.startsWith("/countries/");
@@ -72,7 +77,8 @@ export default function Navbar() {
   return (
     <header className="w-full bg-white text-[#04413D] shadow-md fixed top-0 z-50 navtext">
       <nav className="w-11/12 mx-auto flex items-center justify-between py-3">
-        {/* Logo */}
+
+        {/* LOGO */}
         <div className="flex items-center">
           <Link href="/">
             <Image
@@ -84,7 +90,9 @@ export default function Navbar() {
           </Link>
         </div>
 
-        <div className="hidden md:flex items-center gap-6 text-md tracking-wide font-medium  ">
+        {/* DESKTOP MENU */}
+        <div className="hidden md:flex items-center gap-6 text-md tracking-wide font-medium">
+
           {navitem.map((val) => {
             if (val.name === "Countries") {
               return (
@@ -94,15 +102,11 @@ export default function Navbar() {
                       setCountriesDropdownOpen(!countriesDropdownOpen);
                       setLoginDropdownOpen(false);
                     }}
-                    className={`hover:text-[#06665f] transition flex items-center gap-1 ${
-                      isCountriesActive() ? "text-[#06665f] font-semibold" : ""
-                    }`}
+                    className={`hover:text-[#06665f] transition flex items-center gap-1 ${isCountriesActive() ? 'text-[#06665f] font-semibold' : ''}`}
                   >
                     Countries
                     <svg
-                      className={`w-4 h-4 transition-transform duration-500 ${
-                        countriesDropdownOpen ? "rotate-180" : ""
-                      }`}
+                      className={`w-4 h-4 transition-transform duration-200 ${countriesDropdownOpen ? 'rotate-180' : ''}`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -116,39 +120,34 @@ export default function Navbar() {
                     </svg>
                   </button>
 
-                  <div
-                    className={`absolute flex flex-col bg-white shadow-lg rounded-md mt-2 w-56 text-sm z-50 max-h-96 overflow-y-auto transition-all duration-500 origin-top ${
-                      countriesDropdownOpen
-                        ? "opacity-100 scale-y-100 pointer-events-auto"
-                        : "opacity-0 scale-y-0 pointer-events-none"
-                    }`}
-                  >
-                    <div className="py-2">
-                      <Link
-                        href="/countries"
-                        className={`px-4 py-2 hover:bg-gray-100 block font-semibold border-b border-gray-200 ${
-                          pathname === "/countries"
-                            ? "bg-gray-50 text-[#04413D]"
-                            : "text-[#04413D]"
-                        }`}
-                        onClick={closeAllDropdowns}
-                      >
-                        All Countries
-                      </Link>
-                      {countries.map((country) => (
+                  {countriesDropdownOpen && (
+                    <div className="absolute flex flex-col bg-white shadow-lg rounded-md mt-2 w-56 text-sm z-50 max-h-96 overflow-y-auto">
+                      <div className="py-2">
+
                         <Link
-                          key={country.id}
-                          href={country.path}
-                          className={`px-4 py-2 hover:bg-gray-100 block transition-colors ${
-                            isActiveCountry(country.path)
-                              ? "bg-gray-50 text-[#04413D] font-medium"
-                              : ""
-                          }`}
+                          href="/countries"
+                          className={`px-4 py-2 hover:bg-gray-100 block font-semibold ${pathname === '/countries' ? 'bg-gray-50 text-[#04413D]' : 'text-[#04413D]'} border-b border-gray-200`}
                           onClick={closeAllDropdowns}
                         >
                           {country.name}
                         </Link>
-                      ))}
+
+                        {countries.length === 0 ? (
+                          <div className="px-4 py-2 text-gray-400">Loading...</div>
+                        ) : (
+                          countries.map((country) => (
+                            <Link
+                              key={country.id}
+                              href={`/countries/${country.id}`}
+                              className={`px-4 py-2 hover:bg-gray-100 block transition-colors ${isActiveCountry(country.id) ? 'bg-gray-50 text-[#04413D] font-medium' : ''}`}
+                              onClick={closeAllDropdowns}
+                            >
+                              {country.name}
+                            </Link>
+                          ))
+                        )}
+
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -159,18 +158,19 @@ export default function Navbar() {
               <Link
                 key={val.name}
                 href={val.path}
-                className={`hover:text-[#06665f] transition ${
-                  isActiveNavItem(val.path)
-                    ? "text-[#06665f] font-semibold"
-                    : ""
-                }`}
+                className={`hover:text-[#06665f] transition ${isActiveNavItem(val.path) ? 'text-[#06665f] font-semibold' : ''}`}
               >
                 {val.name}
               </Link>
             );
           })}
 
-          <div className="relative">
+        </div>
+
+        {/* LOGIN */}
+        <div className="hidden md:flex items-center gap-6 font-medium">
+
+          <div className="relative z-50">
             <button
               onClick={() => {
                 setLoginDropdownOpen(!loginDropdownOpen);
@@ -180,9 +180,7 @@ export default function Navbar() {
             >
               Login
               <svg
-                className={`w-4 h-4 transition-transform duration-500 ${
-                  loginDropdownOpen ? "rotate-180" : ""
-                }`}
+                className={`w-4 h-4 transition-transform duration-200 ${loginDropdownOpen ? 'rotate-180' : ''}`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -196,34 +194,30 @@ export default function Navbar() {
               </svg>
             </button>
 
-            <div
-              className={`absolute flex flex-col bg-gray-50 shadow-lg rounded-md mt-7 w-44 text-sm z-50 -right-4 py-3 transition-all duration-500 origin-top ${
-                loginDropdownOpen
-                  ? "opacity-100 scale-y-100 pointer-events-auto"
-                  : "opacity-0 scale-y-0 pointer-events-none"
-              }`}
-            >
-              <Link
-                href="/university"
-                className="px-4 py-2 hover:bg-gray-100 transition"
-                onClick={closeAllDropdowns}
-              >
-                For Universities
-              </Link>
-              <button
-                onClick={() => {
-                  closeAllDropdowns();
-                  handlePartnerLogin();
-                }}
-                className="px-4 py-2 hover:bg-gray-100 transition text-left w-full"
-              >
-                For Partners
-              </button>
-            </div>
+            {loginDropdownOpen && (
+              <div className="absolute flex flex-col bg-white/80 shadow-lg rounded-md mt-6 w-40 text-sm z-50 -right-8 py-3">
+                <Link
+                  href="/university"
+                  className="px-4 py-2 hover:bg-gray-100 transition"
+                  onClick={closeAllDropdowns}
+                >
+                  For Universities
+                </Link>
+                <button
+                  onClick={() => {
+                    closeAllDropdowns()
+                    handlePartnerLogin()
+                  }}
+                  className="px-4 py-2 hover:bg-gray-100 transition text-left w-full"
+                >
+                  For Partners
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Mobile hamburger */}
+        {/* MOBILE BUTTON */}
         <div className="md:hidden flex items-center">
           <button
             onClick={() => {
@@ -231,7 +225,6 @@ export default function Navbar() {
               closeAllDropdowns();
             }}
             className="p-2 hover:bg-gray-100 rounded-lg transition"
-            aria-label="Toggle menu"
           >
             <svg
               className="w-6 h-6"
@@ -258,70 +251,42 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile menu */}
+      {/* MOBILE MENU */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setMobileMenuOpen(false)}
-          />
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)}></div>
 
           <div className="absolute top-0 right-0 h-full w-4/5 max-w-sm bg-white shadow-2xl flex flex-col p-6 overflow-y-auto">
-            <div className="flex justify-end mb-6">
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="p-2 hover:bg-gray-100 rounded-full transition"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
 
             <div className="flex flex-col gap-4">
+
               {navitem.map((val) => (
                 <Link
                   key={val.name}
                   href={val.path}
-                  className={`text-lg font-semibold border-b border-gray-100 pb-2 hover:text-[#06665f] transition ${
-                    isActiveNavItem(val.path) ? "text-[#06665f]" : ""
-                  }`}
+                  className={`text-lg font-semibold border-b border-gray-100 pb-2 hover:text-[#06665f] transition ${isActiveNavItem(val.path) ? 'text-[#06665f]' : ''}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {val.name}
                 </Link>
               ))}
 
-              <div className="border-b border-gray-900 pb-4">
-                <div className="text-lg font-semibold text-gray-600 mb-2">
-                  Popular Countries
-                </div>
-                <div className="grid grid-cols-2 gap-2 bg-red-600">
+              <div className="border-b border-gray-100 pb-2">
+                <div className="text-lg font-semibold text-gray-600 mb-2">Popular Countries</div>
+
+                <div className="grid grid-cols-2 gap-2">
                   {countries.slice(0, 8).map((country) => (
                     <Link
                       key={country.id}
-                      href={country.path}
-                      className={`text-sm py-1 px-2 rounded hover:bg-gray-100 transition ${
-                        isActiveCountry(country.path)
-                          ? "bg-gray-100 text-[#04413D] font-medium"
-                          : ""
-                      }`}
+                      href={`/countries/${country.id}`}
+                      className="text-sm py-1 px-2 rounded hover:bg-gray-100"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {country.name}
                     </Link>
                   ))}
                 </div>
+
                 <Link
                   href="/countries"
                   className="text-sm text-[#04413D] font-medium mt-2 inline-block hover:underline"
@@ -331,27 +296,6 @@ export default function Navbar() {
                 </Link>
               </div>
 
-              <div className="flex flex-col gap-3 mt-2">
-                <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
-                  Login
-                </p>
-                <Link
-                  href="/university"
-                  className="text-center border border-[#04413D] text-[#04413D] px-4 py-2 rounded-lg hover:bg-gray-50 transition"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  For Universities
-                </Link>
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    handlePartnerLogin();
-                  }}
-                  className="text-center border border-[#04413D] text-[#04413D] px-4 py-2 rounded-lg hover:bg-gray-50 transition"
-                >
-                  For Partners
-                </button>
-              </div>
             </div>
           </div>
         </div>
