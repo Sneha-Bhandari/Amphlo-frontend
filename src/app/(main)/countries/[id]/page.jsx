@@ -158,6 +158,9 @@ async function CountryPage({ params }) {
         </div>
 
       </div>
+      <div>
+        aman
+        </div>
     </div>
   );
 }
