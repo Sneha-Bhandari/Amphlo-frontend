@@ -67,7 +67,7 @@ export default function HeroSection() {
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 0.1 }}
         className="relative z-10 text-center px-6 max-w-6xl top-16"
       >
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
@@ -80,12 +80,12 @@ export default function HeroSection() {
         </p>
 
         <div className="mt-10 flex gap-4 justify-center items-center">
-          <button className="px-8 py-3 border-2 border-[#4b7e7c] hover:bg-[#58a59f] hover:border-[#58a59f] rounded-lg font-medium transition-all duration-500 shadow-lg hover:scale-105 cursor-pointer">
-            Get Started
+          <button className="px-8 py-3 border-2 border-[#b7ebe9] text-[#77e1dd] hover:text-[#b7ebe9] hover:bg-[#58a59f] hover:border-[#58a59f] rounded-lg font-medium transition-all duration-500 shadow-lg hover:scale-105 cursor-pointer">
+           <a href="/"> Get Started</a>
           </button>
 
-          <button className="px-8 py-3 border-2 border-[#2d5150] hover:bg-white hover:text-black rounded-lg font-medium transition-all duration-500 shadow-lg hover:scale-105 cursor-pointer">
-            Learn More
+          <button className="px-8 py-3 border-2 border-[#4b7e7c] hover:bg-white hover:text-black rounded-lg font-medium transition-all duration-500 shadow-lg hover:scale-105 cursor-pointer">
+          <a href="/about"> Learn More</a> 
           </button>
         </div>
       </motion.div>

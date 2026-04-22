@@ -3,6 +3,7 @@ import { IoMdMail } from "react-icons/io";
 import { IoCall } from "react-icons/io5";
 import { FaFacebook } from "react-icons/fa";
 import { AiFillInstagram, AiFillTikTok } from "react-icons/ai";
+import { FaLocationArrow } from "react-icons/fa6";
 import { FaLinkedin } from "react-icons/fa";
 import Link from "next/link";
 import logo from "../../public/footerlogo.png";
@@ -17,14 +18,11 @@ export default function Footer() {
   ];
 
   const usefulLinks = [
-    { name: "Home", path: "/" },
-    { name: "Features", path: "/features" },
-    { name: "For Universities", path: "/universities" },
-    { name: "For Partners", path: "/partners" },
-    { name: "Our Journey", path: "/journey" },
-    { name: "Our Clients", path: "/clients" },
-    { name: "Terms and Conditions", path: "/terms" },
-    { name: "Privacy Policy", path: "/privacy" },
+    { name: "Our Features", path: "/about" },
+    { name: "Our Servives", path: "/about" },
+    { name: "For Universities", path: "/university" },
+    { name: "Partners", path: "/" },
+    { name: "Book an Appointment", path: "/enquiry" },
     { name: "Become a Partner", path: "/partnerwithus" },
   ];
 
@@ -40,8 +38,17 @@ export default function Footer() {
   ];
 
   const contact = [
-    { name: "info@amphlo.com", path: "mailto:info@amphlo.com" },
-    { name: "+977 9745432207", path: "tel:+9779745432207" },
+    {
+      name: "info@amphlo.com",
+      icon: <IoMdMail />,
+      path: "mailto:info@amphlo.com",
+    },
+    { name: "+977 9745432207", icon: <IoCall />, path: "tel:+9779745432207" },
+    {
+      name: "Shantikunja, Tilottama",
+      icon: <FaLocationArrow />,
+      path: "/enquiry",
+    },
   ];
 
   return (
@@ -88,7 +95,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3  gap-1">
             <div>
               <h2 className="font-semibold text-xl mb-4">Useful Links</h2>
 
@@ -105,7 +112,7 @@ export default function Footer() {
             <div>
               <h2 className="font-semibold text-xl mb-4">Countries</h2>
 
-              {countries.map((country) => (
+              {countries.slice(0, 6).map((country) => (
                 <p
                   key={country}
                   className="text-sm pb-3 cursor-pointer hover:underline hover:text-gray-300"
@@ -113,13 +120,39 @@ export default function Footer() {
                   {country}
                 </p>
               ))}
+
+              {countries.length > 6 && (
+                <Link
+                  href="/countries"
+                  className="text-sm font-medium hover:underline hover:text-gray-300 flex items-center gap-1 mt-1"
+                >
+                  Show more
+                  <svg
+                    className="w-3 h-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </Link>
+              )}
             </div>
 
-            <div>
+            <div className="w-full flex flex-col ">
               <h2 className="font-semibold text-xl mb-4">Contact</h2>
 
               {contact.map((item) => (
-                <div key={item.name} className="text-sm pb-3">
+                <div
+                  key={item.name}
+                  className="text-sm pb-3 flex gap-2 mt-1 text-center mx-auto w-full"
+                >
+                  <h1 className="mt-1"> {item.icon} </h1>
                   <a href={item.path} className="hover:underline">
                     {item.name}
                   </a>
@@ -130,8 +163,8 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-gray-500 w-11/12 mx-auto flex navtext ">
-        <div className="w-full mx-auto py-6 flex flex-col md:flex-row justify-between text-gray-300 text-sm gap-4">
+      <div className="border-t border-gray-500 w-11/12 mx-auto flex navtext justify-between  ">
+        <div className="w-full mx-auto py-6 flex flex-col md:flex-row justify-start text-gray-300 text-sm gap-2">
           <h1 className="text-center md:text-left">
             © 2026 Amphlo B2B Consultant. All rights reserved.
           </h1>
@@ -139,18 +172,11 @@ export default function Footer() {
           <div>
             Powered by: <span className="font-semibold">ARIBT</span>
           </div>
+        </div>
+        <div className=" w-full flex flex-col sm:flex-row gap-4 mx-auto justify-end text-sm text-gray-300">
+          <div className="flex items-center gap-2">Terms and Conditions</div>
 
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex items-center gap-2">
-              <IoMdMail />
-              <span>info@amphlo.com</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <IoCall />
-              <span>+977 9745432207</span>
-            </div>
-          </div>
+          <div className="flex items-center gap-2">Privacy Policy</div>
         </div>
       </div>
     </footer>

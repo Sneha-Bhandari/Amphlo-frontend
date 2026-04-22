@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import Link from "next/link"
 import Image from "next/image"
@@ -21,9 +21,9 @@ export default function Navbar() {
     { name: "Countries", path: "/countries" },
     { name: "Partner With Us", path: "/partnerwithus" },
     { name: "Book an Appointment", path: "/enquiry" },
-  ]
+  ];
 
-  // ✅ Fetch countries from API
+  // Fetch countries from API
   useEffect(() => {
     const loadCountries = async () => {
       try {
@@ -42,43 +42,40 @@ export default function Navbar() {
   }
 
   useEffect(() => {
-    closeAllDropdowns()
-    setMobileMenuOpen(false)
-  }, [pathname])
+    closeAllDropdowns();
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden'
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset'
+      document.body.style.overflow = "unset";
     }
     return () => {
-      document.body.style.overflow = 'unset'
-    }
-  }, [mobileMenuOpen])
+      document.body.style.overflow = "unset";
+    };
+  }, [mobileMenuOpen]);
 
   const closeAllDropdowns = () => {
-    setLoginDropdownOpen(false)
-    setCountriesDropdownOpen(false)
-  }
+    setLoginDropdownOpen(false);
+    setCountriesDropdownOpen(false);
+  };
 
   const isActiveCountry = (id) => {
     return pathname === `/countries/${id}`
   }
 
-  const isCountriesActive = () => {
-    return pathname === '/countries' || pathname.startsWith('/countries/')
-  }
+  const isCountriesActive = () =>
+    pathname === "/countries" || pathname.startsWith("/countries/");
 
   const isActiveNavItem = (itemPath) => {
-    if (itemPath === '/countries') {
-      return isCountriesActive()
-    }
-    return pathname === itemPath
-  }
+    if (itemPath === "/countries") return isCountriesActive();
+    return pathname === itemPath;
+  };
 
   return (
-    <header className="w-full bg-white text-[#04413D] shadow-md fixed top-0 z-50">
+    <header className="w-full bg-white text-[#04413D] shadow-md fixed top-0 z-50 navtext">
       <nav className="w-11/12 mx-auto flex items-center justify-between py-3">
 
         {/* LOGO */}
@@ -102,8 +99,8 @@ export default function Navbar() {
                 <div key={val.name} className="relative">
                   <button
                     onClick={() => {
-                      setCountriesDropdownOpen(!countriesDropdownOpen)
-                      setLoginDropdownOpen(false)
+                      setCountriesDropdownOpen(!countriesDropdownOpen);
+                      setLoginDropdownOpen(false);
                     }}
                     className={`hover:text-[#06665f] transition flex items-center gap-1 ${isCountriesActive() ? 'text-[#06665f] font-semibold' : ''}`}
                   >
@@ -114,7 +111,12 @@ export default function Navbar() {
                       stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      />
                     </svg>
                   </button>
 
@@ -127,7 +129,7 @@ export default function Navbar() {
                           className={`px-4 py-2 hover:bg-gray-100 block font-semibold ${pathname === '/countries' ? 'bg-gray-50 text-[#04413D]' : 'text-[#04413D]'} border-b border-gray-200`}
                           onClick={closeAllDropdowns}
                         >
-                          All Countries
+                          {country.name}
                         </Link>
 
                         {countries.length === 0 ? (
@@ -147,9 +149,9 @@ export default function Navbar() {
 
                       </div>
                     </div>
-                  )}
+                  </div>
                 </div>
-              )
+              );
             }
 
             return (
@@ -160,7 +162,7 @@ export default function Navbar() {
               >
                 {val.name}
               </Link>
-            )
+            );
           })}
 
         </div>
@@ -171,10 +173,10 @@ export default function Navbar() {
           <div className="relative z-50">
             <button
               onClick={() => {
-                setLoginDropdownOpen(!loginDropdownOpen)
-                setCountriesDropdownOpen(false)
+                setLoginDropdownOpen(!loginDropdownOpen);
+                setCountriesDropdownOpen(false);
               }}
-              className="cursor-pointer hover:text-[#06665f] transition flex items-center gap-1"
+              className="cursor-pointer hover:text-[#06665f] transition  flex items-center gap-1"
             >
               Login
               <svg
@@ -183,7 +185,12 @@ export default function Navbar() {
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M19 9l-7 7-7-7"
+                />
               </svg>
             </button>
 
@@ -208,28 +215,40 @@ export default function Navbar() {
               </div>
             )}
           </div>
-
         </div>
 
         {/* MOBILE BUTTON */}
         <div className="md:hidden flex items-center">
           <button
             onClick={() => {
-              setMobileMenuOpen(!mobileMenuOpen)
-              closeAllDropdowns()
+              setMobileMenuOpen(!mobileMenuOpen);
+              closeAllDropdowns();
             }}
             className="p-2 hover:bg-gray-100 rounded-lg transition"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
               {mobileMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               )}
             </svg>
           </button>
         </div>
-
       </nav>
 
       {/* MOBILE MENU */}
@@ -282,5 +301,5 @@ export default function Navbar() {
         </div>
       )}
     </header>
-  )
+  );
 }

@@ -62,7 +62,7 @@ export default function MissionAndVision() {
   };
 
   return (
-    <section className="py-24 overflow-hidden w-full bg-gray-100 flex mx-auto h-full navtext">
+    <section className="py-16 overflow-hidden w-full bg-gray-100 flex mx-auto h-full navtext">
      
 
       <motion.div
@@ -73,7 +73,7 @@ export default function MissionAndVision() {
         viewport={{ once: true, margin: "-100px" }}
       >
          <div className="text-center flex flex-col md:mb-16 mb-6">
-          <h2 className="text-5xl md:text-6xl font-bold text-[#04413D] tracking-tight mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-[#04413D] tracking-tight mb-4">
             Our Vision and Mission 
           </h2>
           <p className="text-lg text-gray-600 font-medium">
