@@ -7,38 +7,50 @@ import { fetchData } from "@/lib/frontendApi";
 import Loading from "@/Global/Loading";
 
 export default function OurFeatures() {
-  const [featuresData, setFeaturesData] = useState(null);
+  const [featuresData, setFeaturesData] = useState([]);
+  const [featuresSectionData, setFeaturesSectionData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [visibleCount, setVisibleCount] = useState(5);
 
   useEffect(() => {
-    const getFeaturesData = async () => {
+    const fetchAllData = async () => {
       try {
         setLoading(true);
-        const data = await fetchData("our-features");
-        console.log("Features API Response:", data);
         
-        if (data && Array.isArray(data) && data.length > 0) {
-          setFeaturesData(data);
+        const [featuresResponse, topSectionResponse] = await Promise.all([
+          fetchData("our-features"),
+          fetchData("top-section/ourFeatures")
+        ]);
+        
+        console.log("Features Response:", featuresResponse);
+        console.log("Top Section Response:", topSectionResponse);
+        
+        if (featuresResponse && Array.isArray(featuresResponse) && featuresResponse.length > 0) {
+          setFeaturesData(featuresResponse);
         } else {
           setFeaturesData([]);
         }
+        
+        // Set section data only if it exists
+        setFeaturesSectionData(topSectionResponse || null);
+        
       } catch (error) {
         console.error("Error fetching features data:", error);
         setFeaturesData([]);
+        setFeaturesSectionData(null);
       } finally {
         setLoading(false);
       }
     };
 
-    getFeaturesData();
+    fetchAllData();
   }, []);
 
   const transformFeatures = () => {
     if (featuresData && Array.isArray(featuresData) && featuresData.length > 0) {
       return featuresData.map((item, idx) => ({
         id: item.id || idx, 
-        title: item.title || "Untitled Feature",
+        title: item.title,
         points: item.points && Array.isArray(item.points) ? item.points : []
       }));
     }
@@ -62,6 +74,13 @@ export default function OurFeatures() {
       </div>
     );
   }
+
+  // Don't render if no section data (title and description from top-section)
+  if (!featuresSectionData) {
+    return null;
+  }
+
+  // Don't render if no features data
   if (!allFeatures.length) {
     return null;
   }
@@ -70,11 +89,14 @@ export default function OurFeatures() {
     <section className="md:py-16 py-6 h-full overflow-hidden w-full flex flex-col mx-auto bg-[#04413D]/20 navtext">
       <div className="text-center mb-24">
         <h1 className="text-5xl font-bold text-[#04413D] tracking-tight">
-          Our Features
+          {featuresSectionData.title}
         </h1>
-        <p className="text-gray-700 mt-3">
-          Focus on clarity, accessibility, and professional translation to enhance engagement and comprehension
-        </p>
+        {featuresSectionData.description && (
+          <div 
+            className="text-gray-700 mt-3"
+            dangerouslySetInnerHTML={{ __html: featuresSectionData.description }}
+          />
+        )}
       </div>
 
       <div className="max-w-7xl mx-auto px-4 w-full">
@@ -127,7 +149,7 @@ export default function OurFeatures() {
             ) : (
               <button 
                 onClick={showLess}
-                className='borxder-2 border-[#04413D] text-[#04413D] p-2 rounded-2xl text-md font-medium cursor-pointer hover:bg-[#04413D] hover:text-white transition-all duration-500 ease-in-out hover:scale-105 shadow-md'
+                className='border-2 border-[#04413D] text-[#04413D] p-2 rounded-2xl text-md font-medium cursor-pointer hover:bg-[#04413D] hover:text-white transition-all duration-500 ease-in-out hover:scale-105 shadow-md'
               >
                 View Less
               </button>

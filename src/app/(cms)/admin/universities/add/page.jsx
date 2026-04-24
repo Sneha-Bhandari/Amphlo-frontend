@@ -32,7 +32,7 @@ export default function AddUniversityPage() {
   useEffect(() => {
     const loadCountries = async () => {
       try {
-        const res = await fetchData("countries");
+        const res = await fetchData("countries/");
         setCountries(res?.data || res || []);
       } catch {
         toast.error("Failed to load countries");

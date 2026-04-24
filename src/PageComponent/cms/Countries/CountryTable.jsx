@@ -22,7 +22,7 @@ export default function CountryTable({ onView, onEdit, onDelete }) {
   const loadCountries = async () => {
     setLoading(true);
     try {
-      const res = await fetchData("countries");
+      const res = await fetchData("countries/");
       setCountries(res?.data || []);
     } catch {
       toast.error("Failed to load countries");

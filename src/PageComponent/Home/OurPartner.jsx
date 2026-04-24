@@ -8,31 +8,40 @@ import Loading from "@/Global/Loading";
 
 export default function OurPartner() {
   const [partnersData, setPartnersData] = useState([]);
+  const [partnerSectionData, setPartnerSectionData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const getPartnersData = async () => {
+    const fetchAllData = async () => {
       try {
         setLoading(true);
-        const data = await fetchData("partners");
-        console.log("Fetched partner data:", data);
+                const [partnersResponse, topSectionResponse] = await Promise.all([
+          fetchData("partners"), 
+          fetchData("top-section/partners") 
+        ]);
         
-        if (Array.isArray(data)) {
-          setPartnersData(data);
-        } else if (data && typeof data === 'object' && !Array.isArray(data)) {
-          setPartnersData([data]);
+        console.log("Partners response:", partnersResponse);
+        console.log("Top section response:", topSectionResponse);
+        
+        if (Array.isArray(partnersResponse)) {
+          setPartnersData(partnersResponse);
+        } else if (partnersResponse && typeof partnersResponse === 'object') {
+          setPartnersData([partnersResponse]);
         } else {
           setPartnersData([]);
         }
+        setPartnerSectionData(topSectionResponse || null);
+        
       } catch (error) {
-        console.error("Error fetching partners data:", error);
+        console.error("Error fetching data:", error);
         setPartnersData([]);
+        setPartnerSectionData(null);
       } finally {
         setLoading(false);
       }
     };
 
-    getPartnersData();
+    fetchAllData();
   }, []);
 
   if (loading) {
@@ -43,30 +52,42 @@ export default function OurPartner() {
     );
   }
 
-  if (!partnersData || partnersData.length === 0) {
+  if (!partnerSectionData) {
     return null;
   }
 
   const partners = partnersData
+    .filter((item) => item.imageid?.imageUrl)
     .map((item, index) => ({
       id: item.id || index,
-      name: `Partner ${index + 1}`,
+      name: item.title || `Partner ${index + 1}`,
       logo: item.imageid?.imageUrl,
       imageUrl: item.imageid?.imageUrl,
-    }))
-    .filter((partner) => partner.logo); 
+    }));
 
   if (partners.length === 0) {
     return null;
   }
 
+  const getFullImageUrl = (imageUrl) => {
+    if (!imageUrl) return '';
+    if (imageUrl.startsWith('http')) return imageUrl;
+    if (imageUrl.startsWith('/')) return `${process.env.NEXT_PUBLIC_API_URL}${imageUrl}`;
+    return `${process.env.NEXT_PUBLIC_API_URL}/${imageUrl}`;
+  };
+
   return (
     <section className="py-20 bg-[#04413D]/10 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 mb-12 text-center navtext tracking-tight">
-        <h2 className="text-5xl font-bold text-[#04413D] mb-4">
-          Amphlo's Eminent <span className="text-[#FDC653]">University Tie-Ups</span>
+        <h2 className="md:text-5xl text-4xl font-bold text-[#04413D] mb-2">
+          {partnerSectionData.title}
         </h2>
-        <p className="text-gray-600">Powering B2B success across global markets.</p>
+        {partnerSectionData.description && (
+          <div 
+            className="text-gray-600 max-w-3xl mx-auto"
+            dangerouslySetInnerHTML={{ __html: partnerSectionData.description }}
+          />
+        )}
       </div>
 
       <div className="relative flex overflow-hidden">
@@ -80,25 +101,27 @@ export default function OurPartner() {
           }}
         >
           {[...partners, ...partners].map((partner, index) => {
-            const image=partner.imageUrl.split('/')
-            console.log(image,"here")
-          const newurl=`${process.env.NEXT_PUBLIC_API_URL}/${image[3]}/${image[4]}`
-           return <div
-              key={`${partner.id}-${index}`}
-              className="shrink-0 grayscale hover:grayscale-0 transition-all duration-300 cursor-pointer"
-            >
-              <div className="relative w-40 h-30">
-                <Image
-                  src={newurl}
-                  alt={partner.name}
-                  fill
-                  unoptimized
-                  // priority
-                  className="object-contain"
-                />
+            if (!partner.imageUrl) return null;
+            
+            const fullImageUrl = getFullImageUrl(partner.imageUrl);
+            
+            return (
+              <div
+                key={`${partner.id}-${index}`}
+                className="shrink-0 grayscale hover:grayscale-0 transition-all duration-300 cursor-pointer"
+              >
+                <div className="relative w-40 h-30">
+                  <Image
+                    src={fullImageUrl}
+                    alt={partner.name}
+                    fill
+                    unoptimized
+                    className="object-contain"
+                  />
+                </div>
               </div>
-            </div>
-})}
+            );
+          })}
         </motion.div>
       </div>
     </section>

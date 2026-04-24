@@ -2,9 +2,9 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Image from "next/image";
-import { postData } from "@/lib/frontendApi";
+import { postData, fetchData } from "@/lib/frontendApi";
 import toast, { Toaster } from "react-hot-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   FaUser, 
   FaEnvelope, 
@@ -19,9 +19,30 @@ import {
   FaSpinner
 } from "react-icons/fa";
 import { MdOutlineTravelExplore } from "react-icons/md";
+import Loading from "@/Global/Loading";
 
 export default function PartnerForm() {
   const [isFocused, setIsFocused] = useState({});
+  const [partnerSectionData, setPartnerSectionData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPartnerSection = async () => {
+      try {
+        setLoading(true);
+        const response = await fetchData("top-section/becomeAPartner");
+        console.log("Partner Section Response:", response);
+        setPartnerSectionData(response || null);
+      } catch (error) {
+        console.error("Error fetching partner section data:", error);
+        setPartnerSectionData(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPartnerSection();
+  }, []);
 
   const initialValues = {
     firstName: "",
@@ -92,6 +113,18 @@ export default function PartnerForm() {
     setIsFocused(prev => ({ ...prev, [fieldName]: false }));
   };
 
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <Loading />
+      </div>
+    );
+  }
+
+  if (!partnerSectionData) {
+    return null;
+  }
+
   return (
     <div className="w-full bg-white py-16 overflow-hidden">
       <Toaster position="top-right" toastOptions={{
@@ -117,11 +150,14 @@ export default function PartnerForm() {
       <div className="w-11/12 mx-auto navtext">
         <div className="text-center mb-12">
           <h1 className="text-4xl lg:text-5xl font-bold text-[#04413D] mb-4">
-            Join Our Global Network
+            {partnerSectionData.title}
           </h1>
-          <p className="text-lg text-[#04413D]/80 max-w-2xl mx-auto">
-            Partner with us to create transformative educational opportunities worldwide
-          </p>
+          {partnerSectionData.description && (
+            <div 
+              className="text-lg text-[#04413D]/80 max-w-2xl mx-auto"
+              dangerouslySetInnerHTML={{ __html: partnerSectionData.description }}
+            />
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">

@@ -11,26 +11,44 @@ import { useInView } from "react-intersection-observer";
 export default function OurCoreStrength() {
   const { ref, inView } = useInView({ triggerOnce: false, threshold: 0.2 });
   const [coreStrengthData, setCoreStrengthData] = useState(null);
+  const [topSectionData, setTopSectionData] = useState(null);
   const [loading, setLoading] = useState(true);
-  
 
   useEffect(() => {
-    const getCoreStrengthData = async () => {
+    const fetchAllData = async () => {
       try {
         setLoading(true);
-        const data = await fetchData("core-strengths");
-        setCoreStrengthData(data[0] || null);
+        
+        const [coreStrengthResponse, topSectionResponse] = await Promise.all([
+          fetchData("core-strengths"),
+          fetchData(`top-section/CoreStrength`) 
+        ]);
+        
+        console.log("Core Strength Response:", coreStrengthResponse);
+        console.log("Top Section Response:", topSectionResponse);
+        
+        if (Array.isArray(coreStrengthResponse) && coreStrengthResponse.length > 0) {
+          setCoreStrengthData(coreStrengthResponse[0]);
+        } else if (coreStrengthResponse && typeof coreStrengthResponse === 'object') {
+          setCoreStrengthData(coreStrengthResponse);
+        } else {
+          setCoreStrengthData(null);
+        }
+                setTopSectionData(topSectionResponse || null);
+        
       } catch (error) {
-        console.error("Error fetching core strengths data:", error);
+        console.error("Error fetching data:", error);
+        setCoreStrengthData(null);
+        setTopSectionData(null);
       } finally {
         setLoading(false);
       }
     };
 
-    getCoreStrengthData();
+    fetchAllData();
   }, []);
 
-  if (loading ) {
+  if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">
         <Loading />
@@ -39,6 +57,10 @@ export default function OurCoreStrength() {
   }
 
   if (!coreStrengthData || !coreStrengthData.stats || coreStrengthData.stats.length === 0) {
+    return null;
+  }
+
+  if (!topSectionData) {
     return null;
   }
 
@@ -59,41 +81,47 @@ export default function OurCoreStrength() {
   const stats = transformStats();
   const imageUrl = coreStrengthData?.imageid?.imageUrl || "";
 
-
   if (stats.length === 0) {
     return null;
   }
 
   return (
     <section ref={ref} className="w-full py-16 bg-white overflow-hidden">
+      <div className="md:ml-16 ml-7 mb-4 md:mb-0">
+        <h2 className="text-5xl font-bold text-[#04413D] mb-4">
+          {topSectionData.title}
+        </h2>
+        <div 
+          className="text-gray-600 md:w-1/2 w-11/14"
+          dangerouslySetInnerHTML={{ __html: topSectionData.description }} 
+        />
+      </div>
+      
       <div className="w-11/12 mx-auto grid md:grid-cols-2 gap-16 items-center navtext">
-        <div className="flex flex-col gap-4">
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="rounded-xl p-6 shadow-lg  shadow-[#f2e7cd] cursor-pointer hover:scale-105 transition-all ease-in-out duration-500"
-              >
-                <div className="text-2xl sm:text-3xl font-bold text-[#04413D]">
-                  {inView && (
-                    <CountUp
-                      key={inView}
-                      start={0}
-                      end={stat.value}
-                      duration={2.5}
-                      suffix={stat.suffix}
-                      separator=","
-                    />
-                  )}
-                </div>
-                <p className="text-sm text-gray-600 mt-1">{stat.label}</p>
-              </motion.div>
-            ))}
-          </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+          {stats.map((stat, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="rounded-xl p-6 shadow-lg shadow-[#f2e7cd] cursor-pointer hover:scale-105 transition-all ease-in-out duration-500"
+            >
+              <div className="text-2xl sm:text-3xl font-bold text-[#04413D]">
+                {inView && (
+                  <CountUp
+                    key={inView}
+                    start={0}
+                    end={stat.value}
+                    duration={2.5}
+                    suffix={stat.suffix}
+                    separator=","
+                  />
+                )}
+              </div>
+              <p className="text-sm text-gray-600 mt-1">{stat.label}</p>
+            </motion.div>
+          ))}
         </div>
 
         <motion.div
@@ -105,9 +133,8 @@ export default function OurCoreStrength() {
           {imageUrl ? (
             <Image
               src={imageUrl}
-              alt={"hii"}
+              alt={"Core strength illustration"}
               fill
-              // priority
               unoptimized
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"
