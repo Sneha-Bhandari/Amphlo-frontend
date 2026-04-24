@@ -55,7 +55,7 @@ export default function OurTopServices() {
   }
 
   return (
-    <main className="bg-[#04413D]/10 font-sans">
+    <main className="bg-white font-sans">
       <section className="relative h-[40vh] w-full flex flex-col items-center justify-center text-center px-4 overflow-hidden">
         <div 
           className="absolute inset-0 bg-cover bg-center"
@@ -74,36 +74,43 @@ export default function OurTopServices() {
       </section>
 
       <section className="relative max-w-7xl mx-auto px-6 pb-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 -mt-16">
-          {services.map((service, index) => (
-            <div key={service.id} className="flex flex-col items-center text-center cursor-pointer group">
-              <div className={`
-                bg-[#04413D] 
-                w-38 h-38 
-                rounded-full 
-                flex items-center justify-center 
-                text-white 
-                border-b border-[#FDC653] 
-                shadow-xl 
-                mb-6
-                z-20
-                group-hover:shadow-xl group-hover:shadow-[#FDC653]/50 group-hover:scale-105 duration-500 ease-in-out transition-all
-              `}>
-                {icons[index % icons.length]}
-              </div>
-
-              <h3 className="text-[#04413D] font-bold text-xl mb-2 uppercase tracking-wider">
-                {service.title}
-              </h3>
-              <p
-  className="text-sm md:text-base text-gray-600 leading-relaxed mb-6"
-  dangerouslySetInnerHTML={{ __html: service.description }}
-> 
-              </p>
-            </div>
-          ))}
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    {services.map((service, index) => (
+      <div key={service.id} className="flex flex-col items-center text-center group">
+        {/* Icon Circle - positioned to overlap between sections */}
+        <div className="relative -mt-16 mb-6">
+          <div className={`
+            bg-[#04413D] 
+            w-28 h-28 
+            rounded-full 
+            flex items-center justify-center 
+            text-white 
+            border-b-4 border-[#FDC653] 
+            shadow-xl 
+            z-20
+            relative
+            group-hover:shadow-xl group-hover:shadow-[#FDC653]/50 
+            group-hover:scale-110 
+            duration-500 ease-in-out transition-all
+          `}>
+            {icons[index % icons.length]}
+          </div>
+          
+          <div className="absolute inset-0 rounded-full border-2 border-[#FDC653]/0 group-hover:border-[#FDC653]/30 transition-all duration-500 scale-105 group-hover:scale-110"></div>
         </div>
-      </section>
+
+        <h3 className="text-[#04413D] font-bold text-xl uppercase tracking-wider pt-2">
+          {service.title}
+        </h3>
+        
+        <div
+          className="text-sm md:text-base text-gray-400 leading-relaxed"
+          dangerouslySetInnerHTML={{ __html: service.description }}
+        />
+      </div>
+    ))}
+  </div>
+</section>
     </main>
   );
 }

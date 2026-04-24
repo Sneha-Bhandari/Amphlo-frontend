@@ -89,12 +89,12 @@ export default function ServicesAndOffering() {
     <div className="min-h-screen bg-white flex items-start justify-center py-12 mx-auto w-full">
       <div className="w-11/12 md:w-10/12 mx-auto flex flex-col md:items-center gap-3 navtext">
         
-        <div className="mb-4 md:mb-12 text-center">
+        <div className=" text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-[#04413D] mb-2">
             {sandoSectionData.title}
           </h1>
           <div 
-            className="text-gray-600"
+            className="text-gray-600 w-11/13 text-center flex mx-auto"
             dangerouslySetInnerHTML={{ __html: sandoSectionData.description }} 
           />
         </div>

@@ -16,7 +16,7 @@ export default function Map() {
 
     const fetchMapData = async () => {
       try {
-        const data = await fetchData("map");
+        const data = await fetchData("map/");
         console.log("Map API Response:", data);
         
         let url = null;

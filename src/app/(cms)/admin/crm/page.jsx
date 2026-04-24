@@ -25,10 +25,8 @@ const validationSchema = Yup.object({
 
 export default function CrmCMS() {
   const [data, setData] = useState(null);
-  const [preview, setPreview] = useState({
-    side: null,
-    background: null,
-  });
+  const [previewSide, setPreviewSide] = useState(null);
+  const [previewBg, setPreviewBg] = useState(null);
   const [loading, setLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
 
@@ -44,11 +42,11 @@ export default function CrmCMS() {
           setData(res[0]);
           
           if (res[0]?.imageid?.imageUrl) {
-            setPreview(prev => ({ ...prev, side: res[0].imageid.imageUrl }));
+            setPreviewSide(res[0].imageid.imageUrl);
           }
           
           if (res[0]?.backgroundImageId?.imageUrl) {
-            setPreview(prev => ({ ...prev, background: res[0].backgroundImageId.imageUrl }));
+            setPreviewBg(res[0].backgroundImageId.imageUrl);
           }
         }
       } catch (err) {
@@ -62,53 +60,12 @@ export default function CrmCMS() {
     fetchCrmData();
   }, []);
 
-  // Separate function to handle image upload
-  const handleImageUpload = async (file, type, setFieldValue) => {
-    if (!file) return null;
-
-    // Validate file size (5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error(`${type} image should be less than 5MB`);
-      return null;
-    }
-    
-    // Validate file type
-    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-    if (!validTypes.includes(file.type)) {
-      toast.error("Please upload a valid image (JPEG, PNG, WEBP)");
-      return null;
-    }
-    
-    setUploadingImage(true);
-    const uploadToast = toast.loading(`Uploading ${type} image...`);
-    
-    try {
-      const uploadRes = await uploadImageData(file);
-      console.log(`${type} image upload response:`, uploadRes);
-      
-      const imageId = uploadRes?.id || uploadRes?.imageId || uploadRes?.fileId;
-      
-      if (imageId) {
-        toast.success(`${type} image uploaded successfully`, { id: uploadToast });
-        return imageId;
-      } else {
-        throw new Error("No image ID returned from server");
-      }
-    } catch (error) {
-      console.error(`${type} image upload error:`, error);
-      toast.error(`Failed to upload ${type} image: ${error.message}`, { id: uploadToast });
-      return null;
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
   return (
     <div className="flex flex-col gap-8 mx-auto w-11/12">
       <Toaster position="top-right" />
 
       {/* Header */}
-      <div className="flex flex-col md:items-center gap-3">
+      <div className="flex flex-col items-start gap-3">
         <div className="text-4xl text-[#04413D] font-bold">
           CRM Section
         </div>
@@ -166,7 +123,6 @@ export default function CrmCMS() {
                   .map((f) => f.trim()),
               };
           
-              // IMPORTANT: correct backend keys
               if (sideImageId) payload.imageid = sideImageId;
               if (bgImageId) payload.backgroundImageId = bgImageId;
           
@@ -280,96 +236,138 @@ export default function CrmCMS() {
                 <ErrorMessage name="features" component="div" className="text-red-500 text-sm mt-1" />
               </div>
 
-              {/* Side Image */}
+              {/* Side Image - Updated UI */}
               <div>
                 <label className="block mb-2 font-semibold text-gray-700 text-lg">
                   Side Image
                 </label>
 
+                {/* Hidden file input */}
                 <input
                   type="file"
+                  id="side-image-upload"
                   accept="image/*"
-                  className="w-full border border-gray-300 p-2 rounded"
+                  className="hidden"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
                       setFieldValue("sideImage", file);
-                      setPreview(prev => ({ ...prev, side: URL.createObjectURL(file) }));
+                      setPreviewSide(URL.createObjectURL(file));
                     }
                   }}
                 />
 
-                {(preview.side || data?.imageid?.imageUrl) && (
-                  <div className="mt-4 border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center gap-3">
-                    <Image
-                      src={preview.side || data?.imageid?.imageUrl}
-                      alt="Side image preview"
-                      width={200}
-                      height={150}
-                      unoptimized
-                      className="object-contain"
-                    />
-                    {preview.side && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setPreview(prev => ({ ...prev, side: null }));
-                          setFieldValue("sideImage", null);
-                          toast.success("Side image removed");
-                        }}
-                        className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition"
+                {/* Clickable image preview area */}
+                <div 
+                  className="mt-2 border-2 border-dashed border-gray-400 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#04413D] transition-colors duration-200"
+                  onClick={() => document.getElementById('side-image-upload').click()}
+                >
+                  {(previewSide || data?.imageid?.imageUrl) ? (
+                    <div className="relative w-full p-4">
+                      <Image
+                        height={1000}
+                        width={3000}
+                        src={previewSide || data?.imageid?.imageUrl}
+                        alt="Side image preview"
+                        unoptimized
+                        className="w-full h-48 object-contain"
+                      />
+                      <p className="text-center text-sm text-gray-500 mt-2">
+                        Click to change side image
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="py-12 text-center">
+                      <svg
+                        className="mx-auto h-12 w-12 text-gray-400"
+                        stroke="currentColor"
+                        fill="none"
+                        viewBox="0 0 48 48"
+                        aria-hidden="true"
                       >
-                        Remove
-                      </button>
-                    )}
-                  </div>
-                )}
+                        <path
+                          d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                          strokeWidth={2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <p className="mt-2 text-sm text-gray-500">
+                        Click to upload side image
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        PNG, JPG, GIF up to 10MB
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {/* Background Image */}
+              {/* Background Image - Updated UI */}
               <div>
                 <label className="block mb-2 font-semibold text-gray-700 text-lg">
                   Background Image
                 </label>
 
+                {/* Hidden file input */}
                 <input
                   type="file"
+                  id="bg-image-upload"
                   accept="image/*"
-                  className="w-full border border-gray-300 p-2 rounded"
+                  className="hidden"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
                       setFieldValue("backgroundImage", file);
-                      setPreview(prev => ({ ...prev, background: URL.createObjectURL(file) }));
+                      setPreviewBg(URL.createObjectURL(file));
                     }
                   }}
                 />
 
-                {(preview.background || data?.backgroundImageId?.imageUrl) && (
-                  <div className="mt-4 border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center gap-3">
-                    <Image
-                      src={preview.background || data?.backgroundImageId?.imageUrl}
-                      alt="Background image preview"
-                      width={200}
-                      height={150}
-                      unoptimized
-                      className="object-cover"
-                    />
-                    {preview.background && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setPreview(prev => ({ ...prev, background: null }));
-                          setFieldValue("backgroundImage", null);
-                          toast.success("Background image removed");
-                        }}
-                        className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition"
+                {/* Clickable image preview area */}
+                <div 
+                  className="mt-2 border-2 border-dashed border-gray-400 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#04413D] transition-colors duration-200"
+                  onClick={() => document.getElementById('bg-image-upload').click()}
+                >
+                  {(previewBg || data?.backgroundImageId?.imageUrl) ? (
+                    <div className="relative w-full p-4">
+                      <Image
+                        height={1000}
+                        width={3000}
+                        src={previewBg || data?.backgroundImageId?.imageUrl}
+                        alt="Background image preview"
+                        unoptimized
+                        className="w-full h-48 object-cover"
+                      />
+                      <p className="text-center text-sm text-gray-500 mt-2">
+                        Click to change background image
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="py-12 text-center">
+                      <svg
+                        className="mx-auto h-12 w-12 text-gray-400"
+                        stroke="currentColor"
+                        fill="none"
+                        viewBox="0 0 48 48"
+                        aria-hidden="true"
                       >
-                        Remove
-                      </button>
-                    )}
-                  </div>
-                )}
+                        <path
+                          d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                          strokeWidth={2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <p className="mt-2 text-sm text-gray-500">
+                        Click to upload background image
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        PNG, JPG, GIF up to 10MB
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Submit Button */}

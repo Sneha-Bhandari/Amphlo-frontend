@@ -14,7 +14,7 @@ export default function EnquiryInfo() {
   useEffect(() => {
     const fetchContactData = async () => {
       try {
-        const data = await fetchData("contact");
+        const data = await fetchData("contact/");
         console.log("Contact API Response:", data);
         
         if (data && data.length > 0) {
@@ -34,7 +34,7 @@ export default function EnquiryInfo() {
 
   if (loading) {
     return (
-      <div className="w-full py-16 px-4 flex justify-center">
+      <div className="w-full py-16  flex justify-center">
         <Loading />
       </div>
     );
@@ -66,7 +66,7 @@ export default function EnquiryInfo() {
   ];
 
   return (
-    <div className="w-full py-8 px-4">
+    <div className="w-full py-4 mt-10 px-4">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-5">
         {contactInfo.map((val, i) => (
           <div

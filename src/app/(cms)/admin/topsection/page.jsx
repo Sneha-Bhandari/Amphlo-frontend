@@ -18,7 +18,7 @@ export default function Page() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] p-10">
+    <div className="min-h-screen ">
       <div className="max-w-6xl mx-auto">
 
         <div className="mb-10">

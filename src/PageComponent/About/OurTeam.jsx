@@ -92,7 +92,7 @@ export default function OurTeam() {
   }
 
   return (
-    <section className="w-full md:py-16 py-6 bg-[#04413D]/10">
+    <section className="w-full md:py-16 py-6 bg-[#04413D]/20">
       <div className="max-w-6xl mx-auto px-6 navtext">
         <div className="text-center md:mb-16 mb-6">
           <h2 className="text-4xl md:text-5xl font-bold text-[#04413D] tracking-tight mb-4">
@@ -119,7 +119,7 @@ export default function OurTeam() {
                 key={member.id || index}
                 variants={itemVariants}
                 whileHover={{ y: -5 }}
-                className="group flex flex-col items-center text-center p-3 transition-all duration-300 rounded-2xl shadow-[#bde2df] shadow-sm hover:bg-[#04413D]/10 hover:shadow-xl hover:shadow-[#c8ecea]/30 cursor-pointer"
+                className="group flex flex-col items-center text-center p-3 transition-all duration-500 hover:bg-white hover:rounded-2xl hover:shadow-xl hover:shadow-[#c8ecea]/30 cursor-pointer"
               >
                 <div className="relative h-32 w-32 mb-6">
                   <div className="absolute inset-0 rounded-full overflow-hidden border-2 border-transparent group-hover:border-[#d7eeec] transition-colors duration-500">
@@ -132,7 +132,7 @@ export default function OurTeam() {
                         unoptimized
                       />
                     ) : (
-                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                      <div className="w-full h-full bg-gray-200  flex items-center justify-center">
                         <span className="text-xs text-gray-500">No Image</span>
                       </div>
                     )}
@@ -143,7 +143,7 @@ export default function OurTeam() {
                   <h3 className="text-xl font-bold text-[#04413D] mb-1">
                     {member.name}
                   </h3>
-                  <p className="text-sm font-semibold text-[#FDC653] mb-2 uppercase tracking-wider">
+                  <p className="text-sm font-semibold text-[#04413D]/70 mb-2 uppercase tracking-wider">
                     {member.position}
                   </p>
                   

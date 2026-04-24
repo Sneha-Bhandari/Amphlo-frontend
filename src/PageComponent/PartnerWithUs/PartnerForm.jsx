@@ -63,7 +63,7 @@ export default function PartnerForm() {
     phoneNumber: Yup.string()
       .matches(/^[\+]?[0-9\s\-\(\)]+$/, "Please enter a valid phone number")
       .min(8, "Must be at least 8 digits")
-      .max(20, "Phone number is too long")
+      .max(15, "Phone number is too long")
       .required("Phone number is required"),
     whatsappNumber: Yup.string()
       .matches(/^[\+]?[0-9\s\-\(\)]+$/, "Please enter a valid phone number")
@@ -218,101 +218,7 @@ export default function PartnerForm() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div className="flex flex-col">
-                      <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
-                        Email <span className="text-[#04413D] text-lg">*</span>
-                      </label>
-                      <div className={`relative transition-all duration-200 ${isFocused.email ? 'transform scale-[1.01]' : ''}`}>
-                        <Field
-                          type="email"
-                          name="email"
-                          placeholder="john@company.com"
-                          onFocus={() => handleFocus('email')}
-                          onBlur={() => handleBlur('email')}
-                          className="w-full border border-gray-200 rounded-xl p-3 pl-10 focus:outline-none focus:border-[#04413D] focus:ring-1 focus:ring-[#04413D] transition-all duration-200 bg-white"
-                        />
-                        <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      </div>
-                      <ErrorMessage name="email" component="div" className="text-red-500 text-xs mt-1 ml-1" />
-                    </div>
-
-                    <div className="flex flex-col">
-                      <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
-                        Phone Number <span className="text-[#04413D] text-lg">*</span>
-                      </label>
-                      <div className={`relative transition-all duration-200 ${isFocused.phoneNumber ? 'transform scale-[1.01]' : ''}`}>
-                        <Field
-                          type="text"
-                          name="phoneNumber"
-                          placeholder="+977 9856122323"
-                          onFocus={() => handleFocus('phoneNumber')}
-                          onBlur={() => handleBlur('phoneNumber')}
-                          className="w-full border border-gray-200 rounded-xl p-3 pl-10 focus:outline-none focus:border-[#04413D] focus:ring-1 focus:ring-[#04413D] transition-all duration-200 bg-white"
-                        />
-                        <FaPhone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      </div>
-                      <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-xs mt-1 ml-1" />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div className="flex flex-col">
-                      <label className="text-sm font-semibold text-gray-700 mb-4">
-                        WhatsApp Number
-                      </label>
-                      <div className={`relative transition-all duration-200 ${isFocused.whatsappNumber ? 'transform scale-[1.01]' : ''}`}>
-                        <Field
-                          type="text"
-                          name="whatsappNumber"
-                          placeholder="+977 9856122323"
-                          onFocus={() => handleFocus('whatsappNumber')}
-                          onBlur={() => handleBlur('whatsappNumber')}
-                          className="w-full border border-gray-200 rounded-xl p-3 pl-10 focus:outline-none focus:border-[#04413D] focus:ring-1 focus:ring-[#04413D] transition-all duration-200 bg-white"
-                        />
-                        <FaWhatsapp className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
-                      </div>
-                      <ErrorMessage name="whatsappNumber" component="div" className="text-red-500 text-xs mt-1 ml-1" />
-                    </div>
-
-                    <div className="flex flex-col">
-                      <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
-                        Company Name <span className="text-[#04413D] text-lg">*</span>
-                      </label>
-                      <div className={`relative transition-all duration-200 ${isFocused.companyName ? 'transform scale-[1.01]' : ''}`}>
-                        <Field
-                          type="text"
-                          name="companyName"
-                          placeholder="Acme Inc."
-                          onFocus={() => handleFocus('companyName')}
-                          onBlur={() => handleBlur('companyName')}
-                          className="w-full border border-gray-200 rounded-xl p-3 pl-10 focus:outline-none focus:border-[#04413D] focus:ring-1 focus:ring-[#04413D] transition-all duration-200 bg-white"
-                        />
-                        <FaBuilding className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      </div>
-                      <ErrorMessage name="companyName" component="div" className="text-red-500 text-xs mt-1 ml-1" />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div className="flex flex-col">
-                      <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
-                        Official Email <span className="text-[#04413D] text-lg">*</span>
-                      </label>
-                      <div className={`relative transition-all duration-200 ${isFocused.officialEmail ? 'transform scale-[1.01]' : ''}`}>
-                        <Field
-                          type="email"
-                          name="officialEmail"
-                          placeholder="contact@acme.com"
-                          onFocus={() => handleFocus('officialEmail')}
-                          onBlur={() => handleBlur('officialEmail')}
-                          className="w-full border border-gray-200 rounded-xl p-3 pl-10 focus:outline-none focus:border-[#04413D] focus:ring-1 focus:ring-[#04413D] transition-all duration-200 bg-white"
-                        />
-                        <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      </div>
-                      <ErrorMessage name="officialEmail" component="div" className="text-red-500 text-xs mt-1 ml-1" />
-                    </div>
-
-                    <div className="flex flex-col">
+                  <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
                         Country <span className="text-[#04413D] text-lg">*</span>
                       </label>
@@ -342,6 +248,103 @@ export default function PartnerForm() {
                         </svg>
                       </div>
                       <ErrorMessage name="country" component="div" className="text-red-500 text-xs mt-1 ml-1" />
+                    </div>
+                    <div className="flex flex-col">
+                      <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                        Email <span className="text-[#04413D] text-lg">*</span>
+                      </label>
+                      <div className={`relative transition-all duration-200 ${isFocused.email ? 'transform scale-[1.01]' : ''}`}>
+                        <Field
+                          type="email"
+                          name="email"
+                          placeholder="john@company.com"
+                          onFocus={() => handleFocus('email')}
+                          onBlur={() => handleBlur('email')}
+                          className="w-full border border-gray-200 rounded-xl p-3 pl-10 focus:outline-none focus:border-[#04413D] focus:ring-1 focus:ring-[#04413D] transition-all duration-200 bg-white"
+                        />
+                        <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      </div>
+                      <ErrorMessage name="email" component="div" className="text-red-500 text-xs mt-1 ml-1" />
+                    </div>
+
+                    
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div className="flex flex-col">
+                      <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                        Official Email <span className="text-[#04413D] text-lg">*</span>
+                      </label>
+                      <div className={`relative transition-all duration-200 ${isFocused.officialEmail ? 'transform scale-[1.01]' : ''}`}>
+                        <Field
+                          type="email"
+                          name="officialEmail"
+                          placeholder="contact@acme.com"
+                          onFocus={() => handleFocus('officialEmail')}
+                          onBlur={() => handleBlur('officialEmail')}
+                          className="w-full border border-gray-200 rounded-xl p-3 pl-10 focus:outline-none focus:border-[#04413D] focus:ring-1 focus:ring-[#04413D] transition-all duration-200 bg-white"
+                        />
+                        <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      </div>
+                      <ErrorMessage name="officialEmail" component="div" className="text-red-500 text-xs mt-1 ml-1" />
+                    </div>
+
+                   
+
+                    <div className="flex flex-col">
+                      <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                        Company Name <span className="text-[#04413D] text-lg">*</span>
+                      </label>
+                      <div className={`relative transition-all duration-200 ${isFocused.companyName ? 'transform scale-[1.01]' : ''}`}>
+                        <Field
+                          type="text"
+                          name="companyName"
+                          placeholder="Acme Inc."
+                          onFocus={() => handleFocus('companyName')}
+                          onBlur={() => handleBlur('companyName')}
+                          className="w-full border border-gray-200 rounded-xl p-3 pl-10 focus:outline-none focus:border-[#04413D] focus:ring-1 focus:ring-[#04413D] transition-all duration-200 bg-white"
+                        />
+                        <FaBuilding className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      </div>
+                      <ErrorMessage name="companyName" component="div" className="text-red-500 text-xs mt-1 ml-1" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                   
+                    <div className="flex flex-col">
+                      <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                        Phone Number <span className="text-[#04413D] text-lg">*</span>
+                      </label>
+                      <div className={`relative transition-all duration-200 ${isFocused.phoneNumber ? 'transform scale-[1.01]' : ''}`}>
+                        <Field
+                          type="text"
+                          name="phoneNumber"
+                          placeholder="+977 9856122323"
+                          onFocus={() => handleFocus('phoneNumber')}
+                          onBlur={() => handleBlur('phoneNumber')}
+                          className="w-full border border-gray-200 rounded-xl p-3 pl-10 focus:outline-none focus:border-[#04413D] focus:ring-1 focus:ring-[#04413D] transition-all duration-200 bg-white"
+                        />
+                        <FaPhone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      </div>
+                      <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-xs mt-1 ml-1" />
+                    </div>
+                    <div className="flex flex-col">
+                      <label className="text-sm font-semibold text-gray-700 mb-4">
+                        WhatsApp Number
+                      </label>
+                      <div className={`relative transition-all duration-200 ${isFocused.whatsappNumber ? 'transform scale-[1.01]' : ''}`}>
+                        <Field
+                          type="text"
+                          name="whatsappNumber"
+                          placeholder="+977 9856122323"
+                          onFocus={() => handleFocus('whatsappNumber')}
+                          onBlur={() => handleBlur('whatsappNumber')}
+                          className="w-full border border-gray-200 rounded-xl p-3 pl-10 focus:outline-none focus:border-[#04413D] focus:ring-1 focus:ring-[#04413D] transition-all duration-200 bg-white"
+                        />
+                        <FaWhatsapp className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                      </div>
+                      <ErrorMessage name="whatsappNumber" component="div" className="text-red-500 text-xs mt-1 ml-1" />
                     </div>
                   </div>
 

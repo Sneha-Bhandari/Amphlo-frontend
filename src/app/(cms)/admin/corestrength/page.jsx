@@ -54,12 +54,12 @@ export default function CoreStrengthsCMS() {
   });
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-[#f8fafc] to-[#eef2f7] py-10">
+    <div className="min-h-screen ">
       <div className="max-w-5xl mx-auto px-6 space-y-8">
         <Toaster position="top-right" />
 
         {/* Header */}
-        <div className="text-center space-y-2">
+        <div className="text-start space-y-2">
           <h1 className="text-4xl font-extrabold text-[#04413D] tracking-tight">
             Core Strengths
           </h1>
@@ -166,46 +166,71 @@ export default function CoreStrengthsCMS() {
                   </FieldArray>
                 </div>
 
-                {/* Image Section */}
+                {/* Image Section - Updated UI */}
                 <div>
                   <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                    Upload Image
+                    Image
                   </h2>
 
-                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-[#04413D] transition">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="w-full text-sm"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
+                  {/* Hidden file input */}
+                  <input
+                    type="file"
+                    id="image-upload"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setFieldValue("imageid", file);
+                        setPreview(URL.createObjectURL(file));
+                      }
+                    }}
+                  />
 
-                        if (file) {
-                          setFieldValue("imageid", file);
-                          setPreview(URL.createObjectURL(file));
-                        }
-                      }}
-                    />
-
-                    <p className="text-gray-400 mt-2">
-                      Click to upload or drag an image
-                    </p>
-                  </div>
-
-                  {(preview || data?.imageid?.imageUrl) && (
-                    <div className="mt-6 flex justify-center">
-                      <div className="overflow-hidden rounded-2xl shadow-lg border">
+                  {/* Clickable image preview area */}
+                  <div 
+                    className="mt-2 border-2 border-dashed border-gray-400 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#04413D] transition-colors duration-200"
+                    onClick={() => document.getElementById('image-upload').click()}
+                  >
+                    {(preview || data?.imageid?.imageUrl) ? (
+                      <div className="relative w-full p-4">
                         <Image
+                          height={1000}
+                          width={3000}
                           src={preview || data?.imageid?.imageUrl}
                           alt="Preview"
-                          width={260}
-                          height={180}
                           unoptimized
-                          className="object-cover"
+                          className="w-full h-48 object-contain"
                         />
+                        <p className="text-center text-sm text-gray-500 mt-2">
+                          Click to change image
+                        </p>
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="py-12 text-center">
+                        <svg
+                          className="mx-auto h-12 w-12 text-gray-400"
+                          stroke="currentColor"
+                          fill="none"
+                          viewBox="0 0 48 48"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                            strokeWidth={2}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <p className="mt-2 text-sm text-gray-500">
+                          Click to upload image
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          PNG, JPG, GIF up to 10MB
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Submit */}

@@ -67,7 +67,7 @@ export default function Page() {
       console.log("Final payload:", payload);
 
       if (data) {
-        await patchData(`vision-mission/${data.id}`, payload);
+        await patchData(`vision-mission/${section.apiPath}`, payload);
         toast.success("Updated successfully!", { id: toastId });
       } else {
         await postData("vision-mission", payload);

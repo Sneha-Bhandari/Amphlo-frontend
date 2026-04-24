@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Field, Form, Formik } from "formik";
 import toast, { Toaster } from "react-hot-toast";
 import Loading from "@/Global/Loading";
+import Image from "next/image";
 
 import {
   fetchData,
@@ -81,11 +82,9 @@ function DynamicForm({ section, data, onSuccess }) {
       onSubmit={handleSubmit}
     >
       {({ setFieldValue, isSubmitting, values }) => (
-        <Form className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-5">
-            <h2 className="text-lg font-semibold text-[#04413D]">
-              Banner Details
-            </h2>
+        <Form className="space-y-6">
+          <div className=" p-6 space-y-4">
+            
 
             <div>
               <label className="text-sm text-gray-600">Title</label>
@@ -114,64 +113,77 @@ function DynamicForm({ section, data, onSuccess }) {
             <div>
               <label className="text-sm text-gray-600">Banner Image</label>
 
-              <div className="mt-2 border-2 border-dashed border-gray-200 rounded-xl p-5 text-center hover:border-green-400 transition bg-gray-50">
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="w-full"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-
+              {/* Hidden file input */}
+              <input
+                type="file"
+                id="image-upload"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
                     setFieldValue("imageid", file);
-                    const previewUrl = URL.createObjectURL(file);
-                    setPreview(previewUrl);
-                  }}
-                />
-                <p className="text-xs text-gray-400 mt-2">
-                  PNG, JPG up to 5MB
-                </p>
+                    setPreview(URL.createObjectURL(file));
+                  }
+                }}
+              />
+
+              {/* Clickable image preview area */}
+              <div 
+                className="mt-2 border-2 border-dashed border-gray-400 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#04413D] transition-colors duration-200"
+                onClick={() => document.getElementById('image-upload').click()}
+              >
+                {(preview || data?.imageid?.imageUrl) ? (
+                  <div className="relative w-full p-4">
+                    <Image
+                      height={1000}
+                      width={3000}
+                      src={preview || data?.imageid?.imageUrl}
+                      alt="Preview"
+                      unoptimized
+                      className="w-full h-48 object-contain"
+                    />
+                    <p className="text-center text-sm text-gray-500 mt-2">
+                      Click to change image
+                    </p>
+                  </div>
+                ) : (
+                  <div className="py-12 text-center">
+                    <svg
+                      className="mx-auto h-12 w-12 text-gray-400"
+                      stroke="currentColor"
+                      fill="none"
+                      viewBox="0 0 48 48"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    <p className="mt-2 text-sm text-gray-500">
+                      Click to upload image
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      PNG, JPG, GIF up to 10MB
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
+
+            
 
             {/* Button */}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-[#04413D] hover:bg-green-600 text-white font-medium py-3 rounded-xl transition disabled:opacity-50"
+              className="w-fit px-4 bg-[#04413D] hover:bg-[#04413D]/90 cursor-pointer text-white font-medium py-3 rounded-xl transition disabled:opacity-50"
             >
               {data ? "Update Banner" : "Create Banner"}
             </button>
-          </div>
-
-          {/* RIGHT - PREVIEW */}
-          <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
-            <h2 className="text-lg font-semibold text-[#04413D] mb-4">
-              Live Preview
-            </h2>
-
-            <div className="bg-white rounded-xl overflow-hidden shadow-sm border">
-              {(preview || data?.imageid?.imageUrl) ? (
-                <img
-                  src={preview || data?.imageid?.imageUrl}
-                  className="w-full h-64 object-cover"
-                  alt="Banner preview"
-                />
-              ) : (
-                <div className="h-64 flex items-center justify-center text-gray-400">
-                  No image selected
-                </div>
-              )}
-
-              <div className="p-4">
-                <h3 className="text-xl font-semibold text-[#04413D]">
-                  {liveTitle || "Banner Title"}
-                </h3>
-                <p className="text-gray-500 mt-1">
-                  {liveSubtitle || "Banner subtitle will appear here"}
-                </p>
-              </div>
-            </div>
           </div>
         </Form>
       )}

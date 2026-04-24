@@ -34,7 +34,7 @@ export default function OurCoreStrength() {
         } else {
           setCoreStrengthData(null);
         }
-                setTopSectionData(topSectionResponse || null);
+        setTopSectionData(topSectionResponse || null);
         
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -87,64 +87,70 @@ export default function OurCoreStrength() {
 
   return (
     <section ref={ref} className="w-full py-16 bg-white overflow-hidden">
-      <div className="md:ml-16 ml-7 mb-4 md:mb-0">
-        <h2 className="text-5xl font-bold text-[#04413D] mb-4">
-          {topSectionData.title}
-        </h2>
-        <div 
-          className="text-gray-600 md:w-1/2 w-11/14"
-          dangerouslySetInnerHTML={{ __html: topSectionData.description }} 
-        />
-      </div>
-      
-      <div className="w-11/12 mx-auto grid md:grid-cols-2 gap-16 items-center navtext">
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
-          {stats.map((stat, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="rounded-xl p-6 shadow-lg shadow-[#f2e7cd] cursor-pointer hover:scale-105 transition-all ease-in-out duration-500"
-            >
-              <div className="text-2xl sm:text-3xl font-bold text-[#04413D]">
-                {inView && (
-                  <CountUp
-                    key={inView}
-                    start={0}
-                    end={stat.value}
-                    duration={2.5}
-                    suffix={stat.suffix}
-                    separator=","
-                  />
-                )}
-              </div>
-              <p className="text-sm text-gray-600 mt-1">{stat.label}</p>
-            </motion.div>
-          ))}
+      <div className="max-w-11/12 mx-auto ">
+        {/* Title and Description */}
+        <div className="mb-12">
+          <h2 className="text-4xl md:text-5xl font-bold text-[#04413D] mb-4">
+            {topSectionData.title}
+          </h2>
+          <div 
+            className="text-gray-600 max-w-2xl"
+            dangerouslySetInnerHTML={{ __html: topSectionData.description }} 
+          />
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={inView ? { opacity: 1, scale: 1 } : {}}
-          transition={{ duration: 1 }}
-          className="relative w-full h-[60vh] rounded-xl overflow-hidden shadow-lg shadow-[#04413D]/40"
-        >
-          {imageUrl ? (
-            <Image
-              src={imageUrl}
-              alt={"Core strength illustration"}
-              fill
-              unoptimized
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
-          ) : (
-            <div className="bg-gray-200 w-full h-full flex items-center justify-center">
-              <p className="text-gray-600">Image Not Found</p>
-            </div>
-          )}
-        </motion.div>
+        {/* Left: Stats Grid | Right: Image */}
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          {/* Left Side - Stats Grid */}
+          <div className="grid grid-cols-2 gap-6">
+            {stats.map((stat, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="rounded-xl p-6 shadow-lg shadow-[#f2e7cd] cursor-pointer hover:scale-105 transition-all ease-in-out duration-500 bg-white"
+              >
+                <div className="text-2xl sm:text-3xl font-bold text-[#04413D]">
+                  {inView && (
+                    <CountUp
+                      key={inView}
+                      start={0}
+                      end={stat.value}
+                      duration={2.5}
+                      suffix={stat.suffix}
+                      separator=","
+                    />
+                  )}
+                </div>
+                <p className="text-sm text-gray-600 mt-1">{stat.label}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Right Side - Image */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={inView ? { opacity: 1, scale: 1 } : {}}
+            transition={{ duration: 1 }}
+            className="relative h-[40vh] md:h-[60vh] w-full rounded-xl overflow-hidden shadow-lg shadow-[#04413D]/40"
+          >
+            {imageUrl ? (
+              <Image
+                src={imageUrl}
+                alt={"Core strength illustration"}
+                fill
+                unoptimized
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            ) : (
+              <div className="bg-gray-200 w-full h-full flex items-center justify-center">
+                <p className="text-gray-600">Image Not Found</p>
+              </div>
+            )}
+          </motion.div>
+        </div>
       </div>
     </section>
   );

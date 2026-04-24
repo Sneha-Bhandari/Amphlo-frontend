@@ -50,7 +50,7 @@ export default function UniversityBanner() {
   return (
     <div className="relative md:h-[60vh] h-[90vh] md:top-18 top-4 w-full bg-[#04413D]/30 flex items-center justify-center overflow-hidden">
      
-      <div className="absolute inset-0 bg-black/30"></div>
+      <div className="absolute inset-0 bg-[#04413D]/70"></div>
 
       <div className="relative z-10 text-center px-6 max-w-4xl">
         <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight">
@@ -58,13 +58,13 @@ export default function UniversityBanner() {
         </h1>
         
         <div 
-          className="text-md md:text-xl text-gray-100 mb-10 font-light leading-relaxed"
+          className="text-md text-gray-200 mb-10 font-light leading-relaxed"
           dangerouslySetInnerHTML={{ __html: bannerData.description }}
         />
         
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link 
-            href="/apply"
+            href="/enquiry"
             className="cursor-pointer w-full sm:w-auto px-10 py-4 bg-[#04413D] hover:bg-[#04413D]/60 text-white font-bold rounded-md transition-colors shadow-lg text-center"
           >
             Apply Now
