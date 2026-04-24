@@ -71,6 +71,8 @@ export default function FAQ() {
   }
 
   // Check if faqsection exists
+  // Check if faqsection exists
+
   if (!faqsection || faqs.length === 0) {
     return null;
   }
