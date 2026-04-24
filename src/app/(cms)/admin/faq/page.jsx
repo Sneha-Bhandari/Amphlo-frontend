@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from "react";
 import { fetchData, deleteData } from "@/lib/frontendApi";
 import Loading from "@/Global/Loading";
-import AddFaq from "@/PageComponent/cms/Faq/AddFaq";
-import EditFaq from "@/PageComponent/cms/Faq/EditFaq";
-import DeleteFaq from "@/PageComponent/cms/Faq/DeleteFaq";
-import ViewFaq from "@/PageComponent/cms/Faq/ViewFaq";
-import FaqTable from "@/PageComponent/cms/Faq/FaqTable";
+import AddFaq from "../../../../PageComponent/cms/FAQ/AddFaq";
+import EditFaq from "../../../../PageComponent/cms/FAQ/EditFaq";
+import DeleteFaq from "../../../../PageComponent/cms/FAQ/DeleteFaq";
+import ViewFaq from "../../../../PageComponent/cms/FAQ/ViewFaq";
+import FaqTable from "../../../../PageComponent/cms/FAQ/FaqTable";
 import { Toaster } from "react-hot-toast";
 
 export default function FaqsCMS() {
