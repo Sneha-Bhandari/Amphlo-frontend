@@ -78,22 +78,7 @@ export default function ConnectedCountries() {
         >
           <div className="w-full h-full rounded-3xl overflow-hidden p-4">
             {imageUrl ? (
-              <motion.div
-                className="relative w-full h-full"
-                animate={{
-                  rotate: 360
-                }}
-                transition={{
-                  duration: 20,
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
-                style={{
-                  willChange: "transform",
-                  transform: "translateZ(0)",
-                  backfaceVisibility: "hidden"
-                }}
-              >
+              <div className="relative w-full h-full">
                 <Image
                   src={imageUrl}
                   alt={"Map of connected countries"}
@@ -101,7 +86,7 @@ export default function ConnectedCountries() {
                   className="object-contain rounded-3xl"
                   unoptimized
                 />
-              </motion.div>
+              </div>
             ) : (
               <div className="bg-gray-200 w-full h-full flex items-center justify-center rounded-3xl">
                 <p className="text-gray-600">Image Not Found</p>

@@ -11,28 +11,42 @@ export default function FAQ() {
   const [faqs, setFaqs] = useState([]);
   const [loading, setLoading] = useState(true);
   const hoverTimeoutRef = useRef(null);
+  const [faqsection, setFaqSection] = useState(null);
 
   useEffect(() => {
-    const getFaqs = async () => {
+    const fetchAllData = async () => {
       try {
-        const data = await fetchData("faq");
-        console.log("FAQ API Response:", data);
+        setLoading(true);
+        const [faqResponse, topSectionResponse] = await Promise.all([
+          fetchData("faq"),
+          fetchData("top-section/faq")
+        ]);
         
-        if (Array.isArray(data) && data.length > 0) {
-          setFaqs(data);
+        console.log("FAQ API Response:", faqResponse);
+        console.log("Top Section Response:", topSectionResponse);
+        
+        // Set FAQ data
+        if (Array.isArray(faqResponse) && faqResponse.length > 0) {
+          setFaqs(faqResponse);
           setOpenIndex(0);
         } else {
           setFaqs([]);
         }
+        
+        // Since we're fetching directly with path, the response should be the single object
+        // No need for .find() because we're getting the specific item directly
+        setFaqSection(topSectionResponse || null);
+        
       } catch (error) {
-        console.error("Error fetching FAQ data:", error);
+        console.error("Error fetching data:", error);
         setFaqs([]);
+        setFaqSection(null);
       } finally {
         setLoading(false);
       }
     };
 
-    getFaqs();
+    fetchAllData();
   }, []);
 
   const handleMouseEnter = (index) => {
@@ -56,7 +70,8 @@ export default function FAQ() {
     );
   }
 
-  if (!faqs || faqs.length === 0) {
+  // Check if faqsection exists
+  if (!faqsection || faqs.length === 0) {
     return null;
   }
 
@@ -65,11 +80,14 @@ export default function FAQ() {
       
       <div className="text-center mb-10 navtext">
         <h1 className="text-4xl font-bold text-[#04413D]">
-          Frequently Asked Questions
+          {faqsection.title}
         </h1>
-        <p className="text-gray-700 mt-3">
-          Hover over any question to see the answer instantly
-        </p>
+        {faqsection.description && (
+          <div 
+            className="text-gray-700 mt-3"
+            dangerouslySetInnerHTML={{ __html: faqsection.description }}
+          />
+        )}
       </div>
 
       <div className="w-full max-w-2xl space-y-4 navtext">
@@ -132,7 +150,7 @@ export default function FAQ() {
           );
         })}
       </div>
-        <h1 className="mt-8 text-sm font-medium">Still have questions? <a href="/enquiry" className="text-[#04413D]">Contact Us</a> for more information</h1>
+      <h1 className="mt-8 text-sm font-medium">Still have questions? <a href="/enquiry" className="text-[#04413D] hover:underline">Contact Us</a> for more information</h1>
     </div>
   );
 }

@@ -17,7 +17,7 @@ export default function CountriesPage() {
   useEffect(() => {
     const getCountries = async () => {
       try {
-        const res = await fetchData('/countries')
+        const res = await fetchData('/countries/')
 
         const formatted = res?.data?.map((item) => ({
           id: item.id,

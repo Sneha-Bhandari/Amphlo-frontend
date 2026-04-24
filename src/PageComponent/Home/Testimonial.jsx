@@ -14,16 +14,15 @@ const TestimonialCard = ({ review }) => {
   const validRating = Math.min(5, Math.max(0, Number(review.rating) || 0));
 
   return (
-    <div className="relative w-full  sm:w-[60vh] md:w-[50vh] lg:w-[60vh] gap-8  mx-auto sm:mx-2 md:mx-3 lg:mx-4 md:mb-4 md:mt-6 mt-24 group navtext sm:shrink-0  flex md:flex bg-[#04413D]/10 flex-col  ">
-      <div className=" rounded-lg p-3 sm:p-4 pt-17 sm:pt-20 lg:pt-22 shadow-lg border-l-2 border-t-2 border-[#04413D] h-[30vh] sm:h-[30vh] md:h-[35vh] lg:h-[30vh] w-full ">
+    <div className="relative w-full sm:w-[60vh] md:w-[50vh] lg:w-[60vh] gap-8 mx-auto sm:mx-2 md:mx-3 lg:mx-4 md:mb-4 md:mt-6 mt-24 group navtext sm:shrink-0 flex md:flex bg-[#04413D]/10 flex-col">
+      <div className="rounded-lg p-3 sm:p-4 pt-17 sm:pt-20 lg:pt-22 shadow-lg border-l-2 border-t-2 border-[#04413D] h-[30vh] sm:h-[30vh] md:h-[35vh] lg:h-[30vh] w-full">
         <p className="text-gray-800 text-sm sm:text-xs md:text-sm line-clamp-4 italic">
           "{review.description}"
         </p>
-        
       </div>
 
       <div className="absolute -top-6 left-0 sm:-top-8 md:-top-10 flex items-center w-[90%]">
-        <div className="bg-[#04413D] text-white px-3 sm:px-4 py-2 sm:py-3 rounded-tr-[20px] sm:rounded-tr-[30px] shadow-md flex flex-col w-[70vw] sm:w-[40vh] md:w-[40vh] relative ">
+        <div className="bg-[#04413D] text-white px-3 sm:px-4 py-2 sm:py-3 rounded-tr-[20px] sm:rounded-tr-[30px] shadow-md flex flex-col w-[70vw] sm:w-[40vh] md:w-[40vh] relative">
           <h3 className="font-bold text-sm sm:text-xs md:text-base lg:text-lg tracking-wide leading-tight uppercase">
             {review.clientName}
           </h3>
@@ -73,34 +72,44 @@ const TestimonialCard = ({ review }) => {
 export default function Testimonials() {
   const [isPaused, setIsPaused] = useState(false);
   const [testimonialsData, setTestimonialsData] = useState([]);
+  const [testimonialSectionData, setTestimonialSectionData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const marqueeRef = useRef(null);
 
   useEffect(() => {
-    const getTestimonialsData = async () => {
+    const fetchAllData = async () => {
       try {
         setLoading(true);
-        setError(null);
-        const data = await fetchData("testimonial");
-
-        if (Array.isArray(data)) {
-          setTestimonialsData(data);
-        } else if (data && typeof data === "object") {
-          setTestimonialsData([data]);
+                const [testimonialsResponse, topSectionResponse] = await Promise.all([
+          fetchData("testimonial"),
+          fetchData("top-section/testimonials") 
+        ]);
+        
+        console.log("Testimonials Response:", testimonialsResponse);
+        console.log("Top Section Response:", topSectionResponse);
+        
+        if (Array.isArray(testimonialsResponse)) {
+          setTestimonialsData(testimonialsResponse);
+        } else if (testimonialsResponse && typeof testimonialsResponse === "object") {
+          setTestimonialsData([testimonialsResponse]);
         } else {
           setTestimonialsData([]);
         }
+        
+        setTestimonialSectionData(topSectionResponse || null);
+        
       } catch (error) {
-        console.error("Error fetching testimonials data:", error);
+        console.error("Error fetching data:", error);
         setError("Failed to load testimonials. Please try again later.");
         setTestimonialsData([]);
+        setTestimonialSectionData(null);
       } finally {
         setLoading(false);
       }
     };
 
-    getTestimonialsData();
+    fetchAllData();
   }, []);
 
   const transformReviews = () => {
@@ -149,20 +158,26 @@ export default function Testimonials() {
     );
   }
 
+  if (!testimonialSectionData) {
+    return null;
+  }
+
   return (
     <section className="bg-[#04413D]/20 min-h-[60vh] py-12 sm:py-16 md:py-18 overflow-hidden w-full navtext">
       <div className="max-w-7xl mx-auto px-4 mb-8 sm:mb-10 text-center">
-        <h2 className="text-3xl md:text-5xl font-semibold text-[#04413D] mb-2 sm:mb-4">
-          What Our Client Says
-        </h2>
-        <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto px-4">
-          We collaborate with industry leaders to provide the best experiences.
-        </p>
+        <div className="mx-auto flex flex-col mb-2 md:mb-0">
+          <h2 className="text-4xl md:text-5xl font-bold text-[#04413D] mb-4">
+            {testimonialSectionData.title}
+          </h2>
+          <div 
+            className="text-gray-600"
+            dangerouslySetInnerHTML={{ __html: testimonialSectionData.description }} 
+          />
+        </div>
       </div>
 
       {reviews.length > 0 ? (
         <>
-          {/* Mobile Layout - Column (visible on small screens) */}
           <div className="block sm:hidden">
             <div className="flex flex-col items-center justify-center px-4">
               {reviews.map((review, index) => (
@@ -173,7 +188,6 @@ export default function Testimonials() {
             </div>
           </div>
 
-          {/* Desktop Layout - Marquee (hidden on small screens) */}
           <div className="hidden sm:block w-full h-full pt-7">
             <div
               ref={marqueeRef}

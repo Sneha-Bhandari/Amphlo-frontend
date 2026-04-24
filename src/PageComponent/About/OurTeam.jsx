@@ -9,33 +9,45 @@ import Loading from "@/Global/Loading";
 
 export default function OurTeam() {
   const [teamData, setTeamData] = useState([]);
+  const [teamSectionData, setTeamSectionData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const getTeamData = async () => {
+    const fetchAllData = async () => {
       try {
         setLoading(true);
         setError(null);
-        const data = await fetchData("our-team");
         
-        if (Array.isArray(data)) {
-          setTeamData(data);
-        } else if (data && typeof data === "object") {
-          setTeamData([data]);
+        const [teamResponse, topSectionResponse] = await Promise.all([
+          fetchData("our-team"),
+          fetchData("top-section/ourTeam")
+        ]);
+        
+        console.log("Team Response:", teamResponse);
+        console.log("Top Section Response:", topSectionResponse);
+        
+        if (Array.isArray(teamResponse)) {
+          setTeamData(teamResponse);
+        } else if (teamResponse && typeof teamResponse === "object") {
+          setTeamData([teamResponse]);
         } else {
           setTeamData([]);
         }
+        
+        setTeamSectionData(topSectionResponse || null);
+        
       } catch (error) {
         console.error("Error fetching team data:", error);
         setError("Failed to load team members. Please try again later.");
         setTeamData([]);
+        setTeamSectionData(null);
       } finally {
         setLoading(false);
       }
     };
 
-    getTeamData();
+    fetchAllData();
   }, []);
 
   const containerVariants = {
@@ -75,16 +87,23 @@ export default function OurTeam() {
     );
   }
 
+  if (!teamSectionData) {
+    return null;
+  }
+
   return (
     <section className="w-full md:py-16 py-6 bg-[#04413D]/10">
       <div className="max-w-6xl mx-auto px-6 navtext">
         <div className="text-center md:mb-16 mb-6">
           <h2 className="text-4xl md:text-5xl font-bold text-[#04413D] tracking-tight mb-4">
-            Meet Our Team
+            {teamSectionData.title}
           </h2>
-          <p className="text-lg text-gray-600 font-medium">
-            Passionate. Proactive. Expert.
-          </p>
+          {teamSectionData.description && (
+            <div 
+              className="text-lg text-gray-600 font-medium"
+              dangerouslySetInnerHTML={{ __html: teamSectionData.description }}
+            />
+          )}
         </div>
 
         {teamData.length > 0 ? (

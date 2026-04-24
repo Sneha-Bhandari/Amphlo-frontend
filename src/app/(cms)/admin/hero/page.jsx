@@ -19,9 +19,9 @@ export default function HeroSection() {
   const [loading, setLoading] = useState(false);
 
   const fields = [
-    { label: "Title", name: "title", type: "text" },
-    { label: "Subtitle", name: "subtitle", type: "text" },
-    { label: "Image", name: "images", type: "file" },
+    { label: "Title:", name: "title", type: "text" },
+    { label: "Subtitle:", name: "subtitle", type: "text" },
+    { label: "Image:", name: "images", type: "file" },
   ]
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export default function HeroSection() {
     <div className="flex flex-col gap-8 mx-auto w-full rounded-2xl">
       <Toaster position="top-right" />
 
-      <div className="flex flex-col md:items-center">
+      <div className="flex flex-col items-start">
         <div className="text-4xl text-[#04413D] font-bold">
           Hero Section Page
         </div>
