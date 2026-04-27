@@ -20,48 +20,47 @@ export default function ViewPartner({ isOpen, onClose, partner }) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-semibold text-gray-500 uppercase">First Name</label>
-              <p className="text-lg font-medium text-gray-900">{partner.firstName}</p>
+              <p className="text-lg font-medium text-gray-500">{partner.firstName}</p>
             </div>
             <div>
               <label className="text-xs font-semibold text-gray-500 uppercase">Last Name</label>
-              <p className="text-lg font-medium text-gray-900">{partner.lastName}</p>
+              <p className="text-lg font-medium text-gray-500">{partner.lastName}</p>
             </div>
             <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase">Email</label>
-              <p className="text-lg font-medium text-gray-900">{partner.email}</p>
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase">Phone Number</label>
-              <p className="text-lg font-medium text-gray-900">{partner.phoneNumber}</p>
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase">WhatsApp Number</label>
-              <p className="text-lg font-medium text-gray-900">{partner.whatsappNumber || "-"}</p>
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase">Company Name</label>
-              <p className="text-lg font-medium text-gray-900">{partner.companyName}</p>
+              <label className="text-xs font-semibold text-gray-500 uppercase">Personal Email</label>
+              <p className="text-lg font-medium text-gray-500">{partner.email}</p>
             </div>
             <div>
               <label className="text-xs font-semibold text-gray-500 uppercase">Official Email</label>
-              <p className="text-lg font-medium text-gray-900">{partner.officialEmail}</p>
+              <p className="text-lg font-medium text-gray-500">{partner.officialEmail}</p>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-500 uppercase">Phone Number</label>
+              <p className="text-lg font-medium text-gray-500">{partner.phoneNumber}</p>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-500 uppercase">WhatsApp Number</label>
+              <p className="text-lg font-medium text-gray-500">{partner.whatsappNumber || "-"}</p>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-500 uppercase">Company Name</label>
+              <p className="text-lg font-medium text-gray-500">{partner.companyName}</p>
             </div>
             <div>
               <label className="text-xs font-semibold text-gray-500 uppercase">Country</label>
-              <p className="text-lg font-medium text-gray-900">{partner.country}</p>
+              <p className="text-lg font-medium text-gray-500">{partner.country}</p>
             </div>
           </div>
           
           <div>
             <label className="text-xs font-semibold text-gray-500 uppercase">Company Address</label>
             <div className="mt-2 p-4 bg-gray-50 rounded-lg">
-              <p className="text-gray-700 whitespace-pre-wrap">{partner.companyAddress}</p>
+              <p className="text-gray-500 whitespace-pre-wrap">{partner.companyAddress}</p>
             </div>
           </div>
-
           <button
             onClick={onClose}
-            className="w-full mt-4 bg-[#04413D] text-white py-2 rounded-lg hover:bg-[#04413D]/90"
+            className="w-full mt-4 bg-[#04413D] cursor-pointer text-white py-2 rounded-lg hover:bg-[#04413D]/90 transition-colors"
           >
             Close
           </button>

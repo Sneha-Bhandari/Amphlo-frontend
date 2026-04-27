@@ -17,7 +17,6 @@ export default function PartnerWithUsCMS() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCountry, setFilterCountry] = useState("");
   
-  // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
@@ -49,7 +48,6 @@ export default function PartnerWithUsCMS() {
     fetchPartners();
   }, [fetchPartners]);
 
-  // Reset to first page when search/filter changes
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, filterCountry]);
@@ -75,24 +73,23 @@ export default function PartnerWithUsCMS() {
     setIsDeleteModalOpen(true);
   };
 
-  // Get unique countries for filter
   const uniqueCountries = [...new Set(partners.map(p => p.country).filter(Boolean))];
 
-  // Filter partners
   const filteredPartners = partners.filter(partner => {
     const matchesSearch = 
       (partner.firstName?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
       (partner.lastName?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
       (partner.email?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (partner.officialEmail?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
       (partner.companyName?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-      (partner.phoneNumber || "").includes(searchTerm);
+      (partner.phoneNumber || "").includes(searchTerm) ||
+      (partner.whatsappNumber || "").includes(searchTerm);
     
     const matchesCountry = !filterCountry || partner.country === filterCountry;
     
     return matchesSearch && matchesCountry;
   });
 
-  // Pagination logic
   const totalItems = filteredPartners.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -129,12 +126,11 @@ export default function PartnerWithUsCMS() {
             </div>
           </div>
 
-          {/* Search and Filter Section */}
           <div className="mb-6 flex flex-col md:flex-row gap-4">
             <div className="relative flex-1 max-w-md">
               <input
                 type="text"
-                placeholder="Search by name, email, company or phone..."
+                placeholder="Search by name, email, company, phone or WhatsApp..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-4 py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
@@ -174,46 +170,53 @@ export default function PartnerWithUsCMS() {
             Total: {totalItems} partner request(s)
           </div>
 
-          {/* Partners Table */}
           <div className="rounded-lg overflow-hidden border border-gray-200">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">S.N.</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">S.N.</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Full Name</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Personal Email</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Official Email</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">WhatsApp</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {currentItems.length > 0 ? (
                     currentItems.map((partner, index) => (
                       <tr key={partner.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                           {startIndex + index + 1}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           {partner.firstName} {partner.lastName}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                           {partner.email}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {partner.officialEmail}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                           {partner.companyName}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                           {partner.phoneNumber}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {partner.whatsappNumber || "-"}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                           <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
                             {partner.country}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex gap-3">
                             <button
                               onClick={() => handleView(partner)}
@@ -240,7 +243,7 @@ export default function PartnerWithUsCMS() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="7" className="px-6 py-12 text-center text-gray-500">
+                      <td colSpan="9" className="px-6 py-12 text-center text-gray-500">
                         <div className="flex flex-col items-center gap-2">
                           <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -255,7 +258,6 @@ export default function PartnerWithUsCMS() {
             </div>
           </div>
 
-          {/* Pagination Component */}
           {totalItems > 0 && (
             <Pagination
               currentPage={currentPage}
