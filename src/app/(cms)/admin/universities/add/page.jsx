@@ -6,6 +6,7 @@ import * as Yup from "yup";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { fetchData, postData } from "@/lib/frontendApi";
+import { ChevronLeft } from "lucide-react";
 
 /* ---------------- VALIDATION ---------------- */
 const universitySchema = Yup.object().shape({
@@ -87,6 +88,13 @@ export default function AddUniversityPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6 flex justify-center">
       <div className="w-full max-w-3xl">
+      <button
+          onClick={() => router.back()}
+          className="inline-flex items-center gap-2 text-[#04413D] mb-4 font-semibold hover:gap-3 transition-all group bg-white px-4 py-2 rounded-full shadow-sm border border-gray-200 hover:shadow-md"
+        >
+          <ChevronLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+          Back to Universities
+        </button>
 
         {/* HEADER */}
         <div className="mb-6">

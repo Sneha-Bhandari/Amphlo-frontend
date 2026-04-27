@@ -19,7 +19,7 @@ export default function Page() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 p-8">
+    <div className="min-h-screen">
       <div className="max-w-5xl mx-auto">
         <h1 className="text-3xl font-bold text-[#04413D] mb-8">
           Vision & Mission

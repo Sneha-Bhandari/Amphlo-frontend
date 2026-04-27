@@ -27,7 +27,6 @@ export default function AddService({ isOpen, onClose, onSuccess }) {
     try {
       const cleanTitle = values.title.trim().replace(/\s+/g, ' ');
       
-      // Clean the description - remove empty paragraphs
       let cleanDescription = values.description;
       if (cleanDescription === "<p><br></p>") {
         cleanDescription = "";
@@ -205,4 +204,4 @@ export default function AddService({ isOpen, onClose, onSuccess }) {
       </div>
     </div>
   );
-}
+} 

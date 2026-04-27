@@ -26,7 +26,7 @@ export default function EnquiryInfoCms() {
     const fetchEnquiryData = async () => {
       try {
         setInitialLoading(true);
-        const res = await fetchData("contact");
+        const res = await fetchData("contact/");
         console.log("Fetched enquiry data:", res);
         
         // Handle different response formats
@@ -119,14 +119,14 @@ export default function EnquiryInfoCms() {
                 console.log("Update response:", response);
                 toast.success("Enquiry information updated successfully!", { id: toastId });
               } else {
-                response = await postData("contact", payload);
+                response = await postData("contact/", payload);
                 console.log("Create response:", response);
                 toast.success("Enquiry information created successfully!", { id: toastId });
                 resetForm();
               }
               
               // Refresh data after successful operation
-              const refreshedData = await fetchData("contact");
+              const refreshedData = await fetchData("contact/");
               console.log("Refreshed data:", refreshedData);
               
               if (refreshedData) {

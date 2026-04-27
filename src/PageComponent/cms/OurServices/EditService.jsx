@@ -37,7 +37,6 @@ export default function EditService({ isOpen, onClose, onSuccess, service }) {
     const loadingToast = toast.loading("Updating service...");
     
     try {
-      // Clean the description - remove empty paragraphs
       let cleanDescription = values.description;
       if (cleanDescription === "<p><br></p>") {
         cleanDescription = "";

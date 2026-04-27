@@ -95,7 +95,7 @@ export default function EditUniversityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 flex justify-center">
+    <div className="min-h-screen ">
       <div className="w-full max-w-3xl">
         
         {/* HEADER */}
@@ -109,7 +109,7 @@ export default function EditUniversityPage() {
         </div>
 
         {/* CARD */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 space-y-5">
+        <div className="rounded-2xl shadow-lg p-6 space-y-5">
 
           <Formik
             initialValues={initialValues}

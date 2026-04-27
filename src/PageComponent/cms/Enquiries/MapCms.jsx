@@ -20,7 +20,7 @@ export default function MapCms() {
     const fetchMapData = async () => {
       try {
         setInitialLoading(true);
-        const res = await fetchData("map");
+        const res = await fetchData("map/");
         console.log("Fetched map data:", res);
         
         if (res && Array.isArray(res) && res.length > 0) {
@@ -92,12 +92,12 @@ export default function MapCms() {
                 await patchData(`map/${data.id}`, payload);
                 toast.success("Map information updated successfully!", { id: toastId });
               } else {
-                await postData("map", payload);
+                await postData("map/", payload);
                 toast.success("Map information created successfully!", { id: toastId });
               }
               
               // Refresh data after successful operation
-              const refreshedData = await fetchData("map");
+              const refreshedData = await fetchData("map/");
               if (refreshedData && Array.isArray(refreshedData) && refreshedData.length > 0) {
                 setData(refreshedData[0]);
               } else if (refreshedData && typeof refreshedData === 'object') {

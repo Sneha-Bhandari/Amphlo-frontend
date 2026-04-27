@@ -82,21 +82,18 @@ export default function Page() {
             <div className="max-w-6xl mx-auto">
 
                 {/* HEADER */}
-                <div className="flex items-center justify-between mb-8">
-                    <div>
+                <div className="flex items-center justify-end mb-8">
+                   
                         <button
                             onClick={() => router.back()}
-                            className="text-sm text-gray-500 hover:text-[#04413D]"
+                            className="text-sm px-3 py-2 rounded-2xl bg-[#04413D] text-white hover:text-gray-100 hover:bg-[#04413D]/70 cursor-pointer"
                         >
                             ← Back
                         </button>
 
-                        <h1 className="text-2xl font-bold text-[#04413D] mt-2">
-                            {section.name}
-                        </h1>
-                    </div>
+                    
                 </div>
-
+                       
                 {loading ? (
                     <Loading />
                 ) : (

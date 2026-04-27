@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   MdVisibility,
   MdEdit,
@@ -9,178 +9,199 @@ import {
   MdSchool,
 } from "react-icons/md";
 import Pagination from "@/Global/Pagination";
-import toast from "react-hot-toast";
-import { fetchData } from "@/lib/frontendApi";
 
-export default function CountryTable({ onView, onEdit, onDelete }) {
-  const [countries, setCountries] = useState([]);
-  const [loading, setLoading] = useState(true);
+// Helper function to strip HTML tags
+const stripHtmlTags = (html) => {
+  if (!html) return "";
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = html;
+  return tempDiv.textContent || tempDiv.innerText || "";
+};
 
+// Helper function to truncate text
+const truncateText = (text, maxLength = 100) => {
+  if (!text) return "No description available";
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + '...';
+};
+
+export default function CountryTable({ countries, onView, onEdit, onDelete }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-
-  const loadCountries = async () => {
-    setLoading(true);
-    try {
-      const res = await fetchData("countries/");
-      setCountries(res?.data || []);
-    } catch {
-      toast.error("Failed to load countries");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadCountries();
-  }, []);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = countries.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(countries.length / itemsPerPage);
 
-  if (loading)
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleItemsPerPageChange = (newItemsPerPage) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+  };
+
+  if (!countries || countries.length === 0) {
     return (
-      <div className="text-center py-20 text-gray-500">
-        Loading countries...
+      <div className="bg-white rounded-2xl shadow-sm border p-12 text-center">
+        <div className="flex flex-col items-center justify-center gap-3">
+          <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div className="text-[#04413D] text-lg">No countries found</div>
+          <p className="text-[#04413D]/60 text-sm">Start by adding your first country</p>
+        </div>
       </div>
     );
+  }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
-
-      {/* HEADER */}
-      <div className="flex items-center justify-between px-6 py-4 border-b bg-gray-50">
-        <h2 className="text-lg font-semibold text-gray-800">
-          Countries List
-        </h2>
-
-        <div className="text-sm text-gray-500">
-          Total: {countries.length}
-        </div>
-      </div>
-
-      {/* TABLE */}
+    <div className="rounded-lg overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="min-w-full">
-
-          <thead className="bg-gray-100 text-gray-600 text-xs uppercase tracking-wider">
+        <table className="min-w-full divide-y divide-gray-300">
+          <thead className="bg-white/80">
             <tr>
-              <th className="px-5 py-3 text-left">#</th>
-              <th className="px-5 py-3 text-left">Country</th>
-              <th className="px-5 py-3 text-left">Stats</th>
-              <th className="px-5 py-3 text-left">Description</th>
-              <th className="px-5 py-3 text-center">Actions</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">S.N.</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Image</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Country Name</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Category</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Stats</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Description</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-
-          <tbody className="divide-y">
-            {currentItems.map((c, i) => (
-              <tr
-                key={c.id}
-                className="hover:bg-gray-50 transition"
-              >
-
-                {/* INDEX */}
-                <td className="px-5 py-4 text-sm text-gray-500">
-                  {indexOfFirstItem + i + 1}
-                </td>
-
-                {/* COUNTRY */}
-                <td className="px-5 py-4">
-                  <div className="flex items-center gap-3">
-                    {c.imageid?.imageUrl ? (
-                      <img
-                        src={c.imageid.imageUrl}
-                        className="w-10 h-10 rounded-lg object-cover border"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-xs text-gray-400">
-                        No
+          <tbody className="divide-y divide-gray-300 bg-[#04413D]/10">
+            {currentItems.length > 0 ? (
+              currentItems.map((country, index) => {
+                const serialNumber = indexOfFirstItem + index + 1;
+                const imageUrl = country.imageid?.imageUrl || null;
+                const plainDescription = stripHtmlTags(country.description);
+                const truncatedDescription = truncateText(plainDescription, 100);
+                
+                return (
+                  <tr 
+                    key={country.id} 
+                    className="hover:bg-linear-to-r hover:from-[#04413D]/20 hover:to-transparent transition-all duration-500 group"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{serialNumber}</div>
+                    </td>
+                    
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="relative w-12 h-12 rounded-md overflow-hidden bg-linear-to-br from-gray-100 to-gray-200 shadow-sm">
+                        {imageUrl ? (
+                          <img
+                            src={imageUrl}
+                            alt={country.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>';
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                        )}
                       </div>
-                    )}
-
-                    <div>
-                      <p className="font-medium text-gray-800">{c.name}</p>
-                      <p className="text-xs text-gray-400">Country</p>
-                    </div>
+                    </td>
+                    
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-semibold text-gray-900">{country.name}</div>
+                      <div className="text-xs text-gray-500">Country</div>
+                    </td>
+                    
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {country.category ? (
+                        <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                          {country.category}
+                        </span>
+                      ) : (
+                        <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
+                          No Category
+                        </span>
+                      )}
+                    </td>
+                    
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex flex-col gap-2">
+                        <span className="inline-flex items-center gap-2 text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-full w-fit">
+                          <MdLocationOn size={12} />
+                          {country.stateCount || country.states?.length || 0} States
+                        </span>
+                        <span className="inline-flex items-center gap-2 text-xs bg-green-50 text-green-600 px-2 py-1 rounded-full w-fit">
+                          <MdSchool size={12} />
+                          {country.universityCount || 0} Universities
+                        </span>
+                      </div>
+                    </td>
+                    
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-600 max-w-xs">
+                        {truncatedDescription || "No description available"}
+                      </div>
+                    </td>
+                    
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium ">
+                      <div className="flex gap-3 ">
+                        <button
+                          onClick={() => onView(country)}
+                          className="text-green-600 hover:text-green-700 transition-colors duration-500 cursor-pointer transform hover:scale-110"
+                          title="View Details"
+                        >
+                          <MdVisibility size={20} />
+                        </button>
+                        <button
+                          onClick={() => onEdit(country)}
+                          className="text-blue-600 hover:text-blue-700 transition-colors duration-500 cursor-pointer transform hover:scale-110"
+                          title="Edit Country"
+                        >
+                          <MdEdit size={20} />
+                        </button>
+                        <button
+                          onClick={() => onDelete(country)}
+                          className="text-red-600 hover:text-red-700 transition-colors duration-500 cursor-pointer transform hover:scale-110"
+                          title="Delete Country"
+                        >
+                          <MdDelete size={20} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan="7" className="px-6 py-12 text-center">
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div className="text-[#04413D] text-lg">No countries found</div>
+                    <p className="text-[#04413D]/60 text-sm">Start by adding your first country</p>
                   </div>
                 </td>
-
-                {/* STATS */}
-                <td className="px-5 py-4">
-                  <div className="flex flex-col gap-2">
-
-                    <span className="flex items-center gap-2 text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-full w-fit">
-                      <MdLocationOn />
-                      {c.stateCount || 0} States
-                    </span>
-
-                    <span className="flex items-center gap-2 text-xs bg-green-50 text-green-600 px-2 py-1 rounded-full w-fit">
-                      <MdSchool />
-                      {c.universityCount || 0} Universities
-                    </span>
-
-                  </div>
-                </td>
-
-                {/* DESCRIPTION */}
-                <td className="px-5 py-4 text-sm text-gray-600 max-w-xs">
-                  <p className="line-clamp-2">
-                    {c.description || "No description available"}
-                  </p>
-                </td>
-
-                {/* ACTIONS */}
-                <td className="px-5 py-4">
-                  <div className="flex justify-center gap-2">
-
-                    <button
-                      onClick={() => onView(c)}
-                      className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition"
-                    >
-                      <MdVisibility />
-                    </button>
-
-                    <button
-                      onClick={() => onEdit(c)}
-                      className="p-2 rounded-lg bg-yellow-100 hover:bg-yellow-200 text-yellow-700 transition"
-                    >
-                      <MdEdit />
-                    </button>
-
-                    <button
-                      onClick={() => onDelete(c)}
-                      className="p-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-600 transition"
-                    >
-                      <MdDelete />
-                    </button>
-
-                  </div>
-                </td>
-
               </tr>
-            ))}
+            )}
           </tbody>
-
         </table>
       </div>
-
-      {/* PAGINATION */}
-      {countries.length > itemsPerPage && (
-        <div className="p-4 border-t bg-gray-50">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            itemsPerPage={itemsPerPage}
-            onItemsPerPageChange={(v) => {
-              setItemsPerPage(v);
-              setCurrentPage(1);
-            }}
-          />
-        </div>
+      
+      {countries.length > 0 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={handleItemsPerPageChange}
+          showItemsPerPage={true}
+        />
       )}
     </div>
   );

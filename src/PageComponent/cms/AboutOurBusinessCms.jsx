@@ -70,7 +70,7 @@ export default function AboutOurBusiness() {
     <div className="flex flex-col gap-8 mx-auto w-full rounded-2xl">
       <Toaster position="top-right" />
 
-      <div className="flex flex-col md:items-center">
+      <div className="flex flex-col md:items-start items-center">
         <div className="text-4xl text-[#04413D] font-bold">
           About Our Business Section
         </div>
@@ -114,22 +114,9 @@ export default function AboutOurBusiness() {
                 throw new Error("Image is required");
               }
 
-              // Clean the description HTML
-              let cleanDescription = values.description;
-              
-              // Remove any problematic characters
-              if (cleanDescription) {
-                cleanDescription = cleanDescription.replace(/&quot;$/g, '');
-              }
-              
-              // Ensure HTML is properly formatted
-              if (cleanDescription && !cleanDescription.includes('<') && !cleanDescription.includes('>')) {
-                cleanDescription = `<p>${cleanDescription}</p>`;
-              }
-
               const payload = {
                 title: values.title.trim(),
-                description: cleanDescription,
+                description: values.description.trim(),
               };
 
               if (imageId) {
@@ -144,7 +131,6 @@ export default function AboutOurBusiness() {
                   id: toastId,
                 });
                 
-                // Refresh data after update
                 const refreshedData = await fetchData("about-business");
                 if (refreshedData && refreshedData.length > 0) {
                   setData(refreshedData[0]);
@@ -161,7 +147,6 @@ export default function AboutOurBusiness() {
                 resetForm();
                 setPreview(null);
                 
-                // Refresh data after create
                 const refreshedData = await fetchData("about-business");
                 if (refreshedData && refreshedData.length > 0) {
                   setData(refreshedData[0]);
@@ -190,51 +175,72 @@ export default function AboutOurBusiness() {
 
                   {val.type === "file" ? (
                     <>
+                      {/* Hidden file input */}
                       <input
                         type="file"
+                        id="image-upload"
                         accept="image/*"
-                        className="w-full border border-gray-300 rounded-lg p-2"
+                        className="hidden"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
-
                           if (file) {
                             setFieldValue("images", file);
                             setPreview(URL.createObjectURL(file));
-                            toast.success("Image selected");
                           }
                         }}
                       />
 
-                      {(preview || data?.imageid?.imageUrl) && (
-                        <div className="mt-7 relative group border-2 border-dashed border-gray-400 rounded-lg flex flex-col items-center justify-center">
-                          <img
-                            src={preview || data?.imageid?.imageUrl}
-                            alt="Preview"
-                            className="my-5 w-68 h-38 object-contain"
-                          />
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setPreview(data?.imageid?.imageUrl || null);
-                              setFieldValue("images", null);
-                              toast.success("Image removed");
-                            }}
-                            className="absolute top-4 right-4 bg-red-500 text-white rounded-full py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      )}
+                      {/* Clickable image preview area */}
+                      <div 
+                        className="mt-2 border-2 border-dashed border-gray-400 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#04413D] transition-colors duration-200"
+                        onClick={() => document.getElementById('image-upload').click()}
+                      >
+                        {(preview || data?.imageid?.imageUrl) ? (
+                          <div className="relative w-full p-4">
+                            <Image
+                              height={1000}
+                              width={3000}
+                              src={preview || data?.imageid?.imageUrl}
+                              alt="Preview"
+                              unoptimized
+                              className="w-full h-48 object-contain"
+                            />
+                            <p className="text-center text-sm text-gray-500 mt-2">
+                              Click to change image
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="py-12 text-center">
+                            <svg
+                              className="mx-auto h-12 w-12 text-gray-400"
+                              stroke="currentColor"
+                              fill="none"
+                              viewBox="0 0 48 48"
+                              aria-hidden="true"
+                            >
+                              <path
+                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                strokeWidth={2}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                            <p className="mt-2 text-sm text-gray-500">
+                              Click to upload image
+                            </p>
+                            <p className="text-xs text-gray-400">
+                              PNG, JPG, GIF up to 10MB
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </>
                   ) : val.type === "textarea" ? (
                     <JoditEditor
                       value={values.description}
-                      onBlur={(content) => setFieldValue("description", content)}
-                      config={{
-                        height: 300,
-                        placeholder: "Enter description...",
-                      }}
+                      onBlur={(content) =>
+                        setFieldValue("description", content)
+                      }
                     />
                   ) : (
                     <Field
