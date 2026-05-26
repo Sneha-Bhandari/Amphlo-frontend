@@ -74,6 +74,7 @@ export default function OurFeatures() {
       </div>
     );
   }
+  console.log(featuresSectionData,"here")
 
   // Don't render if no section data (title and description from top-section)
   if (!featuresSectionData) {
