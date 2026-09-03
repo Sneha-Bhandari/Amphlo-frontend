@@ -26,8 +26,8 @@ images: {
       },
       {
         protocol: "http",
-        hostname: "192.168.1.75",
-        port: "3009",
+        hostname: "192.168.1.78",
+        port: "3002",
         pathname: "/uploads/**",
       },
       
@@ -49,3 +49,42 @@ images: {
 };
 
 export default nextConfig;
+
+
+
+// /** @type {import('next').NextConfig} */
+
+// const nextConfig = {
+//   reactCompiler: true,
+
+//   images: {
+//     remotePatterns: [
+//       {
+//         protocol: "https",
+//         hostname: "frontbackend.amphlo.com",
+//         pathname: "/uploads/**",
+//       },
+//       {
+//         protocol: "http",
+//         hostname: "192.168.1.78",
+//         port: "3002",
+//         pathname: "/uploads/**",
+//       },
+//     ],
+//   },
+
+//   async rewrites() {
+//     return [
+//       {
+//         source: "/api/:path*",
+//         destination: "http://192.168.1.78:3002/:path*",
+//       },
+//       {
+//         source: "/auth/:path*",
+//         destination: "http://192.168.1.78:3002/:path*",
+//       },
+//     ];
+//   },
+// };
+
+// export default nextConfig;

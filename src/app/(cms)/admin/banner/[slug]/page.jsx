@@ -16,6 +16,7 @@ import {
 
 const sectionsMap = {
   aboutus: { name: "About Us", apiPath: "aboutus" },
+  blogs: { name: "Our Blogs", apiPath: "blogs" },
   partnerWithUs: { name: "Partner With Us", apiPath: "partnerWithUs" },
   bookAnAppointment: { name: "Book Appointment", apiPath: "bookAnAppointment" },
 };

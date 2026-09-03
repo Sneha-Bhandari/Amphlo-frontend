@@ -1,0 +1,348 @@
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import toast, { Toaster } from 'react-hot-toast';
+import { MdClose } from "react-icons/md";
+import { patchData, uploadImageData } from "@/lib/frontendApi";
+import JoditEditor from "jodit-react";
+
+const BlogSchema = Yup.object().shape({
+  title: Yup.string().min(3).max(200).required("Title is required"),
+  category: Yup.string().min(2).max(100).required("Category is required"),
+  postedby: Yup.string().min(2).max(100).required("Author name is required"),
+  description: Yup.string().min(10).required("Description is required"),
+  date: Yup.string().required("Date is required"),
+  time: Yup.string(),
+});
+
+export default function EditBlog({ isOpen, onClose, onSuccess, blog }) {
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [preview, setPreview] = useState(null);
+  const [data, setData] = useState(null);
+  const editor = useRef(null);
+
+  useEffect(() => {
+    if (blog) {
+      setData(blog);
+      setPreview(null);
+    }
+  }, [blog]);
+
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+    if (!data?.id) {
+      toast.error("Blog ID is missing");
+      return;
+    }
+
+    const loadingToast = toast.loading("Updating blog...");
+    
+    try {
+      let imageId = data?.imageid?.id || data?.imageid || null;
+
+      if (values.imageFile) {
+        toast.loading("Uploading image...", { id: loadingToast });
+        
+        const uploadRes = await uploadImageData(values.imageFile);
+        imageId = uploadRes?.id;
+        
+        if (!imageId) {
+          throw new Error("Failed to upload image");
+        }
+        toast.success("Image uploaded successfully!", { id: loadingToast });
+      } else if (values.imageRemoved) {
+        imageId = null;
+      }
+
+      const payload = {
+        title: values.title.trim(),
+        category: values.category.trim(),
+        postedby: values.postedby.trim(),
+        description: values.description,
+        date: values.date,
+        time: values.time || "",
+        imageid: imageId,
+      };
+      
+      await patchData(`blogsection/${data.id}`, payload);
+      
+      toast.success("Blog updated successfully!", { id: loadingToast });
+      
+      resetForm();
+      setPreview(null);
+      if (onSuccess) await onSuccess();
+      onClose();
+    } catch (error) {
+      console.error("Error updating blog:", error);
+      toast.error(error.message || "Failed to update blog", {
+        id: loadingToast,
+        duration: 4000,
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (!isOpen || !data) return null;
+
+  const config = {
+    readonly: false,
+    height: 300,
+    placeholder: "Write your blog content here...",
+    toolbarButtonSize: "medium",
+    uploader: {
+      insertImageAsBase64URI: true,
+    },
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <Toaster 
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: '#363636',
+              color: '#fff',
+            },
+            success: {
+              duration: 3000,
+              iconTheme: {
+                primary: '#10B981',
+                secondary: '#fff',
+              },
+            },
+            error: {
+              duration: 4000,
+              iconTheme: {
+                primary: '#EF4444',
+                secondary: '#fff',
+              },
+            },
+          }}
+        />
+        
+        <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10">
+          <div>
+            <h2 className="text-2xl font-bold text-[#04413D]">Edit Blog</h2>
+            <p className="text-gray-600 text-sm mt-1">Edit blog post</p>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <MdClose size={24} />
+          </button>
+        </div>
+
+        <div className="p-6">
+          <Formik
+            enableReinitialize
+            initialValues={{
+              title: data.title || "",
+              category: data.category || "",
+              postedby: data.postedby || "",
+              description: data.description || "",
+              date: data.date || new Date().toISOString().split('T')[0],
+              time: data.time || "",
+              imageFile: null,
+              imageRemoved: false,
+            }}
+            validationSchema={BlogSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ values, setFieldValue, isSubmitting, errors, touched }) => (
+              <Form className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Featured Image
+                  </label>
+                  
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/jpg,image/webp,image/gif"
+                    className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        if (file.size > 5 * 1024 * 1024) {
+                          toast.error("Image size should be less than 5MB");
+                          e.target.value = '';
+                          return;
+                        }
+                        
+                        const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/gif'];
+                        if (!validTypes.includes(file.type)) {
+                          toast.error("Please upload a valid image (JPEG, PNG, WEBP, GIF)");
+                          e.target.value = '';
+                          return;
+                        }
+                        
+                        setFieldValue("imageFile", file);
+                        setFieldValue("imageRemoved", false);
+                        if (preview) URL.revokeObjectURL(preview);
+                        setPreview(URL.createObjectURL(file));
+                        toast.success("Image selected successfully!");
+                      } else {
+                        setFieldValue("imageFile", null);
+                        if (preview) {
+                          URL.revokeObjectURL(preview);
+                          setPreview(null);
+                        }
+                      }
+                    }}
+                  />
+
+                  {(preview || (data?.imageid?.imageUrl && !values.imageRemoved)) && (
+                    <div className="mt-4 relative group border-2 border-dashed hover:border-gray-900 cursor-pointer border-gray-400 rounded-lg items-center justify-center mx-auto flex flex-col">
+                      <img
+                        src={preview || data?.imageid?.imageUrl}
+                        alt="Preview"
+                        className="my-5 w-32 h-32 rounded-lg object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (preview) URL.revokeObjectURL(preview);
+                          setPreview(null);
+                          setFieldValue("imageFile", null);
+                          setFieldValue("imageRemoved", true);
+                          toast.success("Image removed");
+                        }}
+                        className="absolute top-4 right-4 bg-red-500 text-white cursor-pointer rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Title *
+                    </label>
+                    <Field
+                      name="title"
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all ${
+                        errors.title && touched.title ? "border-red-500" : "border-gray-300"
+                      }`}
+                      placeholder="Enter blog title"
+                    />
+                    <ErrorMessage name="title" component="div" className="text-red-500 text-sm mt-1" />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Category *
+                    </label>
+                    <Field
+                      name="category"
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all ${
+                        errors.category && touched.category ? "border-red-500" : "border-gray-300"
+                      }`}
+                      placeholder="Enter category"
+                    />
+                    <ErrorMessage name="category" component="div" className="text-red-500 text-sm mt-1" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Author Name *
+                    </label>
+                    <Field
+                      name="postedby"
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all ${
+                        errors.postedby && touched.postedby ? "border-red-500" : "border-gray-300"
+                      }`}
+                      placeholder="Enter author name"
+                    />
+                    <ErrorMessage name="postedby" component="div" className="text-red-500 text-sm mt-1" />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Date *
+                      </label>
+                      <Field
+                        name="date"
+                        type="date"
+                        className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all ${
+                          errors.date && touched.date ? "border-red-500" : "border-gray-300"
+                        }`}
+                      />
+                      <ErrorMessage name="date" component="div" className="text-red-500 text-sm mt-1" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Time
+                      </label>
+                      <Field
+                        name="time"
+                        type="time"
+                        className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all ${
+                          errors.time && touched.time ? "border-red-500" : "border-gray-300"
+                        }`}
+                      />
+                      <ErrorMessage name="time" component="div" className="text-red-500 text-sm mt-1" />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Description *
+                  </label>
+                  <JoditEditor
+                    ref={editor}
+                    value={values.description}
+                    config={config}
+                    tabIndex={1}
+                    onBlur={(newContent) => setFieldValue("description", newContent)}
+                    onChange={(newContent) => {}}
+                  />
+                  <ErrorMessage name="description" component="div" className="text-red-500 text-sm mt-1" />
+                </div>
+
+                <div className="flex gap-3 pt-4 sticky bottom-0 bg-white py-4 border-t">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || uploadingImage}
+                    className={`flex-1 py-2 rounded-lg font-semibold transition-all transform hover:scale-105 active:scale-95 shadow-md cursor-pointer ${
+                      isSubmitting || uploadingImage
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-linear-to-r from-[#FDC653] to-yellow-500 hover:from-yellow-600 hover:to-yellow-700 text-white"
+                    }`}
+                  >
+                    {isSubmitting || uploadingImage ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        {uploadingImage ? "Uploading Image..." : "Updating..."}
+                      </span>
+                    ) : (
+                      "Update Blog"
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </Form>
+            )}
+          </Formik>
+        </div>
+      </div>
+    </div>
+  );
+}

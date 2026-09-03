@@ -19,6 +19,7 @@ const navitem = [
     { name: "Home", path: "/" },
     { name: "About Us", path: "/about" },
     { name: "Countries", path: "/countries" },
+    { name: "Blogs", path: "/blog" },
     { name: "Partner With Us", path: "/partnerwithus" },
     { name: "Book an Appointment", path: "/enquiry" },
 ]

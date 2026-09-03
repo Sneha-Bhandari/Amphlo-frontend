@@ -1,11 +1,12 @@
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://frontbackend.amphlo.com";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export const fetchData = async (endpoint) => {
   const res = await fetch(`${API_URL}/${endpoint.replace(/^\//, "")}`, {
     method: "GET",
     credentials: "include",
   });
+  console.log(res,"boom")
 
   return handleResponse(res);
 };

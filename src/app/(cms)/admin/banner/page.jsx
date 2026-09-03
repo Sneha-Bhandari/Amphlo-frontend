@@ -14,6 +14,12 @@ export default function Page() {
       icon: Image,
     },
     {
+      name: "Our Blogs",
+      slug: "blogs",
+      description: "Manage banner for Blog page",
+      icon: Image,
+    },
+    {
       name: "Partner With Us",
       slug: "partnerWithUs",
       description: "Manage partner section banners",

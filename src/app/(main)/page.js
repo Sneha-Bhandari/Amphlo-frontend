@@ -1,3 +1,4 @@
+import BlogSection from "@/PageComponent/Home/blogSection";
 import ConnectedCountries from "@/PageComponent/Home/ConnectedCountries";
 import CrmContent from "@/PageComponent/Home/CrmContent";
 import FAQ from "@/PageComponent/Home/FAQ";
@@ -18,8 +19,8 @@ export default function Home() {
       <Testimonials/>
       <ConnectedCountries/>
       <OurPartner/>
-
       <FAQ/>
+      <BlogSection/>
       <GetInTouch/>
 
     </div>

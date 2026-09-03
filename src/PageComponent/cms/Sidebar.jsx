@@ -140,6 +140,12 @@ export default function Sidebar({ children }) {
       color: "text-blue-500",
     },
     {
+      name: "Our Blogs",
+      path: "/admin/blogs",
+      icon: Users,
+      color: "text-purple-500",
+    },
+    {
       name: "Countries",
       path: "/admin/countries",
       icon: Globe,
